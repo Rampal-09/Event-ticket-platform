@@ -104,46 +104,63 @@ const PublicLayout = ({ children }) => {
             </main>
 
             {/* ====== FOOTER ====== */}
-            <footer className="bg-gray-900 text-gray-400 mt-auto">
+            <div className="border-t border-gray-200" />
+            <footer style={{ background: '#F8F9FC' }} className="text-gray-500 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-                        <div className="md:col-span-1">
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="w-7 h-7 rounded-md bg-indigo-600 flex items-center justify-center">
-                                    <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 mb-12">
+
+                        {/* Brand column */}
+                        <div className="col-span-2 lg:col-span-1">
+                            <div className="flex items-center gap-2.5 mb-4">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-sm shadow-indigo-200">
+                                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a1 1 0 01-1 1H3a1 1 0 01-1-1V6zm0 5a1 1 0 011-1h14a1 1 0 011 1v3a2 2 0 01-2 2H4a2 2 0 01-2-2v-3z" />
                                     </svg>
                                 </div>
-                                <span className="text-white font-bold text-lg">EventPass</span>
+                                <span className="text-gray-900 font-extrabold text-lg tracking-tight">
+                                    Event<span className="text-indigo-600">Pass</span>
+                                </span>
                             </div>
-                            <p className="text-sm leading-relaxed">Discover and book tickets to the best events near you — all in one place.</p>
+                            <p className="text-sm leading-relaxed text-gray-500 max-w-[220px]">
+                                Discover and book tickets to the best events near you — all in one place.
+                            </p>
                         </div>
+
+                        {/* Explore */}
                         <div>
-                            <p className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Explore</p>
-                            <ul className="space-y-2.5 text-sm">
-                                <li><a href="/" className="hover:text-white transition-colors">Home</a></li>
-                                <li><a href="/events" className="hover:text-white transition-colors">Browse Events</a></li>
+                            <p className="text-xs font-black uppercase tracking-widest text-indigo-600 mb-5">Explore</p>
+                            <ul className="space-y-3 text-sm">
+                                <li><a href="/" className="text-gray-600 hover:text-indigo-600 transition-colors">Home</a></li>
+                                <li><a href="/events" className="text-gray-600 hover:text-indigo-600 transition-colors">Browse Events</a></li>
                             </ul>
                         </div>
+
+                        {/* Organizers */}
                         <div>
-                            <p className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Organizers</p>
-                            <ul className="space-y-2.5 text-sm">
-                                <li><a href="/register" className="hover:text-white transition-colors">Get Started</a></li>
-                                <li><a href="/login" className="hover:text-white transition-colors">Sign In</a></li>
+                            <p className="text-xs font-black uppercase tracking-widest text-indigo-600 mb-5">Organizers</p>
+                            <ul className="space-y-3 text-sm">
+                                <li><a href="/register" className="text-gray-600 hover:text-indigo-600 transition-colors">Get Started</a></li>
+                                <li><a href="/login" className="text-gray-600 hover:text-indigo-600 transition-colors">Sign In</a></li>
                             </ul>
                         </div>
+
+                        {/* Support */}
                         <div>
-                            <p className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Support</p>
-                            <ul className="space-y-2.5 text-sm">
-                                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                            <p className="text-xs font-black uppercase tracking-widest text-indigo-600 mb-5">Support</p>
+                            <ul className="space-y-3 text-sm">
+                                <li><a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">Help Center</a></li>
+                                <li><a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">Privacy Policy</a></li>
+                                <li><a href="#" className="text-gray-600 hover:text-indigo-600 transition-colors">Terms of Service</a></li>
                             </ul>
                         </div>
                     </div>
-                    <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <p className="text-sm">&copy; {new Date().getFullYear()} EventPass. All rights reserved.</p>
-                        <p className="text-xs">Built for event lovers everywhere.</p>
+
+                    {/* Bottom bar */}
+                    <div className="border-t border-gray-200 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <p className="text-xs text-gray-400 font-medium">
+                            &copy; {new Date().getFullYear()} EventPass. All rights reserved.
+                        </p>
+                        <p className="text-xs text-gray-400">Built for event lovers everywhere.</p>
                     </div>
                 </div>
             </footer>

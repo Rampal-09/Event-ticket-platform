@@ -42,7 +42,7 @@ const AppRouter = () => {
                 </Route>
 
                 {/* Protected Scanner Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['staff']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['organizer', 'staff']} />}>
                     <Route path={ROUTES.SCANNER} element={<QRScanner />} />
                 </Route>
 

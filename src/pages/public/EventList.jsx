@@ -3,14 +3,20 @@ import PublicLayout from '../../layouts/PublicLayout';
 import EventCard from '../../components/events/EventCard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
+import imgMusic from '../../assets/images/event-music.png';
+import imgTech from '../../assets/images/event-tech.png';
+import imgFood from '../../assets/images/event-food.png';
+import imgArt from '../../assets/images/event-art.png';
+import imgJazz from '../../assets/images/event-jazz.png';
+import imgStartup from '../../assets/images/event-startup.png';
 
 const MOCK_EVENTS = [
-    { id: 1, title: "Summer Music Festival 2026", description: "Get ready for the biggest music event of the summer! Featuring top artists from around the globe across three stages.", location: "Central Park, NY", event_date: "2026-07-15", ticket_price: 120, category: "Music" },
-    { id: 2, title: "Tech Innovators Conference", description: "Explore the future of AI, robotics, and biotechnology with industry leaders and visionaries.", location: "San Francisco, CA", event_date: "2026-09-22", ticket_price: 250, category: "Tech" },
-    { id: 3, title: "Culinary Arts Expo", description: "A taste adventure featuring world-class chefs, wine tasting, and interactive cooking workshops.", location: "Miami, FL", event_date: "2026-05-30", ticket_price: 75, category: "Food" },
-    { id: 4, title: "Street Art Workshop", description: "Learn the basics of graffiti and mural techniques from renowned urban artists in an open-air studio.", location: "Brooklyn, NY", event_date: "2026-06-10", ticket_price: 45, category: "Art" },
-    { id: 5, title: "Jazz under the Stars", description: "An enchanting evening of smooth jazz performed under the open sky. Bring a blanket and a friend.", location: "New Orleans, LA", event_date: "2026-10-05", ticket_price: 60, category: "Music" },
-    { id: 6, title: "Startup Networking Mixer", description: "Meet founders, investors, and future co-founders at the most vibrant startup mixer in Austin.", location: "Austin, TX", event_date: "2026-08-12", ticket_price: 30, category: "Tech" },
+    { id: 1, title: "Summer Music Festival 2026", description: "Get ready for the biggest music event of the summer! Featuring top artists from around the globe across three stages.", location: "Central Park, NY", event_date: "2026-07-15", ticket_price: 120, category: "Music", image: imgMusic },
+    { id: 2, title: "Tech Innovators Conference", description: "Explore the future of AI, robotics, and biotechnology with industry leaders and visionaries.", location: "San Francisco, CA", event_date: "2026-09-22", ticket_price: 250, category: "Tech", image: imgTech },
+    { id: 3, title: "Culinary Arts Expo", description: "A taste adventure featuring world-class chefs, wine tasting, and interactive cooking workshops.", location: "Miami, FL", event_date: "2026-05-30", ticket_price: 75, category: "Food", image: imgFood },
+    { id: 4, title: "Street Art Workshop", description: "Learn the basics of graffiti and mural techniques from renowned urban artists in an open-air studio.", location: "Brooklyn, NY", event_date: "2026-06-10", ticket_price: 45, category: "Art", image: imgArt },
+    { id: 5, title: "Jazz under the Stars", description: "An enchanting evening of smooth jazz performed under the open sky. Bring a blanket and a friend.", location: "New Orleans, LA", event_date: "2026-10-05", ticket_price: 60, category: "Music", image: imgJazz },
+    { id: 6, title: "Startup Networking Mixer", description: "Meet founders, investors, and future co-founders at the most vibrant startup mixer in Austin.", location: "Austin, TX", event_date: "2026-08-12", ticket_price: 30, category: "Tech", image: imgStartup },
 ];
 
 const CATEGORIES = ['All', 'Music', 'Tech', 'Food', 'Art'];
@@ -64,21 +70,23 @@ const EventList = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                {/* Category Tabs */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
-                    {CATEGORIES.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`flex-shrink-0 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${activeCategory === cat
+                {/* Category Tabs & Results Count */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
+                        {CATEGORIES.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`flex-shrink-0 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${activeCategory === cat
                                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
                                     : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
-                                }`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                    <div className="flex-shrink-0 ml-auto text-sm text-gray-400 font-medium whitespace-nowrap">
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="text-sm text-gray-400 font-medium whitespace-nowrap px-1">
                         {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
                     </div>
                 </div>

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import PublicLayout from '../../layouts/PublicLayout';
 import Button from '../../components/ui/Button';
 import EventCard from '../../components/events/EventCard';
+import heroBg from '../../assets/images/hero-bg.png';
+import imgMusic from '../../assets/images/event-music.png';
+import imgTech from '../../assets/images/event-tech.png';
+import imgFood from '../../assets/images/event-food.png';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
 
@@ -14,6 +18,7 @@ const MOCK_FEATURED_EVENTS = [
         event_date: "2026-07-15T18:00:00",
         ticket_price: 120,
         total_tickets: 5000,
+        image: imgMusic,
     },
     {
         id: 2,
@@ -23,6 +28,7 @@ const MOCK_FEATURED_EVENTS = [
         event_date: "2026-09-22T09:00:00",
         ticket_price: 250,
         total_tickets: 1200,
+        image: imgTech,
     },
     {
         id: 3,
@@ -32,6 +38,7 @@ const MOCK_FEATURED_EVENTS = [
         event_date: "2026-05-30T10:00:00",
         ticket_price: 75,
         total_tickets: 800,
+        image: imgFood,
     },
 ];
 
@@ -91,36 +98,47 @@ const Home = () => {
     return (
         <PublicLayout>
             {/* ========== HERO ========== */}
-            <section className="relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #EEF2FF 0%, #E0E7FF 60%, #F5F3FF 100%)' }}>
-                {/* Background deco */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-indigo-200/40 blur-3xl" />
-                    <div className="absolute -bottom-24 -left-16 w-80 h-80 rounded-full bg-violet-200/40 blur-3xl" />
-                </div>
-
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+            <section
+                className="relative overflow-hidden"
+                style={{
+                    minHeight: '52vh',
+                    backgroundImage: `url(${heroBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                }}
+            >
+                {/* Dark overlay gradient for readability */}
+                <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                        background:
+                            'linear-gradient(to bottom, rgba(5,5,20,0.62) 0%, rgba(10,8,35,0.72) 60%, rgba(15,10,45,0.85) 100%)',
+                    }}
+                />
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
                     <div className="max-w-4xl text-center mx-auto space-y-8 animate-fade-in-up">
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2 bg-white border border-indigo-100 text-indigo-700 text-xs font-bold px-4 py-2 rounded-full shadow-sm">
-                            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+                        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm text-white text-xs font-bold px-4 py-2 rounded-full shadow-sm">
+                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
                             2,400+ events live right now
                         </div>
 
-                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 leading-[1.05] tracking-tight">
+                        <h1 className="text-[32px] sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight drop-shadow-xl">
                             Discover events<br />
-                            <span style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            <span style={{ background: 'linear-gradient(135deg, #818CF8, #C084FC)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                                 you'll love.
                             </span>
                         </h1>
 
-                        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed drop-shadow">
                             From concerts and conferences to food festivals and workshops — find your next unforgettable experience and book tickets in seconds.
                         </p>
 
                         {/* Search Bar */}
                         <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-                            <div className="flex items-center bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-2 gap-2">
-                                <div className="flex-1 flex items-center gap-3 px-3">
+                            <div className="flex flex-col sm:flex-row bg-white rounded-3xl sm:rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-2 gap-2">
+                                <div className="flex-1 flex items-center gap-3 px-3 py-1 sm:py-0">
                                     <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
@@ -132,8 +150,8 @@ const Home = () => {
                                         className="flex-1 py-3 text-gray-800 placeholder:text-gray-400 outline-none text-base font-medium bg-transparent"
                                     />
                                 </div>
-                                <Button type="submit" size="lg" variant="primary" className="rounded-xl flex-shrink-0">
-                                    Search
+                                <Button type="submit" size="lg" variant="primary" className="rounded-2xl sm:rounded-xl flex-shrink-0">
+                                    Search Events
                                 </Button>
                             </div>
                         </form>
@@ -173,7 +191,7 @@ const Home = () => {
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
                         <div>
                             <p className="text-indigo-600 text-sm font-bold uppercase tracking-widest mb-2">Don't miss out</p>
-                            <h2 className="text-4xl font-black text-gray-900 tracking-tight">Upcoming Events</h2>
+                            <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Upcoming Events</h1>
                             <p className="text-gray-500 mt-2">Hand-picked experiences happening near you</p>
                         </div>
                         <Button variant="outline" size="md" onClick={() => navigate(ROUTES.EVENT_LIST)}>
@@ -204,7 +222,7 @@ const Home = () => {
                                 <div className={`w-14 h-14 ${f.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                                     {f.icon}
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-3">{f.title}</h3>
+                                <h2 className="text-xl sm:text-2xl font-black leading-tight">{f.title}</h2>
                                 <p className="text-gray-500 leading-relaxed">{f.desc}</p>
                             </div>
                         ))}

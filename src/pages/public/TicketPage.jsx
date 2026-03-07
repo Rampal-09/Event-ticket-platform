@@ -34,7 +34,7 @@ const TicketPage = () => {
                     </div>
 
                     <div>
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Booking Confirmed!</h1>
+                        <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Booking Confirmed!</h1>
                         <p className="text-gray-500 mt-2 max-w-sm mx-auto text-lg">
                             Your ticket is ready. Show the QR code at the gate for entry.
                         </p>

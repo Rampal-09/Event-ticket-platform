@@ -1,12 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 
+const EVENTS_MOCK = [
+    { id: 1, title: 'Summer Music Festival 2026' },
+    { id: 2, title: 'Tech Innovators Conference' },
+    { id: 3, title: 'Jazz under the Stars' },
+    { id: 4, title: 'Startup Networking Mixer' },
+    { id: 5, title: 'Culinary Arts Expo' },
+];
+
 const QRScanner = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const eventId = searchParams.get('id');
+    const [eventData, setEventData] = useState(EVENTS_MOCK[0]);
+
+    useEffect(() => {
+        if (eventId) {
+            const found = EVENTS_MOCK.find(e => e.id === parseInt(eventId));
+            if (found) setEventData(found);
+        }
+    }, [eventId]);
+
     const [isScanning, setIsScanning] = useState(false);
     const [scanResult, setScanResult] = useState(null);
     const [showResult, setShowResult] = useState(false);
-    const [scanCount, setScanCount] = useState({ valid: 7, invalid: 1 });
+    const [scanCount, setScanCount] = useState({ valid: 0, invalid: 0 });
+    const [showShareToast, setShowShareToast] = useState(false);
 
     const handleStartScan = () => {
         setIsScanning(true);
@@ -18,13 +40,19 @@ const QRScanner = () => {
                 isValid,
                 isAlreadyUsed,
                 ticketId: `TCK-${Math.floor(100000 + Math.random() * 900000)}`,
-                event: 'Summer Music Festival 2026',
+                event: eventData.title,
                 buyer: 'john.doe@example.com',
                 seat: 'General Admission',
             });
             setScanCount(c => isValid ? { ...c, valid: c.valid + 1 } : { ...c, invalid: c.invalid + 1 });
             setShowResult(true);
         }, 2200);
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(window.location.href);
+        setShowShareToast(true);
+        setTimeout(() => setShowShareToast(false), 2000);
     };
 
     const handleClose = () => {
@@ -36,12 +64,15 @@ const QRScanner = () => {
         <div className="min-h-screen flex flex-col" style={{ background: '#0A0A0F' }}>
             {/* Header */}
             <header className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-                <a href="/organizer" className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors text-sm font-medium">
+                <button
+                    onClick={() => navigate('/organizer/my-events')}
+                    className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors text-sm font-medium"
+                >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Back to Portal
-                </a>
+                </button>
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                     <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Gate Scanner</span>
@@ -63,11 +94,11 @@ const QRScanner = () => {
             <main className="flex-1 flex flex-col items-center justify-center p-6 gap-8">
                 <div className="text-center space-y-2">
                     <h1 className="text-2xl font-black text-white tracking-tight">Ticket Validator</h1>
-                    <p className="text-gray-500 text-sm">Summer Music Festival 2026 — Gate A</p>
+                    <p className="text-gray-500 text-sm">{eventData.title} — Gate A</p>
                 </div>
 
                 {/* Scanner Viewport */}
-                <div className="relative w-72 h-72 sm:w-80 sm:h-80">
+                <div className="relative w-64 h-64 sm:w-80 sm:h-80">
                     {/* Camera area */}
                     <div className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-900 border border-white/10">
                         {isScanning ? (
@@ -83,7 +114,6 @@ const QRScanner = () => {
                                             ))}
                                         </svg>
                                     </div>
-                                    {/* Scan beam */}
                                     <div
                                         className="absolute left-0 right-0 h-0.5 rounded-full animate-scan-beam"
                                         style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.8), transparent)', boxShadow: '0 0 12px 2px rgba(99,102,241,0.6)' }}
@@ -111,78 +141,78 @@ const QRScanner = () => {
                 </div>
 
                 {/* CTA Button */}
-                <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                    <button
+                <div className="flex flex-col items-center gap-3 w-64 sm:w-80">
+                    <Button
+                        variant="primary"
+                        fullWidth
+                        size="lg"
+                        isLoading={isScanning}
                         onClick={handleStartScan}
-                        disabled={isScanning}
-                        className={`w-full py-5 rounded-2xl text-lg font-black uppercase tracking-wider transition-all duration-300 ${isScanning
-                                ? 'bg-indigo-900/50 text-indigo-400 cursor-not-allowed'
-                                : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/50 hover:shadow-indigo-900/80 active:scale-95'
-                            }`}
+                        className="bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
                     >
-                        {isScanning ? (
-                            <span className="flex items-center justify-center gap-3">
-                                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                </svg>
-                                Scanning…
-                            </span>
-                        ) : 'Scan QR Code'}
-                    </button>
+                        {isScanning ? 'Initializing Camera...' : 'Scan QR Code'}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        fullWidth
+                        onClick={handleCopyLink}
+                        className="bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 hover:border-indigo-500/30 transition-all duration-300 backdrop-blur-sm"
+                        leftIcon={
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                        }
+                    >
+                        Share Scanner Link
+                    </Button>
                     <p className="text-xs text-gray-600 font-medium">Hold ticket QR code within the camera frame</p>
                 </div>
+
+                {/* Share Toast */}
+                {showShareToast && (
+                    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm animate-fade-in-up">
+                        Link copied to clipboard! 🚀
+                    </div>
+                )}
             </main>
 
             {/* Result Modal */}
             <Modal isOpen={showResult} onClose={handleClose} title="Scan Result" size="sm">
                 {scanResult && (
                     <div className="flex flex-col items-center gap-6 py-2">
-                        {/* Result Icon */}
-                        <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl ${scanResult.isValid ? 'bg-emerald-100' : 'bg-red-100'
-                            }`}>
-                            {scanResult.isValid ? '✅' : '❌'}
-                        </div>
-
-                        {/* Status Text */}
-                        <div className="text-center">
-                            <p className={`text-2xl font-black ${scanResult.isValid ? 'text-emerald-600' : 'text-red-600'}`}>
-                                {scanResult.isValid ? 'Valid Ticket' : scanResult.isAlreadyUsed ? 'Already Used' : 'Invalid Ticket'}
-                            </p>
-                            <p className="text-gray-500 text-sm mt-1">{scanResult.event}</p>
-                        </div>
-
-                        {/* Ticket Info */}
-                        <div className="w-full bg-gray-50 rounded-2xl p-4 space-y-3">
-                            {[
-                                { label: 'Ticket ID', value: scanResult.ticketId },
-                                { label: 'Attendee', value: scanResult.buyer },
-                                { label: 'Ticket Type', value: scanResult.seat },
-                            ].map(row => (
-                                <div key={row.label} className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">{row.label}</span>
-                                    <span className="font-semibold text-gray-800 truncate max-w-[180px] text-right">{row.value}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="w-full space-y-3">
-                            {scanResult.isValid && (
-                                <button
-                                    onClick={handleClose}
-                                    className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold text-lg hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-200"
-                                >
-                                    ✓ Mark Entry
-                                </button>
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center ${scanResult.isValid ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                            {scanResult.isValid ? (
+                                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             )}
-                            <button
-                                onClick={handleClose}
-                                className="w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold text-sm hover:bg-gray-200 transition-colors"
-                            >
-                                Scan Next Ticket
-                            </button>
                         </div>
+
+                        <div className="text-center space-y-1">
+                            <h2 className="text-xl font-black text-gray-900">
+                                {scanResult.isValid ? 'Verified Entry' : scanResult.isAlreadyUsed ? 'Ticket Already Used' : 'Invalid Ticket'}
+                            </h2>
+                            <p className="text-gray-500 text-sm">{scanResult.ticketId}</p>
+                        </div>
+
+                        <div className="w-full bg-gray-50 rounded-2xl p-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Buyer</span>
+                                <span className="text-xs font-bold text-gray-900">{scanResult.buyer}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Seat</span>
+                                <span className="text-xs font-bold text-gray-900">{scanResult.seat}</span>
+                            </div>
+                        </div>
+
+                        <Button variant={scanResult.isValid ? 'success' : 'danger'} fullWidth onClick={handleClose}>
+                            {scanResult.isValid ? 'Admit Person' : 'Close'}
+                        </Button>
                     </div>
                 )}
             </Modal>
