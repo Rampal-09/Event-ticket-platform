@@ -1,105 +1,116 @@
 import React from 'react';
 
+/**
+ * TicketCard - A stunning visual representation of a digital ticket.
+ */
 const TicketCard = ({ ticket, event }) => {
     if (!ticket || !event) return null;
 
     const dateStr = new Date(event.event_date).toLocaleDateString('en-US', {
-        weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
     });
     const timeStr = new Date(event.event_date).toLocaleTimeString('en-US', {
         hour: '2-digit', minute: '2-digit',
     });
 
     return (
-        <div className="w-full max-w-sm mx-auto select-none">
+        <div className="w-full max-w-sm mx-auto select-none group">
             {/* Main Ticket Body */}
-            <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/20" style={{ background: 'linear-gradient(160deg, #312E81 0%, #4F46E5 60%, #7C3AED 100%)' }}>
-                {/* Top Header */}
-                <div className="px-5 sm:px-7 pt-8 pb-6 text-white">
-                    <div className="flex items-start justify-between">
+            <div className="rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(79,70,229,0.25)] border border-white/20 relative transition-transform duration-500 hover:-rotate-1 active:scale-[0.98]"
+                style={{ background: 'linear-gradient(160deg, #1E1B4B 0%, #4338CA 50%, #6366F1 100%)' }}>
+
+                {/* Decorative Elements */}
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute top-1/2 -right-20 w-64 h-64 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
+
+                {/* Top Section */}
+                <div className="px-8 pt-10 pb-8 text-white relative z-10">
+                    <div className="flex items-start justify-between mb-8">
                         <div className="space-y-1">
-                            <p className="text-xs font-bold uppercase tracking-widest text-indigo-300">Official Ticket</p>
-                            <h2 className="text-xl sm:text-2xl font-black leading-tight">{event.title}</h2>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300/80">Premium Access Pass</span>
+                            <h2 className="text-2xl sm:text-3xl font-black leading-[1.1] tracking-tight">{event.title}</h2>
                         </div>
-                        <div className="bg-white/10 border border-white/20 rounded-xl p-2">
-                            <svg className="w-6 h-6 text-indigo-200" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a1 1 0 01-1 1H3a1 1 0 01-1-1V6zm0 5a1 1 0 011-1h14a1 1 0 011 1v3a2 2 0 01-2 2H4a2 2 0 01-2-2v-3z" />
+                        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3 shadow-lg">
+                            <svg className="w-8 h-8 text-indigo-200" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm0 10a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
                             </svg>
                         </div>
                     </div>
 
-                    <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest">Date</p>
-                            <p className="text-white font-semibold mt-0.5 text-xs leading-snug">{dateStr}</p>
+                    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                        <div className="space-y-1">
+                            <p className="text-indigo-300/60 text-[10px] font-black uppercase tracking-widest">Date & Time</p>
+                            <p className="text-white font-bold text-sm">{dateStr}</p>
+                            <p className="text-indigo-200/80 text-xs font-medium">{timeStr}</p>
                         </div>
-                        <div>
-                            <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest">Time</p>
-                            <p className="text-white font-semibold mt-0.5">{timeStr}</p>
-                        </div>
-                        <div className="col-span-2">
-                            <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest">Venue</p>
-                            <p className="text-white font-semibold mt-0.5 text-xs truncate">{event.location}</p>
+                        <div className="space-y-1">
+                            <p className="text-indigo-300/60 text-[10px] font-black uppercase tracking-widest">Venue</p>
+                            <p className="text-white font-bold text-sm line-clamp-2 leading-snug">{event.location}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Tear Line */}
-                <div className="relative flex items-center">
-                    <div className="absolute -left-5 w-10 h-10 bg-[#F8F9FC] rounded-full" />
-                    <div className="flex-1 border-t-2 border-dashed border-white/20 mx-4" />
-                    <div className="absolute -right-5 w-10 h-10 bg-[#F8F9FC] rounded-full" />
+                {/* Tear-off Effect */}
+                <div className="relative flex items-center h-10 overflow-hidden">
+                    <div className="absolute -left-5 w-10 h-10 bg-white rounded-full border border-indigo-100 shadow-inner z-20" />
+                    <div className="flex-1 border-t-2 border-dashed border-white/20 mx-1 relative z-10" />
+                    <div className="absolute -right-5 w-10 h-10 bg-white rounded-full border border-indigo-100 shadow-inner z-20" />
                 </div>
 
                 {/* QR Section */}
-                <div className="px-5 sm:px-7 py-6 bg-white">
-                    <div className="flex items-center gap-5">
-                        {/* QR Code Placeholder */}
-                        <div className="flex-shrink-0 w-28 h-28 bg-gray-900 rounded-2xl p-2 flex items-center justify-center relative overflow-hidden">
+                <div className="px-8 py-8 bg-white relative z-10 transition-colors group-hover:bg-gray-50/50">
+                    <div className="flex items-center gap-6">
+                        {/* QR Code Container */}
+                        <div className="flex-shrink-0 w-32 h-32 bg-gray-900 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden shadow-xl shadow-gray-200 transition-transform group-hover:scale-105 duration-500">
+                            {/* Visual QR Simulation */}
                             <svg viewBox="0 0 100 100" className="w-full h-full text-white" fill="currentColor">
-                                <rect x="5" y="5" width="30" height="30" rx="3" className="fill-white" />
-                                <rect x="10" y="10" width="20" height="20" rx="1" className="fill-gray-900" />
-                                <rect x="13" y="13" width="14" height="14" rx="1" className="fill-white" />
+                                <rect x="0" y="0" width="30" height="30" rx="4" />
+                                <rect x="8" y="8" width="14" height="14" fill="#0f172a" rx="1" />
 
-                                <rect x="65" y="5" width="30" height="30" rx="3" className="fill-white" />
-                                <rect x="70" y="10" width="20" height="20" rx="1" className="fill-gray-900" />
-                                <rect x="73" y="13" width="14" height="14" rx="1" className="fill-white" />
+                                <rect x="70" y="0" width="30" height="30" rx="4" />
+                                <rect x="78" y="8" width="14" height="14" fill="#0f172a" rx="1" />
 
-                                <rect x="5" y="65" width="30" height="30" rx="3" className="fill-white" />
-                                <rect x="10" y="70" width="20" height="20" rx="1" className="fill-gray-900" />
-                                <rect x="13" y="73" width="14" height="14" rx="1" className="fill-white" />
+                                <rect x="0" y="70" width="30" height="30" rx="4" />
+                                <rect x="8" y="78" width="14" height="14" fill="#0f172a" rx="1" />
 
-                                {[40, 47, 54, 61, 68].map(y =>
-                                    [40, 47, 54, 61, 68].map(x => (
-                                        Math.random() > 0.4
-                                            ? <rect key={`${x}-${y}`} x={x} y={y} width="5" height="5" className="fill-white" />
-                                            : null
+                                {[40, 48, 56, 64].map(y =>
+                                    [40, 48, 56, 64, 72, 80, 88].map(x => (
+                                        Math.random() > 0.3 ? <rect key={`${x}-${y}`} x={x} y={y} width="6" height="6" rx="1" /> : null
+                                    ))
+                                )}
+                                {[70, 78, 86].map(x =>
+                                    [0, 8, 16, 24, 40, 48, 56, 64].map(y => (
+                                        Math.random() > 0.3 ? <rect key={`${x}-${y}`} x={x} y={y} width="6" height="6" rx="1" /> : null
                                     ))
                                 )}
                             </svg>
                         </div>
 
-                        <div className="flex-1 space-y-3 min-w-0">
+                        <div className="flex-1 space-y-4">
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Attendee</p>
-                                <p className="text-sm font-bold text-gray-900 truncate">{ticket.buyer_email}</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Attendee</p>
+                                <p className="text-sm font-bold text-gray-900 truncate">{(ticket.buyer_email || 'Verified Guest').split('@')[0]}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ticket ID</p>
-                                <p className="text-sm font-mono font-bold text-indigo-600">{ticket.id || ticket.qr_code?.split(':')[0]}</p>
-                            </div>
-                            <div>
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${ticket.status === 'unused'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                    : 'bg-red-50 text-red-700 border-red-200'
-                                    }`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'unused' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                                    {ticket.status}
-                                </span>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Pass ID</p>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-mono font-black text-indigo-600 tracking-tight">
+                                        {ticket.id?.substring(0, 10) || 'TCK-882294'}
+                                    </span>
+                                    <span className={`mt-2 w-fit px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${ticket.status === 'unused'
+                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                                        }`}>
+                                        {ticket.status}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Bottom Notch Decor */}
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-32 h-2 bg-[#F8F9FC] rounded-t-full z-20 shadow-inner" />
             </div>
         </div>
     );

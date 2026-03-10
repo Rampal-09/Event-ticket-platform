@@ -1,16 +1,40 @@
-# React + Vite
+# Event Ticket Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for event organizers, attendees, and entry management. This platform facilitates seamless event discovery, ticket purchasing, and secure venue entry using QR code technology.
 
-Currently, two official plugins are available:
+## 🚀 Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The Event Ticket Platform is designed to handle the full lifecycle of an event:
+- **Organizers** can create events, manage galleries, set up promo codes, and track sales.
+- **Attendees** can browse events, purchase tickets securely, and manage their QR-coded entry passes.
+- **Staff** can quickly validate tickets at the venue gate using a built-in QR scanner.
+- **Admins** maintain platform quality through a robust event approval and moderation workflow.
 
-## React Compiler
+## 📂 Documentation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Detailed documentation for the platform is available in the `docs/` directory:
 
-## Expanding the ESLint configuration
+- 📋 **[PRD](docs/prd.md)**: Product Requirement Document including Phase 1 Extended Features.
+- 🏗️ **[Architecture](docs/architecture.md)**: System design, database models, and QR validation logic.
+- 👥 **[Roles & RBAC](docs/roles.md)**: Definition of system roles (Attendee, Organizer, Staff, Admin) and the permission matrix.
+- 🔄 **[Frontend Workflow](docs/frontend-workflow.md)**: Detailed user journeys and interface interactions.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tech Stack
+
+- **Frontend:** React, Vite, TailwindCSS, React Router.
+- **Backend:** Node.js / Express (Planned).
+- **Database:** SQL (PostgreSQL/MySQL planned).
+- **Auth:** Role-Based Access Control (RBAC).
+
+## 🔑 Key Features
+
+- **Event Discovery:** Search and browse upcoming public events.
+- **Secure Ticketing:** Automatic QR code generation for every purchase.
+- **Promotion Tools:** Support for multi-photo galleries and event-specific promo codes.
+- **Urgency Cues:** "Selling Fast" and "Almost Sold Out" indicators to boost conversion.
+- **Private Access:** Support for private events accessible only via direct links.
+- **Admin Moderation:** Full approval/rejection lifecycle for all submitted events.
+
+---
+
+*This project is currently in the architectural documentation and documentation refinement phase.*

@@ -1,67 +1,73 @@
 import React, { useState, useMemo } from 'react';
-import PublicLayout from '../../layouts/PublicLayout';
-import EventCard from '../../components/events/EventCard';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import EventCard from '../../components/events/EventCard';
+import EventFilters from '../../components/events/EventFilters';
 import { ROUTES } from '../../router/routes';
-import imgMusic from '../../assets/images/event-music.png';
-import imgTech from '../../assets/images/event-tech.png';
-import imgFood from '../../assets/images/event-food.png';
-import imgArt from '../../assets/images/event-art.png';
-import imgJazz from '../../assets/images/event-jazz.png';
-import imgStartup from '../../assets/images/event-startup.png';
-
-const MOCK_EVENTS = [
-    { id: 1, title: "Summer Music Festival 2026", description: "Get ready for the biggest music event of the summer! Featuring top artists from around the globe across three stages.", location: "Central Park, NY", event_date: "2026-07-15", ticket_price: 120, category: "Music", image: imgMusic },
-    { id: 2, title: "Tech Innovators Conference", description: "Explore the future of AI, robotics, and biotechnology with industry leaders and visionaries.", location: "San Francisco, CA", event_date: "2026-09-22", ticket_price: 250, category: "Tech", image: imgTech },
-    { id: 3, title: "Culinary Arts Expo", description: "A taste adventure featuring world-class chefs, wine tasting, and interactive cooking workshops.", location: "Miami, FL", event_date: "2026-05-30", ticket_price: 75, category: "Food", image: imgFood },
-    { id: 4, title: "Street Art Workshop", description: "Learn the basics of graffiti and mural techniques from renowned urban artists in an open-air studio.", location: "Brooklyn, NY", event_date: "2026-06-10", ticket_price: 45, category: "Art", image: imgArt },
-    { id: 5, title: "Jazz under the Stars", description: "An enchanting evening of smooth jazz performed under the open sky. Bring a blanket and a friend.", location: "New Orleans, LA", event_date: "2026-10-05", ticket_price: 60, category: "Music", image: imgJazz },
-    { id: 6, title: "Startup Networking Mixer", description: "Meet founders, investors, and future co-founders at the most vibrant startup mixer in Austin.", location: "Austin, TX", event_date: "2026-08-12", ticket_price: 30, category: "Tech", image: imgStartup },
-];
-
-const CATEGORIES = ['All', 'Music', 'Tech', 'Food', 'Art'];
+import { MOCK_EVENTS } from '../../data/mockEvents';
 
 const EventList = () => {
     const [searchParams] = useSearchParams();
     const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
     const [activeCategory, setActiveCategory] = useState('All');
+    const [activeFilters, setActiveFilters] = useState({ dateRange: 'any', priceOrder: 'default' });
     const navigate = useNavigate();
 
+    // Convert MOCK_EVENTS object to array for listing
+    const eventsArray = Object.values(MOCK_EVENTS);
+
+    const handleFilterChange = (newFilters) => {
+        if (newFilters.category) {
+            setActiveCategory(newFilters.category);
+        } else {
+            setActiveFilters(prev => ({ ...prev, ...newFilters }));
+        }
+    };
+
     const filteredEvents = useMemo(() => {
-        return MOCK_EVENTS.filter(event => {
+        let result = eventsArray.filter(event => {
             const matchesSearch =
                 event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 event.location.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesCategory = activeCategory === 'All' || event.category === activeCategory;
             return matchesSearch && matchesCategory;
         });
-    }, [searchTerm, activeCategory]);
+
+        // Apply additional sorting
+        if (activeFilters.priceOrder === 'price-low') {
+            result.sort((a, b) => a.ticket_price - b.ticket_price);
+        } else if (activeFilters.priceOrder === 'price-high') {
+            result.sort((a, b) => b.ticket_price - a.ticket_price);
+        } else if (activeFilters.priceOrder === 'date-new') {
+            result.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+        }
+
+        return result;
+    }, [searchTerm, activeCategory, activeFilters, eventsArray]);
 
     return (
-        <PublicLayout>
+        <div className="bg-white min-h-screen">
             {/* Header Band */}
-            <div style={{ background: 'linear-gradient(160deg, #EEF2FF 0%, #E0E7FF 100%)' }}>
+            <div style={{ background: 'linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 100%)' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-                    <p className="text-indigo-600 text-sm font-bold uppercase tracking-widest mb-2">All Events</p>
-                    <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight mb-4">Browse Events</h1>
-                    <p className="text-gray-500 text-lg max-w-lg">Discover experiences happening all around you.</p>
+                    <p className="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-center sm:text-left">Discovery Hub</p>
+                    <h1 className="text-4xl sm:text-6xl font-black text-gray-900 tracking-tight mb-4 text-center sm:text-left">Find your next <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">great experience</span></h1>
 
-                    {/* Search + Filters Row */}
-                    <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                        <div className="flex-1 flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100">
-                            <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    {/* Search Field */}
+                    <div className="mt-10 max-w-2xl mx-auto sm:mx-0">
+                        <div className="flex items-center gap-4 bg-white rounded-2xl px-6 py-4 shadow-xl shadow-indigo-100/50 border border-gray-100 transition-all hover:border-indigo-200">
+                            <svg className="w-6 h-6 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input
                                 type="text"
-                                placeholder="Search events or locations…"
+                                placeholder="Search by event name, genre, or location..."
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
-                                className="flex-1 outline-none text-gray-800 placeholder:text-gray-400 text-sm font-medium bg-transparent"
+                                className="flex-1 outline-none text-gray-800 placeholder:text-gray-400 text-base font-bold bg-transparent"
                             />
                             {searchTerm && (
-                                <button onClick={() => setSearchTerm('')} className="text-gray-400 hover:text-gray-600 transition-colors">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                <button onClick={() => setSearchTerm('')} className="text-gray-400 hover:text-gray-600 p-1">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             )}
                         </div>
@@ -69,31 +75,16 @@ const EventList = () => {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                {/* Category Tabs & Results Count */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
-                        {CATEGORIES.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`flex-shrink-0 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${activeCategory === cat
-                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                                    : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
-                                    }`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="text-sm text-gray-400 font-medium whitespace-nowrap px-1">
-                        {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found
-                    </div>
-                </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Advanced Filters */}
+                <EventFilters
+                    activeCategory={activeCategory}
+                    onFilterChange={handleFilterChange}
+                />
 
                 {/* Grid */}
                 {filteredEvents.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
                         {filteredEvents.map((event, i) => (
                             <EventCard
                                 key={event.id}
@@ -104,20 +95,30 @@ const EventList = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="py-28 flex flex-col items-center text-center space-y-5">
-                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-4xl">🔍</div>
-                        <h3 className="text-2xl font-bold text-gray-700">No events found</h3>
-                        <p className="text-gray-400 max-w-xs">Try adjusting your search or category filter to find what you're looking for.</p>
+                    <div className="py-28 flex flex-col items-center text-center">
+                        <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center text-5xl mb-6 grayscale">🔍</div>
+                        <h3 className="text-3xl font-black text-gray-900 mb-2">No events found</h3>
+                        <p className="text-gray-500 max-w-xs font-medium">We couldn't find anything matching your current filters. Try a broader search!</p>
                         <button
                             onClick={() => { setSearchTerm(''); setActiveCategory('All'); }}
-                            className="text-indigo-600 font-semibold text-sm hover:underline"
+                            className="mt-8 px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold hover:bg-gray-800 transition-all shadow-lg"
                         >
-                            Clear all filters
+                            Reset all filters
+                        </button>
+                    </div>
+                )}
+
+                {/* Bottom Pagination / Load More Simulation */}
+                {filteredEvents.length > 0 && (
+                    <div className="mt-20 flex flex-col items-center border-t border-gray-100 pt-12">
+                        <p className="text-sm font-bold text-gray-400 mb-6 uppercase tracking-widest">End of results</p>
+                        <button className="px-8 py-3 border-2 border-gray-900 rounded-2xl font-black text-gray-900 hover:bg-gray-900 hover:text-white transition-all">
+                            Load 20 More
                         </button>
                     </div>
                 )}
             </div>
-        </PublicLayout>
+        </div>
     );
 };
 

@@ -13,13 +13,12 @@ const AuthLayout = ({ children, title, subtitle }) => {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white rounded-full mix-blend-overlay"></div>
                 </div>
 
-                <Link to="/" className="relative flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a1 1 0 01-1 1H3a1 1 0 01-1-1V6zm0 5a1 1 0 011-1h14a1 1 0 011 1v3a2 2 0 01-2 2H4a2 2 0 01-2-2v-3z" />
-                        </svg>
-                    </div>
-                    <span className="text-2xl font-extrabold text-white">EventPass</span>
+                <Link to="/" className="relative inline-flex bg-white/10 p-3 rounded-2xl border border-white/20 backdrop-blur-sm shadow-xl items-center justify-center max-w-fit mb-6">
+                    <img
+                        src="/logo/eventhubix-logo.png"
+                        alt="EventHubix Logo"
+                        className="h-32 lg:h-20 w-auto object-contain drop-shadow-lg"
+                    />
                 </Link>
 
                 <div className="relative space-y-6">
@@ -27,7 +26,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
                         Bring your events<br />to life.
                     </h1>
                     <p className="text-indigo-200 text-lg leading-relaxed max-w-sm">
-                        Create, manage, and sell tickets to your events. Join thousands of organizers who trust EventPass.
+                        Create, manage, and sell tickets to your events. Join thousands of organizers who trust EventHubix.
                     </p>
                     <div className="grid grid-cols-2 gap-4 pt-4">
                         {[
@@ -42,7 +41,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
                     </div>
                 </div>
 
-                <p className="relative text-indigo-300 text-sm">&copy; {new Date().getFullYear()} EventPass. All rights reserved.</p>
+                <p className="relative text-indigo-300 text-sm">&copy; {new Date().getFullYear()} EventHubix. All rights reserved.</p>
             </div>
 
             {/* Right Form Panel */}
@@ -50,13 +49,12 @@ const AuthLayout = ({ children, title, subtitle }) => {
                 <div className="w-full max-w-md space-y-8">
                     {/* Mobile Logo */}
                     <div className="lg:hidden text-center">
-                        <Link to="/" className="inline-flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a1 1 0 01-1 1H3a1 1 0 01-1-1V6zm0 5a1 1 0 011-1h14a1 1 0 011 1v3a2 2 0 01-2 2H4a2 2 0 01-2-2v-3z" />
-                                </svg>
-                            </div>
-                            <span className="text-xl font-extrabold text-gray-900">Event<span className="text-indigo-600">Pass</span></span>
+                        <Link to="/" className="inline-flex items-center justify-center bg-gray-50 px-5 py-3 rounded-2xl shadow-sm border border-gray-100 mb-6 w-full sm:w-auto">
+                            <img
+                                src="/logo/eventhubix-logo.png"
+                                alt="EventHubix Logo"
+                                className="h-12 w-auto object-contain block mx-auto"
+                            />
                         </Link>
                     </div>
 

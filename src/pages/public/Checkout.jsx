@@ -36,7 +36,10 @@ const Checkout = () => {
     };
 
     return (
-        <PublicLayout>
+        <>
+            {/* OLD LAYOUT WRAPPER DISABLED
+            <PublicLayout>
+            */}
             <div style={{ background: 'linear-gradient(160deg, #EEF2FF 0%, #F8F9FC 100%)' }} className="py-12">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumb / Step Indicator */}
@@ -51,8 +54,8 @@ const Checkout = () => {
                                     <React.Fragment key={label}>
                                         <div className={`flex items-center gap-2 text-sm font-semibold ${isActive ? 'text-indigo-700' : isDone ? 'text-emerald-600' : 'text-gray-400'}`}>
                                             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black border-2 ${isDone ? 'bg-emerald-500 border-emerald-500 text-white'
-                                                    : isActive ? 'bg-indigo-600 border-indigo-600 text-white'
-                                                        : 'bg-transparent border-gray-300 text-gray-400'
+                                                : isActive ? 'bg-indigo-600 border-indigo-600 text-white'
+                                                    : 'bg-transparent border-gray-300 text-gray-400'
                                                 }`}>
                                                 {isDone ? '✓' : stepNum}
                                             </div>
@@ -174,7 +177,9 @@ const Checkout = () => {
                     </div>
                 </div>
             </div>
-        </PublicLayout>
+            {/* </PublicLayout> */}
+        </>
+
     );
 };
 

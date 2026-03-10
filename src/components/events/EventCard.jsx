@@ -1,5 +1,7 @@
 import React from 'react';
 import Button from '../ui/Button';
+import TicketsLeftBadge from './TicketsLeftBadge';
+import SellingFastBadge from './SellingFastBadge';
 
 const GRADIENT_TOPS = [
     'from-violet-400 to-indigo-600',
@@ -13,7 +15,7 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
     if (!event) return null;
 
     // Support multiple image field names from the data
-    const { title, location, event_date, ticket_price, description, image, imageUrl, banner } = event;
+    const { title, location, event_date, ticket_price, description, image, imageUrl, banner, total_tickets, tickets_sold } = event;
     const imgSrc = image || imageUrl || banner || null;
 
     const gradient = GRADIENT_TOPS[index % GRADIENT_TOPS.length];
@@ -22,6 +24,9 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
     const monthStr = dateObj.toLocaleString('default', { month: 'short' }).toUpperCase();
     const dayStr = dateObj.getDate();
     const yearStr = dateObj.getFullYear();
+
+    const remainingTickets = total_tickets - (tickets_sold || 0);
+    const showSellingFast = remainingTickets > 0 && remainingTickets < 20;
 
     return (
         <div className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300">
@@ -68,19 +73,37 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
                 <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white font-black text-base px-3 py-1.5 rounded-xl border border-white/20 z-10">
                     ${ticket_price}
                 </div>
+
+                {/* Urgency Badge */}
+                {showSellingFast && (
+                    <div className="absolute bottom-3 left-3 z-10">
+                        <SellingFastBadge type="fast" />
+                    </div>
+                )}
             </div>
 
             {/* ── Content ── */}
             <div className="flex flex-col flex-1 p-5 gap-3">
-                <div>
-                    <h3 className="text-base font-bold text-gray-900 line-clamp-1 group-hover:text-indigo-700 transition-colors">
-                        {title}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2 leading-relaxed">{description}</p>
+                <div className="space-y-2">
+                    <div className="flex justify-between items-start gap-4">
+                        <h3 className="text-base font-bold text-gray-900 line-clamp-1 group-hover:text-indigo-700 transition-colors">
+                            {title}
+                        </h3>
+                    </div>
+                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{description}</p>
+                </div>
+
+                {/* Availability Info */}
+                <div className="flex items-center gap-2 mt-auto">
+                    {remainingTickets > 0 ? (
+                        <TicketsLeftBadge remaining={remainingTickets} total={total_tickets} />
+                    ) : (
+                        <span className="text-xs font-black text-red-500 uppercase tracking-widest">Sold Out</span>
+                    )}
                 </div>
 
                 {/* Location */}
-                <div className="flex items-center gap-2 text-xs text-gray-500 font-medium mt-auto">
+                <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
                     <svg className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -91,17 +114,20 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
                 {/* CTA */}
                 <div className="pt-3 border-t border-gray-50">
                     <Button
-                        variant="primary"
+                        variant={remainingTickets > 0 ? "primary" : "secondary"}
                         size="md"
                         fullWidth
+                        disabled={remainingTickets <= 0}
                         onClick={() => onBuyClick?.(event)}
                         rightIcon={
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
+                            remainingTickets > 0 && (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            )
                         }
                     >
-                        Get Tickets
+                        {remainingTickets > 0 ? 'Get Tickets' : 'Sold Out'}
                     </Button>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 const NAV_ITEMS = [
     {
@@ -56,16 +56,12 @@ const OrganizerLayout = ({ children }) => {
         <aside className="w-64 bg-gray-950 text-white flex flex-col h-screen sticky top-0">
             {/* Brand */}
             <div className="px-6 py-5 border-b border-white/10">
-                <Link to="/" className="flex items-center gap-2.5 group">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900 group-hover:scale-105 transition-transform">
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a1 1 0 01-1 1H3a1 1 0 01-1-1V6zm0 5a1 1 0 011-1h14a1 1 0 011 1v3a2 2 0 01-2 2H4a2 2 0 01-2-2v-3z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p className="font-extrabold text-white text-base leading-tight">EventPass</p>
-                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Organizer</p>
-                    </div>
+                <Link to="/" onClick={() => setMobileSidebarOpen(false)} className="flex items-center justify-center w-full group bg-gray-900 rounded-xl px-3 py-2.5 hover:bg-gray-800 transition-all border border-gray-800">
+                    <img
+                        src="/logo/eventhubix-logo.png"
+                        alt="EventHubix Logo"
+                        className="h-24 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-200"
+                    />
                 </Link>
             </div>
 
@@ -78,6 +74,7 @@ const OrganizerLayout = ({ children }) => {
                         <Link
                             key={item.href}
                             to={item.href}
+                            onClick={() => setMobileSidebarOpen(false)}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all ${isActive
                                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50'
                                 : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -92,7 +89,7 @@ const OrganizerLayout = ({ children }) => {
 
             {/* Bottom */}
             <div className="px-3 py-4 border-t border-white/10 space-y-1">
-                <Link to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-white/5 hover:text-gray-300 text-sm font-medium transition-all">
+                <Link to="/" onClick={() => setMobileSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-white/5 hover:text-gray-300 text-sm font-medium transition-all">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -157,7 +154,7 @@ const OrganizerLayout = ({ children }) => {
 
                 {/* Page Content */}
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-                    {children}
+                    {children || <Outlet />}
                 </main>
             </div>
         </div>

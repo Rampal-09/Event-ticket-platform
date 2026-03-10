@@ -1,46 +1,10 @@
 import React, { useState } from 'react';
-import PublicLayout from '../../layouts/PublicLayout';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import EventCard from '../../components/events/EventCard';
 import heroBg from '../../assets/images/hero-bg.png';
-import imgMusic from '../../assets/images/event-music.png';
-import imgTech from '../../assets/images/event-tech.png';
-import imgFood from '../../assets/images/event-food.png';
-import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
-
-const MOCK_FEATURED_EVENTS = [
-    {
-        id: 1,
-        title: "Summer Music Festival 2026",
-        description: "Get ready for the biggest music event of the summer! Featuring top artists from around the globe across three stages.",
-        location: "Central Park, New York",
-        event_date: "2026-07-15T18:00:00",
-        ticket_price: 120,
-        total_tickets: 5000,
-        image: imgMusic,
-    },
-    {
-        id: 2,
-        title: "Tech Innovators Conference",
-        description: "Explore the future of AI, robotics, and biotechnology with industry leaders and visionaries.",
-        location: "Convention Center, San Francisco",
-        event_date: "2026-09-22T09:00:00",
-        ticket_price: 250,
-        total_tickets: 1200,
-        image: imgTech,
-    },
-    {
-        id: 3,
-        title: "Culinary Arts Expo",
-        description: "A taste adventure featuring world-class chefs, wine tasting, and interactive cooking workshops.",
-        location: "Bayside Hall, Miami",
-        event_date: "2026-05-30T10:00:00",
-        ticket_price: 75,
-        total_tickets: 800,
-        image: imgFood,
-    },
-];
+import { MOCK_EVENTS } from '../../data/mockEvents';
 
 const STATS = [
     { value: '2,400+', label: 'Events Listed' },
@@ -58,7 +22,7 @@ const FEATURES = [
         ),
         title: 'Secure & Trusted',
         desc: 'Industry-standard encryption keeps your payments and personal data protected at all times.',
-        color: 'bg-violet-100 text-violet-600',
+        color: 'bg-indigo-100 text-indigo-600',
     },
     {
         icon: (
@@ -86,6 +50,9 @@ const Home = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Get a slice of featured events from the central store
+    const featuredEvents = Object.values(MOCK_EVENTS).slice(0, 3);
+
     const handleSearch = (e) => {
         e.preventDefault();
         navigate(`${ROUTES.EVENT_LIST}?q=${encodeURIComponent(searchQuery)}`);
@@ -96,164 +63,136 @@ const Home = () => {
     };
 
     return (
-        <PublicLayout>
+        <div className="bg-white">
             {/* ========== HERO ========== */}
             <section
-                className="relative overflow-hidden"
-                style={{
-                    minHeight: '52vh',
-                    backgroundImage: `url(${heroBg})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                }}
+                className="relative overflow-hidden bg-gray-900"
+                style={{ minHeight: '65vh' }}
             >
-                {/* Dark overlay gradient for readability */}
-                <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                        background:
-                            'linear-gradient(to bottom, rgba(5,5,20,0.62) 0%, rgba(10,8,35,0.72) 60%, rgba(15,10,45,0.85) 100%)',
-                    }}
-                />
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-                    <div className="max-w-4xl text-center mx-auto space-y-8 animate-fade-in-up">
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm text-white text-xs font-bold px-4 py-2 rounded-full shadow-sm">
-                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
-                            2,400+ events live right now
+                {/* Image background with specialized styling */}
+                <div className="absolute inset-0 z-0">
+                    <img src={heroBg} className="w-full h-full object-cover opacity-50" alt="Concert Crowd" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/80 to-gray-900" />
+                </div>
+
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+                    <div className="max-w-4xl space-y-10 animate-fade-in">
+                        <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-2xl">
+                            <span className="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white/90">2,400+ Live Experiences</span>
                         </div>
 
-                        <h1 className="text-[32px] sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight drop-shadow-xl">
-                            Discover events<br />
-                            <span style={{ background: 'linear-gradient(135deg, #818CF8, #C084FC)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                                you'll love.
-                            </span>
+                        <h1 className="text-4xl sm:text-7xl font-black text-white leading-[1.05] tracking-tight">
+                            Your gateway to <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">unforgettable</span> moments.
                         </h1>
 
-                        <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed drop-shadow">
-                            From concerts and conferences to food festivals and workshops — find your next unforgettable experience and book tickets in seconds.
+                        <p className="text-lg sm:text-2xl text-gray-400 max-w-2xl leading-relaxed font-medium">
+                            Join millions of people finding concerts, workshops, and festivals. Secure your spot in seconds.
                         </p>
 
                         {/* Search Bar */}
-                        <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-                            <div className="flex flex-col sm:flex-row bg-white rounded-3xl sm:rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-2 gap-2">
-                                <div className="flex-1 flex items-center gap-3 px-3 py-1 sm:py-0">
-                                    <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <form onSubmit={handleSearch} className="max-w-2xl">
+                            <div className="flex flex-col sm:flex-row bg-white rounded-3xl p-2 gap-2 shadow-2xl shadow-indigo-500/10">
+                                <div className="flex-1 flex items-center gap-4 px-5">
+                                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <input
                                         type="text"
                                         value={searchQuery}
                                         onChange={e => setSearchQuery(e.target.value)}
-                                        placeholder="Search events, artists, venues…"
-                                        className="flex-1 py-3 text-gray-800 placeholder:text-gray-400 outline-none text-base font-medium bg-transparent"
+                                        placeholder="Search by event, artist or city..."
+                                        className="flex-1 py-4 text-gray-800 placeholder:text-gray-400 outline-none text-base font-bold bg-transparent"
                                     />
                                 </div>
-                                <Button type="submit" size="lg" variant="primary" className="rounded-2xl sm:rounded-xl flex-shrink-0">
-                                    Search Events
+                                <Button type="submit" size="xl" variant="primary" className="rounded-2xl px-10 bg-indigo-600 hover:bg-indigo-700">
+                                    Browse Events
                                 </Button>
                             </div>
                         </form>
-
-                        {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                            <Button size="xl" variant="primary" onClick={() => navigate(ROUTES.EVENT_LIST)}
-                                rightIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
-                            >
-                                Browse All Events
-                            </Button>
-                            <Button size="xl" variant="white" onClick={() => navigate(ROUTES.REGISTER)}>
-                                Start Hosting for Free
-                            </Button>
-                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* ========== STATS ========== */}
-            <section className="bg-gray-900 py-12">
+            {/* ========== STATS STRIP ========== */}
+            <div className="bg-gray-900 border-t border-white/5 py-12 relative z-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {STATS.map(stat => (
-                            <div key={stat.label} className="text-center">
-                                <p className="text-3xl sm:text-4xl font-black text-white">{stat.value}</p>
-                                <p className="text-gray-400 text-sm font-medium mt-1">{stat.label}</p>
+                            <div key={stat.label} className="flex flex-col items-center sm:items-start">
+                                <p className="text-4xl font-black text-white leading-none">{stat.value}</p>
+                                <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mt-2">{stat.label}</p>
                             </div>
                         ))}
                     </div>
                 </div>
-            </section>
+            </div>
 
-            {/* ========== UPCOMING EVENTS ========== */}
-            <section className="py-20">
+            {/* ========== UPCOMING SECTION ========== */}
+            <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
-                        <div>
-                            <p className="text-indigo-600 text-sm font-bold uppercase tracking-widest mb-2">Don't miss out</p>
-                            <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Upcoming Events</h1>
-                            <p className="text-gray-500 mt-2">Hand-picked experiences happening near you</p>
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+                        <div className="space-y-3">
+                            <p className="text-indigo-600 text-xs font-black uppercase tracking-widest">Handmade Selection</p>
+                            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight leading-none">Happening Soon</h2>
                         </div>
-                        <Button variant="outline" size="md" onClick={() => navigate(ROUTES.EVENT_LIST)}>
-                            View All Events
+                        <Button variant="outline" size="lg" onClick={() => navigate(ROUTES.EVENT_LIST)} className="px-8 border-2">
+                            Explore All
                         </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {MOCK_FEATURED_EVENTS.map((event, i) => (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {featuredEvents.map((event, i) => (
                             <EventCard key={event.id} event={event} onBuyClick={handleBuyTicket} index={i} />
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ========== FEATURES ========== */}
-            <section className="py-20" style={{ background: 'linear-gradient(160deg, #F8F9FC 0%, #EEF2FF 100%)' }}>
+            {/* ========== FEATURES SECTION ========== */}
+            <section className="py-24 bg-gray-50/50 border-y border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <p className="text-indigo-600 text-sm font-bold uppercase tracking-widest mb-2">Why EventPass?</p>
-                        <h2 className="text-4xl font-black text-gray-900 tracking-tight">Built for event lovers</h2>
-                        <p className="text-gray-500 mt-3 max-w-xl mx-auto">Everything you need to find, book, and enjoy events — all in one elegant platform.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                         {FEATURES.map(f => (
-                            <div key={f.title} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-                                <div className={`w-14 h-14 ${f.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                            <div key={f.title} className="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-100 group hover:shadow-2xl transition-all duration-500">
+                                <div className={`w-16 h-16 ${f.color} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}>
                                     {f.icon}
                                 </div>
-                                <h2 className="text-xl sm:text-2xl font-black leading-tight">{f.title}</h2>
-                                <p className="text-gray-500 leading-relaxed">{f.desc}</p>
+                                <h3 className="text-2xl font-black text-gray-900 mb-4">{f.title}</h3>
+                                <p className="text-gray-500 leading-relaxed font-medium">{f.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* ========== CTA BANNER ========== */}
-            <section className="py-20">
+            {/* ========== CTA SECTION ========== */}
+            <section className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="rounded-3xl overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)' }}>
-                        <div className="absolute inset-0 overflow-hidden">
-                            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/10" />
-                            <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/5" />
-                        </div>
-                        <div className="relative px-8 py-16 text-center space-y-6">
-                            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight">Ready to host your event?</h2>
-                            <p className="text-indigo-200 text-lg max-w-xl mx-auto">Join thousands of organizers who use EventPass to sell tickets and manage events effortlessly.</p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                                <Button size="xl" variant="white" onClick={() => navigate(ROUTES.REGISTER)}>
-                                    Get Started for Free
+                    <div className="relative rounded-[3rem] overflow-hidden bg-indigo-600 p-12 sm:p-20 text-center shadow-2xl shadow-indigo-100">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-700/50 to-transparent pointer-events-none" />
+                        <div className="relative z-10 max-w-2xl mx-auto space-y-8">
+                            <h2 className="text-4xl sm:text-6xl font-black text-white leading-tight">Ready to host your next event?</h2>
+                            <p className="text-indigo-100 text-lg font-medium leading-relaxed">
+                                Join thousands of organizers using EventPass to sell tickets, manage entries, and scale their experiences.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <Button size="xl" variant="white" onClick={() => navigate(ROUTES.REGISTER)} className="font-black text-indigo-600">
+                                    Start Hosting Now
                                 </Button>
-                                <Button size="xl" variant="outline" className="border-white/40 text-white hover:bg-white/10" onClick={() => navigate(ROUTES.LOGIN)}>
-                                    Sign In
+                                <Button size="xl" variant="outline" className="border-white/30 text-white hover:bg-white/10 font-bold" onClick={() => navigate(ROUTES.LOGIN)}>
+                                    Sign In to Dashboard
                                 </Button>
                             </div>
                         </div>
+                        {/* Decorative background shapes */}
+                        <div className="absolute -top-32 -right-32 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+                        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-indigo-400/20 rounded-full blur-3xl" />
                     </div>
                 </div>
             </section>
-        </PublicLayout>
+        </div>
     );
 };
 

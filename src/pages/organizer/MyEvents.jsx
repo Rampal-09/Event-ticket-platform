@@ -52,7 +52,10 @@ const MyEvents = () => {
     };
 
     return (
-        <OrganizerLayout>
+        <>
+            {/* OLD LAYOUT WRAPPER DISABLED
+            <OrganizerLayout>
+            */}
             <div className="space-y-8 max-w-screen-xl">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -263,7 +266,9 @@ const MyEvents = () => {
                     )}
                 </Modal>
             </div>
-        </OrganizerLayout>
+            {/* </OrganizerLayout> */}
+        </>
+
     );
 };
 

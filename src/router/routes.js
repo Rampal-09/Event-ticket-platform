@@ -4,7 +4,9 @@ export const ROUTES = {
     EVENT_LIST: '/events',
     EVENT_DETAILS: '/events/:id',
     CHECKOUT: '/checkout',
-    TICKET: '/ticket/:id',
+    CHECKOUT_EVENT: '/checkout/:eventId',
+    TICKET: '/ticket/:ticketId',
+    ORDER_SUCCESS: '/order-success',
 
     // Auth
     LOGIN: '/login',
@@ -17,4 +19,11 @@ export const ROUTES = {
 
     // Scanner
     SCANNER: '/scanner',
+
+    // Phase 1 Extended
+    FAQ: '/faq',
+    ADMIN_DASHBOARD: '/admin',
+    ADMIN_EVENTS: '/admin/events',
+    ADMIN_USERS: '/admin/users',
+    ADMIN_REVIEW_HISTORY: '/admin/review-history',
 };
