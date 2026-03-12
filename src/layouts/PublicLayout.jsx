@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import { ROUTES } from '../router/routes';
 
 const NAV_LINKS = [
@@ -12,13 +12,6 @@ const PublicLayout = ({ children }) => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const { pathname } = useLocation();
-    const navigate = useNavigate();
-
-    const handleAdminLogin = () => {
-        sessionStorage.setItem('ep_auth', 'true');
-        sessionStorage.setItem('ep_role', 'admin');
-        navigate(ROUTES.ADMIN_EVENTS);
-    };
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 12);
@@ -70,12 +63,6 @@ const PublicLayout = ({ children }) => {
                             <Link to="/register" className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg shadow-sm shadow-indigo-200 transition-all hover:shadow-md">
                                 Host an Event
                             </Link>
-                            <button
-                                onClick={handleAdminLogin}
-                                className="text-sm font-semibold text-white bg-slate-800 hover:bg-slate-900 px-4 py-2 rounded-lg shadow-sm transition-all hover:shadow-md"
-                            >
-                                Login as Admin
-                            </button>
                         </div>
 
                         {/* Mobile Hamburger */}
@@ -104,12 +91,6 @@ const PublicLayout = ({ children }) => {
                         <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
                             <Link to="/login" className="block text-center px-4 py-2.5 text-sm font-semibold border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">Sign In</Link>
                             <Link to="/register" className="block text-center px-4 py-2.5 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">Host an Event</Link>
-                            <button
-                                onClick={handleAdminLogin}
-                                className="block text-center px-4 py-2.5 text-sm font-semibold bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors"
-                            >
-                                Login as Admin
-                            </button>
                         </div>
                     </div>
                 )}
@@ -129,18 +110,15 @@ const PublicLayout = ({ children }) => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 mb-12">
 
-                        {/* Brand column */}
-                        <div className="col-span-2 lg:col-span-1">
-                            <Link to="/" className="flex items-center mb-1 group">
-                                <img
-                                    src="/logo/eventhubix-logo.png"
-                                    alt="EventHubix Logo"
-                                    className="h-20 w-auto object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
-                                />
-                            </Link>
-                            <p className="text-sm leading-relaxed text-gray-500 max-w-[220px]">
-                                Discover and book tickets to the best events near you — all in one place.
-                            </p>
+                        {/* Brand / About column */}
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-widest text-indigo-600 mb-5">EventHubix</p>
+                            <ul className="space-y-3 text-sm">
+                                <li><span className="text-gray-600">Discover and book tickets to the best events near you.</span></li>
+                                <li><span className="text-gray-600"> Australian Owned &amp; Operated</span></li>
+                                <li><span className="text-gray-600"> Privacy-Focused Ticketing Platform</span></li>
+                                <li><span className="text-gray-600">Built for Australian event organisers</span></li>
+                            </ul>
                         </div>
 
                         {/* Explore */}
@@ -178,7 +156,7 @@ const PublicLayout = ({ children }) => {
                         <p className="text-xs text-gray-400 font-medium">
                             &copy; {new Date().getFullYear()} EventHubix. All rights reserved.
                         </p>
-                        <p className="text-xs text-gray-400">Built for event lovers everywhere.</p>
+                        <p className="text-xs text-gray-400">Built for Australian event organisers </p>
                     </div>
                 </div>
             </footer>

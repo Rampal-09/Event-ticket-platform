@@ -5,6 +5,12 @@ import EventCard from '../../components/events/EventCard';
 import heroBg from '../../assets/images/hero-bg.png';
 import { ROUTES } from '../../router/routes';
 import { MOCK_EVENTS } from '../../data/mockEvents';
+import PlatformFeatures from '../../components/home/PlatformFeatures';
+
+import PricingSection from '../../components/home/PricingSection';
+import TrustBanner from '../../components/home/TrustBanner';
+import EventCategories from '../../components/home/EventCategories';
+import HowPlatformWorks from '../../components/home/HowPlatformWorks';
 
 const STATS = [
     { value: '2,400+', label: 'Events Listed' },
@@ -150,6 +156,9 @@ const Home = () => {
                 </div>
             </section>
 
+            {/* ========== EVENT CATEGORIES ========== */}
+            <EventCategories />
+
             {/* ========== FEATURES SECTION ========== */}
             <section className="py-24 bg-gray-50/50 border-y border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -192,6 +201,20 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* ========== PLATFORM FEATURES ========== */}
+            <PlatformFeatures />
+
+            {/* ========== HOW IT WORKS ========== */}
+            <HowPlatformWorks />
+
+
+
+            {/* ========== PRICING ========== */}
+            <PricingSection />
+
+            {/* ========== TRUST BANNER ========== */}
+            <TrustBanner />
         </div>
     );
 };

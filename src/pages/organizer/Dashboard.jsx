@@ -15,7 +15,7 @@ const QUICK_ACTIONS = [
     { label: 'New Event', icon: '➕', href: '/organizer/create-event', color: 'bg-indigo-600 text-white hover:bg-indigo-700' },
     { label: 'My Events', icon: '📂', href: '/organizer/my-events', color: 'bg-white text-gray-800 hover:bg-gray-50 border border-gray-200' },
     { label: 'QR Scanner', icon: '📷', href: '/scanner', color: 'bg-white text-gray-800 hover:bg-gray-50 border border-gray-200' },
-    { label: 'Reports', icon: '📊', href: '#', color: 'bg-white text-gray-800 hover:bg-gray-50 border border-gray-200' },
+    { label: 'Reports', icon: '📊', href: '/organizer/reports', color: 'bg-white text-gray-800 hover:bg-gray-50 border border-gray-200' },
 ];
 
 const RECENT_SALES = [

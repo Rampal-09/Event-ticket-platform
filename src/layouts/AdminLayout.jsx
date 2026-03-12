@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 const ADMIN_NAV = [
@@ -45,6 +45,15 @@ const AdminLayout = ({ children }) => {
     const navigate = useNavigate();
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+    useEffect(() => {
+        if (mobileSidebarOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [mobileSidebarOpen]);
+
     const handleSignOut = () => {
         sessionStorage.removeItem('ep_auth');
         sessionStorage.removeItem('ep_role');
@@ -52,8 +61,8 @@ const AdminLayout = ({ children }) => {
     };
 
     const Sidebar = () => (
-        <aside className="w-64 bg-slate-900 text-white flex flex-col h-screen sticky top-0">
-            <div className="p-6 border-b border-white/5">
+        <aside className="w-64 bg-slate-900 text-white flex flex-col h-dvh overflow-y-auto md:overflow-y-hidden sticky top-0">
+            <div className="flex-shrink-0 p-6 border-b border-white/5">
                 <Link to="/" onClick={() => setMobileSidebarOpen(false)} className="flex items-center justify-center w-full bg-white/5 px-3 py-2 rounded-xl hover:bg-white/10 transition-colors">
                     <img
                         src="/logo/eventhubix-logo.png"
@@ -63,7 +72,7 @@ const AdminLayout = ({ children }) => {
                 </Link>
             </div>
 
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            <nav className="flex-none md:flex-1 p-4 space-y-1 md:overflow-y-auto">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-4 mb-3">Admin Control</p>
                 {ADMIN_NAV.map(item => (
                     <Link
@@ -81,7 +90,7 @@ const AdminLayout = ({ children }) => {
                 ))}
             </nav>
 
-            <div className="p-4 border-t border-white/5 space-y-2">
+            <div className="flex-shrink-0 p-4 border-t border-white/5 space-y-2">
                 <Link to="/" onClick={() => setMobileSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

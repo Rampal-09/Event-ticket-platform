@@ -16,6 +16,7 @@ export const ROUTES = {
     ORGANIZER_DASHBOARD: '/organizer',
     CREATE_EVENT: '/organizer/create-event',
     MY_EVENTS: '/organizer/my-events',
+    ORGANIZER_REPORTS: '/organizer/reports',
 
     // Scanner
     SCANNER: '/scanner',

@@ -12,15 +12,25 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isDemoLoading, setIsDemoLoading] = useState(false);
+    const [isAdminLoading, setIsAdminLoading] = useState(false);
 
     const handleDemoLogin = () => {
         setIsDemoLoading(true);
         setTimeout(() => {
-            // Write mock auth state that ProtectedRoute reads from sessionStorage
             sessionStorage.setItem('ep_auth', 'true');
             sessionStorage.setItem('ep_role', 'organizer');
             setIsDemoLoading(false);
             navigate(ROUTES.ORGANIZER_DASHBOARD);
+        }, 800);
+    };
+
+    const handleAdminDemoLogin = () => {
+        setIsAdminLoading(true);
+        setTimeout(() => {
+            sessionStorage.setItem('ep_auth', 'true');
+            sessionStorage.setItem('ep_role', 'admin');
+            setIsAdminLoading(false);
+            navigate(ROUTES.ADMIN_DASHBOARD);
         }, 800);
     };
 
@@ -109,8 +119,27 @@ const Login = () => {
                     >
                         Login as Demo Organizer
                     </Button>
+
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        size="lg"
+                        fullWidth
+                        isLoading={isAdminLoading}
+                        onClick={handleAdminDemoLogin}
+                        leftIcon={
+                            !isAdminLoading && (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            )
+                        }
+                    >
+                        Login as Demo Admin
+                    </Button>
+
                     <p className="text-center text-xs text-gray-400 font-medium">
-                        Demo access for organizers — no credentials needed
+                        Demo access — no credentials needed
                     </p>
                 </div>
 

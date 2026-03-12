@@ -68,7 +68,7 @@ const EventApprovalTable = ({ events = [], onApprove, onReject, onReview }) => {
                                             >
                                                 Details
                                             </button>
-                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center gap-2">
                                                 <ApproveEventButton onClick={() => onApprove?.(event.id)} />
                                                 <RejectEventButton onClick={() => onReject?.(event.id)} />
                                             </div>

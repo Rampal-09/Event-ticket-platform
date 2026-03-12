@@ -32,6 +32,10 @@ const EventDetails = () => {
 
     const dateObj = new Date(event_date);
     const isSoldOut = tickets_sold >= total_tickets;
+    const ticketsRemaining = total_tickets - tickets_sold;
+    const soldPercent = Math.min(Math.round((tickets_sold / total_tickets) * 100), 100);
+    const isSellingFast = !isSoldOut && ticketsRemaining <= total_tickets * 0.2 && ticketsRemaining > total_tickets * 0.1;
+    const isAlmostGone  = !isSoldOut && ticketsRemaining <= total_tickets * 0.1;
 
     return (
         <div className="bg-white">
@@ -193,13 +197,46 @@ const EventDetails = () => {
                             </div>
 
                             <div className="p-6 space-y-5">
-                                <p className="text-sm text-gray-600 font-medium">
-                                    Scroll down to select your quantity and complete the purchase.
-                                </p>
-                                <div className="w-full h-1 bg-gray-50 rounded-full overflow-hidden">
-                                    <div className="h-full bg-indigo-600 w-1/3 animate-pulse" />
+                                {/* Urgency badges */}
+                                {isAlmostGone && (
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-xl">
+                                        <span className="text-base">⚠️</span>
+                                        <p className="text-xs font-black text-red-600">
+                                            Only {ticketsRemaining} ticket{ticketsRemaining !== 1 ? 's' : ''} left!
+                                        </p>
+                                    </div>
+                                )}
+                                {isSellingFast && !isAlmostGone && (
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-100 rounded-xl">
+                                        <span className="text-base">🔥</span>
+                                        <p className="text-xs font-black text-amber-600">Selling Fast</p>
+                                    </div>
+                                )}
+
+                                {/* Progress bar */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-xs font-bold text-gray-500">Tickets Sold</p>
+                                        <p className="text-xs font-black text-gray-700">{soldPercent}% Sold</p>
+                                    </div>
+                                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-700 ${
+                                                isSoldOut ? 'bg-red-500'
+                                                : isAlmostGone ? 'bg-red-400'
+                                                : isSellingFast ? 'bg-amber-400'
+                                                : 'bg-indigo-500'
+                                            }`}
+                                            style={{ width: `${soldPercent}%` }}
+                                        />
+                                    </div>
+                                    <p className="text-[11px] text-gray-400 font-medium">
+                                        {tickets_sold} sold · {ticketsRemaining} remaining
+                                    </p>
                                 </div>
-                                <div className="space-y-2.5 pt-2">
+
+                                {/* Perks */}
+                                <div className="space-y-2.5 pt-1">
                                     {['Instant QR Ticket delivery', 'Free cancellation within 48h'].map(p => (
                                         <div key={p} className="flex items-center gap-2.5 text-xs text-gray-500 font-medium">
                                             <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 
 const NAV_ITEMS = [
@@ -30,6 +30,15 @@ const NAV_ITEMS = [
         ),
     },
     {
+        label: 'Reports',
+        href: '/organizer/reports',
+        icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+        ),
+    },
+    {
         label: 'QR Scanner',
         href: '/scanner',
         icon: (
@@ -52,10 +61,19 @@ const OrganizerLayout = ({ children }) => {
     };
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+    useEffect(() => {
+        if (mobileSidebarOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [mobileSidebarOpen]);
+
     const Sidebar = () => (
-        <aside className="w-64 bg-gray-950 text-white flex flex-col h-screen sticky top-0">
+        <aside className="w-64 bg-gray-950 text-white flex flex-col h-dvh overflow-y-auto md:overflow-y-hidden sticky top-0">
             {/* Brand */}
-            <div className="px-6 py-5 border-b border-white/10">
+            <div className="flex-shrink-0 px-6 py-5 border-b border-white/10">
                 <Link to="/" onClick={() => setMobileSidebarOpen(false)} className="flex items-center justify-center w-full group bg-gray-900 rounded-xl px-3 py-2.5 hover:bg-gray-800 transition-all border border-gray-800">
                     <img
                         src="/logo/eventhubix-logo.png"
@@ -66,7 +84,7 @@ const OrganizerLayout = ({ children }) => {
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+            <nav className="flex-none md:flex-1 px-3 py-6 space-y-1 md:overflow-y-auto">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 px-3 mb-3">Navigation</p>
                 {NAV_ITEMS.map(item => {
                     const isActive = pathname === item.href;
@@ -88,7 +106,7 @@ const OrganizerLayout = ({ children }) => {
             </nav>
 
             {/* Bottom */}
-            <div className="px-3 py-4 border-t border-white/10 space-y-1">
+            <div className="flex-shrink-0 px-3 py-4 border-t border-white/10 space-y-1">
                 <Link to="/" onClick={() => setMobileSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-white/5 hover:text-gray-300 text-sm font-medium transition-all">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

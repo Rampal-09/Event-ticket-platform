@@ -7,6 +7,7 @@ import EventGalleryUploader from '../../components/organizer/EventGalleryUploade
 import PromoCodeForm from '../../components/organizer/PromoCodeForm';
 import EventVisibilityToggle from '../../components/organizer/EventVisibilityToggle';
 import SellingFastToggle from '../../components/organizer/SellingFastToggle';
+import EventAdditionalSettings from '../../components/organizer/EventAdditionalSettings';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
 
@@ -25,6 +26,11 @@ const CreateEvent = () => {
         galleryImages: [],
         promoCodes: [],
         is_public: true,
+        eventType: 'public',
+        parking: '',
+        ageRestriction: '',
+        refundPolicy: '',
+        serviceFee: 'buyer',
         urgency: {
             enabled: false,
             threshold: 20
@@ -94,6 +100,12 @@ const CreateEvent = () => {
                                 </div>
                             )}
                         </Card>
+
+                        {/* 4. Additional Settings */}
+                        <EventAdditionalSettings
+                            data={formData}
+                            onChange={handleBasicChange}
+                        />
                     </div>
 
                     {/* RIGHT: Visibility & Publishing */}

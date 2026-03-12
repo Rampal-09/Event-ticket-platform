@@ -169,6 +169,13 @@ Core features include:
 * Ticket scanning
 * Organizer event management
 
+Additional Platform Capabilities
+
+• Real-time ticket tracking for organizers
+• Email ticket confirmation after purchase
+• Mobile optimized event pages
+• QR-based entry scanning system
+
 ---
 
 # 7. Future Enhancements (Phase 2)
@@ -341,4 +348,17 @@ A dedicated page for platform-wide frequently asked questions to reduce support 
 
 **Admin Control:**
 - Administrators can add, edit, or remove FAQ items later through the admin panel.
+
+---
+
+# 8. Homepage Marketing Sections
+
+The homepage will include additional marketing sections designed to communicate the platform's value and features to visitors.
+
+These sections include:
+
+1. Platform Features
+2. Supported Event Types
+3. Transparent Pricing
+4. Trust Banner
 
