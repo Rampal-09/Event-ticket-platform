@@ -20,7 +20,7 @@ const ReviewHistoryTable = ({ history }) => {
                             <tr key={item.id} className="hover:bg-gray-50/30 transition-colors animate-in fade-in duration-300">
                                 <td className="px-8 py-5">
                                     <span className="text-[10px] font-black text-gray-400 font-mono tracking-tighter">
-                                        #RV-{String(item.id).padStart(4, '0')}
+                                        #RV-{String(item.id).padStart(3, '0')}
                                     </span>
                                 </td>
                                 <td className="px-8 py-5">
@@ -71,7 +71,7 @@ const ReviewHistoryTable = ({ history }) => {
                         <div key={item.id} className="p-6 space-y-4 hover:bg-gray-50/30 transition-colors">
                             <div className="flex justify-between items-start gap-4">
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">#RV-{String(item.id).padStart(4, '0')}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">#RV-{String(item.id).padStart(3, '0')}</p>
                                     <p className="font-bold text-gray-900 leading-tight block tracking-tight">{item.eventName}</p>
                                 </div>
                                 <span className={`inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${item.decision === 'Approved'

@@ -238,6 +238,7 @@ router.get('/users', requireAuth, requireRole(['ADMIN']), async (req, res) => {
                 email: true,
                 role: true,
                 status: true,
+                isVerified: true,
                 createdAt: true
             },
             orderBy: { createdAt: 'desc' }
@@ -299,6 +300,26 @@ router.patch('/users/:id/status', requireAuth, requireRole(['ADMIN']), async (re
         res.json(user);
     } catch (error) {
         console.error('Update status error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @route PATCH /api/admin/users/:id/verify
+ * @desc  Toggle user verification status
+ */
+router.patch('/users/:id/verify', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    const { id } = req.params;
+    const { isVerified } = req.body;
+
+    try {
+        const user = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { isVerified: !!isVerified }
+        });
+        res.json(user);
+    } catch (error) {
+        console.error('Update verification error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

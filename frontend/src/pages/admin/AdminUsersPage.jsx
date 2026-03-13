@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import UserTable from '../../components/admin/UserTable';
 import AdminStatsCard from '../../components/admin/AdminStatsCard';
 import { adminService } from '../../services/adminService';
@@ -9,6 +10,7 @@ const AdminUsersPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [updatingId, setUpdatingId] = useState(null);
+    const navigate = useNavigate();
 
     const fetchUsers = async () => {
         setIsLoading(true);
@@ -53,15 +55,16 @@ const AdminUsersPage = () => {
         handleAction(id, () => adminService.updateUserStatus(id, 'ACTIVE'));
     };
 
-    const handleChangeRole = (id) => {
-        const currentUser = users.find(u => u.id === id);
-        if (!currentUser) return;
+    const handleVerify = (id, currentStatus) => {
+        handleAction(id, () => adminService.verifyUser(id, !currentStatus));
+    };
 
-        const roles = ['TENANT', 'STAFF', 'ORGANIZER', 'ADMIN'];
-        const currentIndex = roles.indexOf(currentUser.role);
-        const nextRole = roles[(currentIndex + 1) % roles.length];
-
-        handleAction(id, () => adminService.updateUserRole(id, nextRole));
+    const handleViewDetails = (user) => {
+        if (user.role === 'ORGANIZER') {
+            navigate(`/admin/events?organizerId=${user.id}`);
+        } else {
+            alert(`Activity tracking for ${user.role}s is under development.`);
+        }
     };
 
     const filteredUsers = users.filter(u =>
@@ -152,8 +155,9 @@ const AdminUsersPage = () => {
                         users={filteredUsers}
                         onSuspend={handleSuspend}
                         onActivate={handleActivate}
-                        onChangeRole={handleChangeRole}
+                        onVerify={handleVerify}
                         updatingId={updatingId}
+                        onViewDetails={handleViewDetails}
                     />
                 </div>
             </div>

@@ -27,5 +27,8 @@ export const adminService = {
     },
     updateUserStatus: async (id, status) => {
         return api.patch(`/admin/users/${id}/status`, { status });
+    },
+    verifyUser: async (id, isVerified) => {
+        return api.patch(`/admin/users/${id}/verify`, { isVerified });
     }
 };
