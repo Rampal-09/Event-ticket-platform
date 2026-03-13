@@ -15,43 +15,63 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
         isPublic, sellingFastThreshold, galleryImages
     } = req.body;
 
+    console.log('--- EVENT CREATION REQUEST ---');
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+
     try {
+        const parsedPrice = parseFloat(ticketPrice);
+        const parsedCapacity = parseInt(totalTickets);
+
+        if (isNaN(parsedPrice) || isNaN(parsedCapacity)) {
+            console.error('Validation Error: Price or Capacity is NaN', { parsedPrice, parsedCapacity });
+            return res.status(400).json({ error: 'Invalid price or capacity format' });
+        }
+
+        const prismaData = {
+            title,
+            category: category || 'General',
+            description: description || '',
+            location,
+            eventDate: new Date(eventDate),
+            ticketPrice: parsedPrice,
+            totalTickets: parsedCapacity,
+            image: image || null,
+            organizerId: req.user.id,
+            status: 'PENDING',
+            isPublic: isPublic !== undefined ? isPublic : true,
+            sellingFastThreshold: sellingFastThreshold ? parseInt(sellingFastThreshold) : 20,
+            tags: tags ? JSON.stringify(tags) : null,
+            highlights: highlights ? JSON.stringify(highlights) : null,
+            promocode: (promoCodes && promoCodes.length > 0) ? {
+                create: promoCodes.map(pc => ({
+                    code: pc.code.toUpperCase(),
+                    discountType: (pc.discountType || pc.type || 'PERCENTAGE').toUpperCase(),
+                    discountValue: parseFloat(pc.discountValue || pc.value || 0),
+                    maxUsage: pc.maxUsage || (pc.limit ? parseInt(pc.limit) : 0),
+                    expiresAt: pc.expiresAt ? new Date(pc.expiresAt) : (pc.expiry ? new Date(pc.expiry) : null)
+                }))
+            } : undefined,
+            eventimage: (galleryImages && galleryImages.length > 0) ? {
+                create: galleryImages.map((imgUrl, index) => ({
+                    imageUrl: imgUrl,
+                    displayOrder: index
+                }))
+            } : undefined,
+            updatedAt: new Date()
+        };
+
+        console.log('Prisma Payload:', JSON.stringify(prismaData, null, 2));
+
         const newEvent = await prisma.event.create({
-            data: {
-                title,
-                category,
-                description,
-                location,
-                eventDate: new Date(eventDate),
-                ticketPrice: parseFloat(ticketPrice),
-                totalTickets: parseInt(totalTickets),
-                image,
-                organizerId: req.user.id,
-                status: 'PENDING',
-                isPublic: isPublic !== undefined ? isPublic : true,
-                sellingFastThreshold: sellingFastThreshold ? parseInt(sellingFastThreshold) : 20,
-                tags: tags || [],
-                highlights: highlights || [],
-                promocode: promoCodes ? {
-                    create: promoCodes.map(pc => ({
-                        code: pc.code.toUpperCase(),
-                        discountType: (pc.discountType || pc.type).toUpperCase(),
-                        discountValue: parseFloat(pc.discountValue || pc.value),
-                        maxUsage: pc.maxUsage || (pc.limit ? parseInt(pc.limit) : 0),
-                        expiresAt: pc.expiresAt ? new Date(pc.expiresAt) : (pc.expiry ? new Date(pc.expiry) : null)
-                    }))
-                } : undefined,
-                eventimage: galleryImages ? {
-                    create: galleryImages.map((imgUrl, index) => ({
-                        imageUrl: imgUrl,
-                        displayOrder: index
-                    }))
-                } : undefined
-            }
+            data: prismaData
         });
         res.status(201).json(newEvent);
     } catch (error) {
         console.error('Error creating event:', error);
+        // Log detailed error for debugging
+        if (error.code) console.error('Prisma Error Code:', error.code);
+        if (error.meta) console.error('Prisma Error Meta:', error.meta);
+        
         if (error.name === 'PrismaClientKnownRequestError') {
             return res.status(400).json({ error: 'Database constraint violation. Please check your data.' });
         }
@@ -104,6 +124,8 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
         // Map response for frontend
         const mappedEvent = {
             ...event,
+            tags: event.tags ? (typeof event.tags === 'string' ? JSON.parse(event.tags) : event.tags) : [],
+            highlights: event.highlights ? (typeof event.highlights === 'string' ? JSON.parse(event.highlights) : event.highlights) : [],
             galleryImages: event.eventimage,
             promoCodes: event.promocode,
             schedule: event.eventschedule
@@ -152,8 +174,8 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
                 image,
                 isPublic: isPublic !== undefined ? isPublic : undefined,
                 sellingFastThreshold: sellingFastThreshold !== undefined ? parseInt(sellingFastThreshold) : undefined,
-                tags: tags || undefined,
-                highlights: highlights || undefined,
+                tags: tags ? JSON.stringify(tags) : undefined,
+                highlights: highlights ? JSON.stringify(highlights) : undefined,
                 // Simple strategy: delete and recreate linked items if provided
                 promocode: promoCodes ? {
                     deleteMany: {},
@@ -172,6 +194,7 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
                         displayOrder: index
                     }))
                 } : undefined,
+                updatedAt: new Date(),
                 status: 'PENDING' // Reset to pending if major changes made
             }
         });

@@ -50,12 +50,14 @@ const EditEvent = () => {
                 const event = await eventService.getOrganizerEventById(eventId); 
                 
                 // Parse tags for eventType and ageRestriction
-                const tags = event.tags || [];
+                const rawTags = event.tags || [];
+                const tags = Array.isArray(rawTags) ? rawTags : [];
                 const eventType = tags.includes('private') ? 'private' : 'public';
                 const ageRestriction = tags.find(t => ['all', '18', '21'].includes(t)) || '';
                 
                 // Parse highlights for parking and refundPolicy
-                const highlights = event.highlights || [];
+                const rawHighlights = event.highlights || [];
+                const highlights = Array.isArray(rawHighlights) ? rawHighlights : [];
                 const parking = highlights.find(h => ['available', 'limited', 'street', 'none'].includes(h)) || '';
                 const refundPolicy = highlights.find(h => ['non_refundable', '7_days', 'partial'].includes(h)) || '';
 

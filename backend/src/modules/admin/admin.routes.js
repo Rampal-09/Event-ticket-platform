@@ -7,6 +7,39 @@ const { requireAuth, requireRole } = require('../../middlewares/authMiddleware')
 const router = express.Router();
 
 /**
+ * @route GET /api/admin/events/moderation-stats
+ * @desc  Get stats for moderation dashboard
+ */
+router.get('/events/moderation-stats', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const [pendingCount, suspendedUsers, totalReviewed, approvedCount] = await Promise.all([
+            prisma.event.count({ where: { status: 'PENDING' } }),
+            prisma.user.count({ where: { status: 'SUSPENDED' } }),
+            prisma.event.count({
+                where: {
+                    status: { in: ['APPROVED', 'REJECTED'] }
+                }
+            }),
+            prisma.event.count({ where: { status: 'APPROVED' } })
+        ]);
+
+        const approvalRate = totalReviewed > 0 
+            ? Math.round((approvedCount / totalReviewed) * 100) 
+            : 0;
+
+        res.json({
+            pendingCount,
+            suspendedUsers,
+            approvalRate,
+            flaggedReports: 0 // Placeholder for future report system
+        });
+    } catch (error) {
+        console.error('Moderation stats error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
  * @route GET /api/admin/events
  * @desc  Get all events for moderation
  */
@@ -46,8 +79,56 @@ router.get('/events', requireAuth, requireRole(['ADMIN']), async (req, res) => {
 });
 
 /**
+ * @route GET /api/admin/dashboard
+ * @desc  Get system-wide stats and recent events for admin dashboard
+ */
+router.get('/dashboard', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const [totalEvents, pendingEvents, totalUsers, totalTickets, recentEvents] = await Promise.all([
+            prisma.event.count(),
+            prisma.event.count({ where: { status: 'PENDING' } }),
+            prisma.user.count(),
+            prisma.ticket.count(),
+            prisma.event.findMany({
+                take: 5,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    user_event_organizerIdTouser: {
+                        select: { name: true }
+                    }
+                }
+            })
+        ]);
+
+        const revStats = await prisma.event.findMany({
+            select: {
+                ticketsSold: true,
+                ticketPrice: true
+            }
+        });
+
+        const totalRevenue = revStats.reduce((sum, ev) => sum + ((ev.ticketsSold || 0) * ev.ticketPrice), 0);
+
+        res.json({
+            totalEvents,
+            pendingEvents,
+            totalUsers,
+            totalTicketsSold: totalTickets,
+            totalRevenue,
+            recentEvents: recentEvents.map(e => ({
+                ...e,
+                organizerName: e.user_event_organizerIdTouser?.name || 'Unknown'
+            }))
+        });
+    } catch (error) {
+        console.error('Admin dashboard error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
  * @route GET /api/admin/stats
- * @desc  Get system-wide stats for admin dashboard
+ * @desc  Get system-wide stats for admin dashboard (Legacy/Compact)
  */
 router.get('/stats', requireAuth, requireRole(['ADMIN']), async (req, res) => {
     try {

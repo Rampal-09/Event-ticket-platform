@@ -8,25 +8,33 @@ import { adminService } from '../../services/adminService';
 const AdminEventsPage = () => {
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
+    const [stats, setStats] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const fetchEvents = async () => {
+    const initPage = async () => {
         setIsLoading(true);
+        setError(null);
         try {
-            const data = await adminService.getEvents();
+            const [eventsData, statsData] = await Promise.all([
+                adminService.getEvents(),
+                adminService.getModerationStats()
+            ]);
             // Filter only pending events for the moderation queue
-            setEvents(data.filter(e => e.status === 'PENDING'));
+            setEvents(eventsData.filter(e => e.status === 'PENDING'));
+            setStats(statsData);
         } catch (err) {
-            console.error('Failed to load events:', err);
+            console.error('Failed to load moderation data:', err);
+            setError('Could not sync with moderation server. Please check your connection.');
         } finally {
             setIsLoading(false);
         }
     };
 
     React.useEffect(() => {
-        fetchEvents();
+        initPage();
     }, []);
 
     const handleOpenReview = (event) => {
@@ -34,28 +42,50 @@ const AdminEventsPage = () => {
         setIsModalOpen(true);
     };
 
-    const handleApprove = async (id) => {
+    const handleStatusUpdate = async (id, status, reason) => {
         try {
-            await adminService.updateEventStatus(id, 'APPROVED');
+            await adminService.updateEventStatus(id, status, reason);
             setEvents(prev => prev.filter(e => e.id !== id));
+            // Optionally refresh stats after update
+            const newStats = await adminService.getModerationStats();
+            setStats(newStats);
             setIsModalOpen(false);
         } catch (err) {
-            alert('Failed to approve event');
+            console.error(`Failed to ${status} event:`, err);
+            alert(`System error: Failed to ${status} event. Please try again.`);
         }
     };
 
-    const handleReject = async (id, reason) => {
-        try {
-            await adminService.updateEventStatus(id, 'REJECTED', reason);
-            setEvents(prev => prev.filter(e => e.id !== id));
-            setIsModalOpen(false);
-        } catch (err) {
-            alert('Failed to reject event');
-        }
-    };
+    if (isLoading) {
+        return (
+            <div className="py-32 flex flex-col items-center justify-center space-y-4">
+                <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p className="text-gray-400 font-black uppercase tracking-widest text-xs animate-pulse">Syncing Moderation Queue...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="py-20 text-center space-y-6">
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p className="text-gray-600 font-bold">{error}</p>
+                <button 
+                    onClick={initPage}
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition-colors"
+                >
+                    Retry Sync
+                </button>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Admin Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -76,22 +106,22 @@ const AdminEventsPage = () => {
 
             {/* Admin Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <AdminStatsCard label="Avg Approval Time" value="4.2h" trend={12} icon={
+                <AdminStatsCard label="Pending Volume" value={stats?.pendingCount || '0'} icon={
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 } color="indigo" />
-                <AdminStatsCard label="Approval Rate" value="88%" trend={5} icon={
+                <AdminStatsCard label="Approval Rate" value={`${stats?.approvalRate || 0}%`} icon={
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 } color="emerald" />
-                <AdminStatsCard label="Flagged Reports" value="12" trend={-8} icon={
+                <AdminStatsCard label="Flagged Reports" value={stats?.flaggedReports || '0'} icon={
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 } color="amber" />
-                <AdminStatsCard label="Suspended Users" value="2" icon={
+                <AdminStatsCard label="Suspended Users" value={stats?.suspendedUsers || '0'} icon={
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
@@ -114,8 +144,8 @@ const AdminEventsPage = () => {
                 <div className="overflow-x-auto">
                     <EventApprovalTable
                         events={events}
-                        onApprove={handleApprove}
-                        onReject={handleReject}
+                        onApprove={(id) => handleStatusUpdate(id, 'APPROVED')}
+                        onReject={(id, reason) => handleStatusUpdate(id, 'REJECTED', reason)}
                         onReview={handleOpenReview}
                     />
                 </div>
@@ -126,8 +156,8 @@ const AdminEventsPage = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 event={selectedEvent}
-                onApprove={handleApprove}
-                onReject={handleReject}
+                onApprove={(id) => handleStatusUpdate(id, 'APPROVED')}
+                onReject={(id, reason) => handleStatusUpdate(id, 'REJECTED', reason)}
             />
         </div>
     );

@@ -4,8 +4,14 @@ export const adminService = {
     getStats: async () => {
         return api.get('/admin/stats');
     },
+    getDashboardData: async () => {
+        return api.get('/admin/dashboard');
+    },
     getEvents: async () => {
         return api.get('/admin/events');
+    },
+    getModerationStats: async () => {
+        return api.get('/admin/events/moderation-stats');
     },
     updateEventStatus: async (id, status, reason) => {
         return api.patch(`/admin/events/${id}/status`, { status, reason });

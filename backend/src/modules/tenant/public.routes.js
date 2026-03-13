@@ -87,6 +87,8 @@ router.get('/events/:id', async (req, res) => {
 
         res.json({
             ...event,
+            tags: event.tags ? (typeof event.tags === 'string' ? JSON.parse(event.tags) : event.tags) : [],
+            highlights: event.highlights ? (typeof event.highlights === 'string' ? JSON.parse(event.highlights) : event.highlights) : [],
             organizer: event.user_event_organizerIdTouser,
             galleryImages: event.eventimage,
             schedule: event.eventschedule
