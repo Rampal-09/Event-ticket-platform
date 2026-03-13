@@ -18,6 +18,7 @@ import Dashboard from '../pages/organizer/Dashboard';
 import CreateEvent from '../pages/organizer/CreateEvent';
 import MyEvents from '../pages/organizer/MyEvents';
 import EditEvent from '../pages/organizer/EditEvent';
+import OrganizerEventDetails from '../pages/organizer/OrganizerEventDetails';
 import OrganizerReports from '../pages/organizer/OrganizerReports';
 
 import QRScanner from '../pages/scanner/QRScanner';
@@ -59,6 +60,7 @@ const AppRouter = () => {
                         <Route path={ROUTES.CREATE_EVENT} element={<CreateEvent />} />
                         <Route path={ROUTES.MY_EVENTS} element={<MyEvents />} />
                         <Route path={ROUTES.EDIT_EVENT} element={<EditEvent />} />
+                        <Route path={ROUTES.ORGANIZER_EVENT_DETAILS} element={<OrganizerEventDetails />} />
                         <Route path={ROUTES.ORGANIZER_REPORTS} element={<OrganizerReports />} />
                     </Route>
                 </Route>

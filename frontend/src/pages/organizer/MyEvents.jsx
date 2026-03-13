@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import { eventService } from '../../services/eventService';
+import { ROUTES } from '../../router/routes';
 
 const STATUS_STYLES = {
     APPROVED: { label: 'Approved', dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
@@ -42,7 +43,7 @@ const MyEvents = () => {
     );
 
     const handleEditClick = (event) => {
-        navigate(`/organizer/events/edit/${event.id}`);
+        navigate(ROUTES.EDIT_EVENT.replace(':eventId', event.id));
     };
 
     const handleSaveEdit = async (e) => {
@@ -160,23 +161,9 @@ const MyEvents = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-end gap-2">
-                                                <Button variant="ghost" size="sm" onClick={() => navigate(`/events/${event.id}?preview=true${!event.isPublic ? '&private=true' : ''}`)}>View</Button>
+                                                <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.ORGANIZER_EVENT_DETAILS.replace(':eventId', event.id))}>View</Button>
                                                 <Button variant="ghost" size="sm" onClick={() => handleEditClick(event)}>Edit</Button>
-                                                <Button variant="outline" size="sm" onClick={() => navigate(`/scanner?id=${event.id}`)}>Scan</Button>
-                                                {!event.isPublic && (
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm" 
-                                                        className="text-indigo-600 font-bold"
-                                                        onClick={() => {
-                                                            const url = `${window.location.origin}/events/${event.id}?private=true`;
-                                                            navigator.clipboard.writeText(url);
-                                                            alert('Private link copied to clipboard!');
-                                                        }}
-                                                    >
-                                                        Copy Link
-                                                    </Button>
-                                                )}
+                                                <Button variant="outline" size="sm" onClick={() => navigate(`${ROUTES.SCANNER}?id=${event.id}`)}>Scan</Button>
                                             </div>
                                         </td>
                                     </tr>

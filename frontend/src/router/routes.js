@@ -17,6 +17,7 @@ export const ROUTES = {
     CREATE_EVENT: '/organizer/create-event',
     MY_EVENTS: '/organizer/my-events',
     EDIT_EVENT: '/organizer/events/edit/:eventId',
+    ORGANIZER_EVENT_DETAILS: '/organizer/events/:eventId',
     ORGANIZER_REPORTS: '/organizer/reports',
 
     // Scanner

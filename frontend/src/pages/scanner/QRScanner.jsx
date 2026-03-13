@@ -11,19 +11,33 @@ const QRScanner = () => {
     const navigate = useNavigate();
     const eventId = searchParams.get('id');
     const [eventData, setEventData] = useState({ title: 'Loading...' });
+    const [stats, setStats] = useState({ admitted: 0, pending: 0 });
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchData = async () => {
+        if (!eventId) return;
+        setIsLoading(true);
+        try {
+            const [event, scannerStats] = await Promise.all([
+                eventService.getOrganizerEventById(eventId),
+                eventService.getScannerStats(eventId)
+            ]);
+            setEventData(event);
+            setStats({
+                admitted: scannerStats.admitted,
+                pending: scannerStats.pending
+            });
+        } catch (err) {
+            console.error('Fetch scanner data error:', err);
+            setError('Unable to load event context. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        if (eventId) {
-            const fetchEvent = async () => {
-                try {
-                    const data = await eventService.getPublicEventById(eventId);
-                    setEventData(data);
-                } catch (err) {
-                    console.error('Fetch event error:', err);
-                }
-            };
-            fetchEvent();
-        }
+        fetchData();
     }, [eventId]);
 
     const [isScanning, setIsScanning] = useState(false);
@@ -82,6 +96,7 @@ const QRScanner = () => {
     const handleClose = () => {
         setShowResult(false);
         setScanResult(null);
+        fetchData(); // Refresh stats after scan
     };
 
     return (
@@ -103,13 +118,13 @@ const QRScanner = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="text-center">
-                        <p className="text-xs text-gray-500 font-medium">Valid</p>
-                        <p className="text-lg font-black text-emerald-500">{scanCount.valid}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-tighter">Admitted</p>
+                        <p className="text-lg font-black text-emerald-500 tabular-nums">{stats.admitted}</p>
                     </div>
                     <div className="w-px h-8 bg-white/10" />
                     <div className="text-center">
-                        <p className="text-xs text-gray-500 font-medium">Invalid</p>
-                        <p className="text-lg font-black text-red-500">{scanCount.invalid}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-tighter">Pending</p>
+                        <p className="text-lg font-black text-amber-500 tabular-nums">{stats.pending}</p>
                     </div>
                 </div>
             </header>
