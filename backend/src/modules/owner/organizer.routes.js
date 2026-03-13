@@ -9,8 +9,8 @@ const router = express.Router();
  * @desc  Create a new event
  */
 router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (req, res) => {
-    const { 
-        title, category, description, location, eventDate, ticketPrice, 
+    const {
+        title, category, description, location, eventDate, ticketPrice,
         totalTickets, image, tags, highlights, promoCodes,
         isPublic, sellingFastThreshold, galleryImages
     } = req.body;
@@ -32,16 +32,16 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
                 sellingFastThreshold: sellingFastThreshold ? parseInt(sellingFastThreshold) : 20,
                 tags: tags || [],
                 highlights: highlights || [],
-                promoCodes: promoCodes ? {
+                promocode: promoCodes ? {
                     create: promoCodes.map(pc => ({
                         code: pc.code.toUpperCase(),
-                        discountType: pc.type.toUpperCase(),
-                        discountValue: parseFloat(pc.value),
-                        maxUsage: pc.limit ? parseInt(pc.limit) : 0,
-                        expiresAt: pc.expiry ? new Date(pc.expiry) : null
+                        discountType: (pc.discountType || pc.type).toUpperCase(),
+                        discountValue: parseFloat(pc.discountValue || pc.value),
+                        maxUsage: pc.maxUsage || (pc.limit ? parseInt(pc.limit) : 0),
+                        expiresAt: pc.expiresAt ? new Date(pc.expiresAt) : (pc.expiry ? new Date(pc.expiry) : null)
                     }))
                 } : undefined,
-                galleryImages: galleryImages ? {
+                eventimage: galleryImages ? {
                     create: galleryImages.map((imgUrl, index) => ({
                         imageUrl: imgUrl,
                         displayOrder: index
@@ -90,9 +90,9 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
         const event = await prisma.event.findUnique({
             where: { id: parseInt(id) },
             include: {
-                galleryImages: true,
-                promoCodes: true,
-                schedule: true
+                eventimage: true,
+                promocode: true,
+                eventschedule: true
             }
         });
 
@@ -101,7 +101,15 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
             return res.status(403).json({ error: 'Not authorized' });
         }
 
-        res.json(event);
+        // Map response for frontend
+        const mappedEvent = {
+            ...event,
+            galleryImages: event.eventimage,
+            promoCodes: event.promocode,
+            schedule: event.eventschedule
+        };
+
+        res.json(mappedEvent);
     } catch (error) {
         console.error('Error fetching event details:', error);
         res.status(500).json({ error: 'Failed to load event details. Please try again.' });
@@ -114,10 +122,10 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
  */
 router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (req, res) => {
     const { id } = req.params;
-    const { 
-        title, category, description, location, eventDate, ticketPrice, 
+    const {
+        title, category, description, location, eventDate, ticketPrice,
         totalTickets, image, tags, highlights, promoCodes,
-        isPublic, sellingFastThreshold, galleryImages 
+        isPublic, sellingFastThreshold, galleryImages
     } = req.body;
 
     try {
@@ -147,7 +155,7 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
                 tags: tags || undefined,
                 highlights: highlights || undefined,
                 // Simple strategy: delete and recreate linked items if provided
-                promoCodes: promoCodes ? {
+                promocode: promoCodes ? {
                     deleteMany: {},
                     create: promoCodes.map(pc => ({
                         code: pc.code.toUpperCase(),
@@ -157,7 +165,7 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
                         expiresAt: pc.expiresAt ? new Date(pc.expiresAt) : (pc.expiry ? new Date(pc.expiry) : null)
                     }))
                 } : undefined,
-                galleryImages: galleryImages ? {
+                eventimage: galleryImages ? {
                     deleteMany: {},
                     create: galleryImages.map((imgUrl, index) => ({
                         imageUrl: imgUrl,
@@ -245,7 +253,7 @@ router.get('/events/:id/promos', requireAuth, requireRole(['ORGANIZER', 'ADMIN']
         if (event.organizerId !== req.user.id && req.user.role !== 'ADMIN') {
             return res.status(403).json({ error: 'Not authorized' });
         }
-        const promos = await prisma.promoCode.findMany({
+        const promos = await prisma.promocode.findMany({
             where: { eventId: parseInt(id) },
             orderBy: { createdAt: 'desc' }
         });
@@ -272,7 +280,7 @@ router.post('/events/:id/promos', requireAuth, requireRole(['ORGANIZER', 'ADMIN'
         if (event.organizerId !== req.user.id && req.user.role !== 'ADMIN') {
             return res.status(403).json({ error: 'Not authorized' });
         }
-        const promo = await prisma.promoCode.create({
+        const promo = await prisma.promocode.create({
             data: {
                 eventId: parseInt(id),
                 code: code.toUpperCase(),
@@ -304,7 +312,7 @@ router.delete('/events/:eventId/promos/:promoId', requireAuth, requireRole(['ORG
         if (event.organizerId !== req.user.id && req.user.role !== 'ADMIN') {
             return res.status(403).json({ error: 'Not authorized' });
         }
-        await prisma.promoCode.delete({ where: { id: parseInt(promoId) } });
+        await prisma.promocode.delete({ where: { id: parseInt(promoId) } });
         res.json({ message: 'Promo code deleted' });
     } catch (error) {
         console.error('Error deleting promo:', error);
@@ -323,7 +331,7 @@ router.get('/events/:id/scanner-stats', requireAuth, requireRole(['ORGANIZER', '
             where: { id: parseInt(id) },
             include: {
                 _count: {
-                    select: { tickets: true }
+                    select: { ticket: true }
                 }
             }
         });

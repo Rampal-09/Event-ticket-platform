@@ -15,7 +15,7 @@ router.get('/events', async (req, res) => {
                 isPublic: true
             },
             include: {
-                organizer: {
+                user_event_organizerIdTouser: {
                     select: {
                         name: true
                     }
@@ -25,7 +25,14 @@ router.get('/events', async (req, res) => {
                 eventDate: 'asc'
             }
         });
-        res.json(events);
+
+        // Map response for frontend
+        const mappedEvents = events.map(e => ({
+            ...e,
+            organizer: e.user_event_organizerIdTouser
+        }));
+
+        res.json(mappedEvents);
     } catch (error) {
         console.error('Error fetching public events:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -42,17 +49,17 @@ router.get('/events/:id', async (req, res) => {
         const event = await prisma.event.findUnique({
             where: { id: parseInt(id) },
             include: {
-                organizer: {
+                user_event_organizerIdTouser: {
                     select: {
                         name: true
                     }
                 },
-                galleryImages: {
+                eventimage: {
                     orderBy: {
                         displayOrder: 'asc'
                     }
                 },
-                schedule: {
+                eventschedule: {
                     orderBy: {
                         orderIndex: 'asc'
                     }
@@ -78,7 +85,12 @@ router.get('/events/:id', async (req, res) => {
             return res.status(404).json({ error: 'This is a private event. You need a direct link to access it.' });
         }
 
-        res.json(event);
+        res.json({
+            ...event,
+            organizer: event.user_event_organizerIdTouser,
+            galleryImages: event.eventimage,
+            schedule: event.eventschedule
+        });
     } catch (error) {
         console.error('Error fetching event details:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -120,7 +132,7 @@ router.get('/tickets/:id', async (req, res) => {
 router.get('/promo/:eventId/:code', async (req, res) => {
     const { eventId, code } = req.params;
     try {
-        const promo = await prisma.promoCode.findUnique({
+        const promo = await prisma.promocode.findUnique({
             where: {
                 eventId_code: {
                     eventId: parseInt(eventId),
@@ -162,7 +174,7 @@ router.get('/stats', async (req, res) => {
         const totalEvents = await prisma.event.count({
             where: { status: 'APPROVED' }
         });
-        
+
         const events = await prisma.event.findMany({
             select: { ticketsSold: true }
         });

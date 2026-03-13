@@ -18,7 +18,7 @@ router.post('/purchase', async (req, res) => {
 
     try {
         const eventIdInt = parseInt(eventId);
-        
+
         // Transaction to ensure atomicity
         const result = await prisma.$transaction(async (tx) => {
             const event = await tx.event.findUnique({
@@ -34,7 +34,7 @@ router.post('/purchase', async (req, res) => {
 
             // 1. Validate Promo Code if provided
             if (promoCode) {
-                const promo = await tx.promoCode.findUnique({
+                const promo = await tx.promocode.findUnique({
                     where: {
                         eventId_code: {
                             eventId: eventIdInt,
@@ -44,7 +44,7 @@ router.post('/purchase', async (req, res) => {
                 });
 
                 if (!promo) throw new Error('Invalid promo code');
-                
+
                 // Expiry Check
                 if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
                     throw new Error('Promo code has expired');
@@ -63,7 +63,7 @@ router.post('/purchase', async (req, res) => {
                 }
 
                 // Increment Usage
-                await tx.promoCode.update({
+                await tx.promocode.update({
                     where: { id: promo.id },
                     data: { currentUsage: { increment: 1 } }
                 });
@@ -145,7 +145,7 @@ router.post('/validate', requireAuth, requireRole(['ADMIN', 'ORGANIZER']), async
         // Mark as used
         const updatedTicket = await prisma.ticket.update({
             where: { id: ticket.id },
-            data: { 
+            data: {
                 status: 'USED',
                 scannedAt: new Date()
             }

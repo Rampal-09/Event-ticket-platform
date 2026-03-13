@@ -14,13 +14,13 @@ router.get('/events', requireAuth, requireRole(['ADMIN']), async (req, res) => {
     try {
         const events = await prisma.event.findMany({
             include: {
-                organizer: {
+                user_event_organizerIdTouser: {
                     select: {
                         name: true,
                         email: true
                     }
                 },
-                reviewedBy: {
+                user_event_reviewedByIdTouser: {
                     select: {
                         name: true
                     }
@@ -30,7 +30,15 @@ router.get('/events', requireAuth, requireRole(['ADMIN']), async (req, res) => {
                 createdAt: 'desc'
             }
         });
-        res.json(events);
+
+        // Map responses for frontend
+        const mappedEvents = events.map(e => ({
+            ...e,
+            organizer: e.user_event_organizerIdTouser,
+            reviewedBy: e.user_event_reviewedByIdTouser
+        }));
+
+        res.json(mappedEvents);
     } catch (error) {
         console.error('Error fetching admin events:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -83,7 +91,7 @@ router.patch('/events/:id/status', requireAuth, requireRole(['ADMIN']), async (r
     try {
         const updatedEvent = await prisma.event.update({
             where: { id: parseInt(id) },
-            data: { 
+            data: {
                 status,
                 reviewedById: req.user.id,
                 rejectionReason: status === 'REJECTED' ? reason : null
