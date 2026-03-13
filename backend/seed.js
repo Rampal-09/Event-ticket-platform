@@ -23,7 +23,7 @@ async function main() {
     const organizerPassword = await bcrypt.hash('organizer123', 10);
     const organizer = await prisma.user.upsert({
         where: { email: 'organizer@eventplatform.com' },
-        update: { password: organizerPassword },
+        update: { password: organizerPassword, role: 'ORGANIZER' },
         create: {
             email: 'organizer@eventplatform.com',
             name: 'John Organizer',

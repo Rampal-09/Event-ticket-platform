@@ -44,7 +44,7 @@ model User {
   name          String
   email         String          @unique
   password      String
-  role          Role            @default(TENANT)
+  role          Role            @default(ORGANIZER)
   status        UserStatus      @default(ACTIVE)
   organizedEvents Event[]         @relation("OrganizerEvents")
   reviewedEvents  Event[]         @relation("ReviewerEvents")
