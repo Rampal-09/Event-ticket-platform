@@ -31,14 +31,14 @@ const PublicLayout = ({ children }) => {
                     : 'bg-white border-b border-gray-100'
                     }`}
             >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="w-full px-4 sm:px-6 lg:px-12">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
-                        <Link to="/" className="flex items-center py-1 group">
+                        <Link to="/" className="flex items-center py-1 group -ml-4 lg:-ml-8">
                             <img
                                 src="/logo/eventhubix-logo.png"
                                 alt="EventHubix Logo"
-                                className="h-32 w-auto object-contain group-hover:scale-105 transition-transform duration-200"
+                                className="h-40 w-auto object-contain group-hover:scale-105 transition-transform duration-200"
                             />
                         </Link>
 
@@ -56,7 +56,7 @@ const PublicLayout = ({ children }) => {
                         </div>
 
                         {/* Auth Buttons */}
-                        <div className="hidden md:flex items-center gap-3">
+                        <div className="hidden md:flex items-center gap-3 -mr-2 lg:-mr-4">
                             <Link to="/login" className="text-sm font-semibold text-gray-700 hover:text-indigo-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
                                 Sign In
                             </Link>
