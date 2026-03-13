@@ -1,5 +1,4 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { ROUTES } from './routes';
 
 /**
@@ -7,7 +6,15 @@ import { ROUTES } from './routes';
  * In a real app, this would check authentication state from a context or store.
  * For now, it uses a mock check.
  */
-const ProtectedRoute = ({ allowedRoles = [] }) => {
+const ProtectedRoute = ({ allowedRoles = [], pathPrefix }) => {
+    const { pathname } = useLocation();
+
+    // If a pathPrefix is provided, only protect routes that start with it.
+    // This allows sibling ProtectedRoute components to coexist safely.
+    if (pathPrefix && !pathname.startsWith(pathPrefix)) {
+        return <Outlet />;
+    }
+
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;

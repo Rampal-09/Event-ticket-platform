@@ -54,32 +54,26 @@ const AppRouter = () => {
                 <Route path={ROUTES.REGISTER} element={<Register />} />
 
                 {/* Protected Organizer Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['organizer']} />}>
-                    <Route element={<OrganizerLayout />}>
-                        <Route path={ROUTES.ORGANIZER_DASHBOARD} element={<Dashboard />} />
-                        <Route path={ROUTES.CREATE_EVENT} element={<CreateEvent />} />
-                        <Route path={ROUTES.MY_EVENTS} element={<MyEvents />} />
-                        <Route path={ROUTES.EDIT_EVENT} element={<EditEvent />} />
-                        <Route path={ROUTES.ORGANIZER_EVENT_DETAILS} element={<OrganizerEventDetails />} />
-                        <Route path={ROUTES.ORGANIZER_REPORTS} element={<OrganizerReports />} />
-                    </Route>
+                <Route element={<OrganizerLayout />}>
+                    <Route path={ROUTES.ORGANIZER_DASHBOARD} element={<Dashboard />} />
+                    <Route path={ROUTES.CREATE_EVENT} element={<CreateEvent />} />
+                    <Route path={ROUTES.MY_EVENTS} element={<MyEvents />} />
+                    <Route path={ROUTES.EDIT_EVENT} element={<EditEvent />} />
+                    <Route path={ROUTES.ORGANIZER_EVENT_DETAILS} element={<OrganizerEventDetails />} />
+                    <Route path={ROUTES.ORGANIZER_REPORTS} element={<OrganizerReports />} />
                 </Route>
 
                 {/* Protected Scanner Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['organizer', 'staff']} />}>
-                    <Route element={<ScannerLayout />}>
-                        <Route path={ROUTES.SCANNER} element={<QRScanner />} />
-                    </Route>
+                <Route element={<ScannerLayout />}>
+                    <Route path={ROUTES.SCANNER} element={<QRScanner />} />
                 </Route>
 
                 {/* Protected Admin Routes */}
-                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                    <Route element={<AdminLayout />}>
-                        <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboardPage />} />
-                        <Route path={ROUTES.ADMIN_EVENTS} element={<AdminEventsPage />} />
-                        <Route path={ROUTES.ADMIN_USERS} element={<AdminUsersPage />} />
-                        <Route path={ROUTES.ADMIN_REVIEW_HISTORY} element={<ReviewHistoryPage />} />
-                    </Route>
+                <Route element={<AdminLayout />}>
+                    <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboardPage />} />
+                    <Route path={ROUTES.ADMIN_EVENTS} element={<AdminEventsPage />} />
+                    <Route path={ROUTES.ADMIN_USERS} element={<AdminUsersPage />} />
+                    <Route path={ROUTES.ADMIN_REVIEW_HISTORY} element={<ReviewHistoryPage />} />
                 </Route>
 
                 {/* Fallback */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet, Navigate } from 'react-router-dom';
 
 const ADMIN_NAV = [
     {
@@ -40,10 +40,20 @@ const ADMIN_NAV = [
     },
 ];
 
+
 const AdminLayout = ({ children }) => {
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+    // Auth Guard
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user?.role?.toUpperCase();
+
+    if (!token || userRole !== 'ADMIN') {
+        return <Navigate to="/" replace />;
+    }
 
     useEffect(() => {
         if (mobileSidebarOpen) {

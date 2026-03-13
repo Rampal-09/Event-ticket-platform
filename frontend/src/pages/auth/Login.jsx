@@ -39,10 +39,15 @@ const Login = () => {
         setError('');
         try {
             const res = await authService.login({ email, password });
-            if (res.user.role === 'ADMIN') {
+            const role = (res.user.role || '').toUpperCase();
+            
+            if (role === 'ADMIN') {
                 navigate(ROUTES.ADMIN_DASHBOARD);
-            } else {
+            } else if (role === 'ORGANIZER') {
                 navigate(ROUTES.ORGANIZER_DASHBOARD);
+            } else {
+                // Default to homepage for TENANT or other roles
+                navigate(ROUTES.HOME);
             }
         } catch (err) {
             setError(err.message || 'Login failed');

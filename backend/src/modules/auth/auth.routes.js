@@ -30,6 +30,15 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        // Self-healing: Ensure demo accounts always have the correct roles
+        if (email === 'admin@eventplatform.com' && user.role !== 'ADMIN') {
+            await prisma.user.update({ where: { email }, data: { role: 'ADMIN' } });
+            user.role = 'ADMIN';
+        } else if (email === 'organizer@eventplatform.com' && user.role !== 'ORGANIZER') {
+            await prisma.user.update({ where: { email }, data: { role: 'ORGANIZER' } });
+            user.role = 'ORGANIZER';
+        }
+
         if (user.status === 'SUSPENDED') {
             return res.status(403).json({ error: 'Your account has been suspended. Please contact support.' });
         }

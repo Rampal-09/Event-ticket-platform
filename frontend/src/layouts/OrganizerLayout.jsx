@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet, Navigate } from 'react-router-dom';
 
 const NAV_ITEMS = [
     {
@@ -53,6 +53,15 @@ const NAV_ITEMS = [
 const OrganizerLayout = ({ children }) => {
     const { pathname } = useLocation();
     const navigate = useNavigate();
+
+    // Auth Guard
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user?.role?.toUpperCase();
+
+    if (!token || userRole !== 'ORGANIZER') {
+        return <Navigate to="/" replace />;
+    }
 
     const handleSignOut = () => {
         localStorage.removeItem('token');
