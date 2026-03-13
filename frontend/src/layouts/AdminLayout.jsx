@@ -55,8 +55,8 @@ const AdminLayout = ({ children }) => {
     }, [mobileSidebarOpen]);
 
     const handleSignOut = () => {
-        sessionStorage.removeItem('ep_auth');
-        sessionStorage.removeItem('ep_role');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         navigate('/login');
     };
 

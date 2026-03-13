@@ -12,14 +12,17 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
     
+    const userRole = user?.role?.toLowerCase() || '';
     const isAuthenticated = !!token;
-    const userRole = user ? user.role.toLowerCase() : '';
 
     if (!isAuthenticated) {
         return <Navigate to={ROUTES.LOGIN} replace />;
     }
 
-    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+    const isAuthorized = allowedRoles.length === 0 || 
+        allowedRoles.some(role => role.toLowerCase() === userRole);
+
+    if (!isAuthorized) {
         return <Navigate to={ROUTES.HOME} replace />;
     }
 

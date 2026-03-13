@@ -55,8 +55,8 @@ const OrganizerLayout = ({ children }) => {
     const navigate = useNavigate();
 
     const handleSignOut = () => {
-        sessionStorage.removeItem('ep_auth');
-        sessionStorage.removeItem('ep_role');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         navigate('/login');
     };
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
