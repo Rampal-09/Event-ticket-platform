@@ -13,6 +13,9 @@ export const adminService = {
     getModerationStats: async () => {
         return api.get('/admin/events/moderation-stats');
     },
+    getReviewHistory: async () => {
+        return api.get('/admin/events/history');
+    },
     updateEventStatus: async (id, status, reason) => {
         return api.patch(`/admin/events/${id}/status`, { status, reason });
     },

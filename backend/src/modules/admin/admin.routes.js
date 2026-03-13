@@ -79,6 +79,46 @@ router.get('/events', requireAuth, requireRole(['ADMIN']), async (req, res) => {
 });
 
 /**
+ * @route GET /api/admin/events/history
+ * @desc  Get history of reviewed events (Approved/Rejected)
+ */
+router.get('/events/history', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const history = await prisma.event.findMany({
+            where: {
+                status: { in: ['APPROVED', 'REJECTED'] }
+            },
+            include: {
+                user_event_organizerIdTouser: {
+                    select: { name: true }
+                },
+                user_event_reviewedByIdTouser: {
+                    select: { name: true }
+                }
+            },
+            orderBy: {
+                updatedAt: 'desc'
+            }
+        });
+
+        const mappedHistory = history.map(e => ({
+            id: e.id,
+            eventName: e.title,
+            organizer: e.user_event_organizerIdTouser?.name || 'Unknown',
+            decision: e.status === 'APPROVED' ? 'Approved' : 'Rejected',
+            reviewedBy: e.user_event_reviewedByIdTouser?.name || 'Platform Admin',
+            reason: e.rejectionReason,
+            date: e.updatedAt || e.createdAt
+        }));
+
+        res.json(mappedHistory);
+    } catch (error) {
+        console.error('Error fetching review history:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
  * @route GET /api/admin/dashboard
  * @desc  Get system-wide stats and recent events for admin dashboard
  */
@@ -215,6 +255,12 @@ router.get('/users', requireAuth, requireRole(['ADMIN']), async (req, res) => {
 router.patch('/users/:id/role', requireAuth, requireRole(['ADMIN']), async (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
+
+    const validRoles = ['ADMIN', 'ORGANIZER', 'TENANT', 'STAFF'];
+    if (!validRoles.includes(role)) {
+        return res.status(400).json({ error: 'Invalid role' });
+    }
+
     try {
         const user = await prisma.user.update({
             where: { id: parseInt(id) },
@@ -222,6 +268,7 @@ router.patch('/users/:id/role', requireAuth, requireRole(['ADMIN']), async (req,
         });
         res.json(user);
     } catch (error) {
+        console.error('Update role error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -233,6 +280,17 @@ router.patch('/users/:id/role', requireAuth, requireRole(['ADMIN']), async (req,
 router.patch('/users/:id/status', requireAuth, requireRole(['ADMIN']), async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
+
+    const validStatus = ['ACTIVE', 'SUSPENDED'];
+    if (!validStatus.includes(status)) {
+        return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    // Safety: Prevent self-suspension
+    if (parseInt(id) === req.user.id && status === 'SUSPENDED') {
+        return res.status(403).json({ error: 'Safety Guard: You cannot suspend your own account.' });
+    }
+
     try {
         const user = await prisma.user.update({
             where: { id: parseInt(id) },
@@ -240,6 +298,7 @@ router.patch('/users/:id/status', requireAuth, requireRole(['ADMIN']), async (re
         });
         res.json(user);
     } catch (error) {
+        console.error('Update status error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
