@@ -1,5 +1,7 @@
-.env
+# Ignore local environment files
 backend/.env
+.env
+.env.local
 
 # Logs
 logs
