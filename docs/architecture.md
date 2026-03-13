@@ -1,217 +1,28 @@
-# System Architecture
-
-The platform uses a standard web application architecture.
-
-Frontend → Backend → SQL Database
-
----
-
-# 1. Frontend Layer
-
-Frontend handles the user interface and user interactions.
-
-Technologies used:
-
-* JavaScript
-* React
-* Vite
-* TailwindCSS
-* React Router
-
-Responsibilities:
-
-* Rendering UI pages
-* Handling user input
-* Navigation between pages
-* Generating QR codes
-* Scanning QR codes
-* Calling backend APIs
-
-Frontend pages include:
-
-Public pages:
-
-* Home
-* Event List
-* Event Details
-* Checkout
-* Ticket Page
-
-Organizer pages:
-
-* Dashboard
-* Create Event
-* My Events
-
-Scanner page:
-
-* QR Scanner
-
----
-
-# 2. Backend Layer
-
-Backend manages application logic and data processing.
-
-Possible technologies:
-
-* Node.js
-* Express.js
-
-Responsibilities:
-
-* API endpoints
-* Event creation
-* Ticket generation
-* QR validation
-* Payment processing
-* Database operations
-
----
-
-# 3. Database Layer (SQL)
-
-A relational SQL database stores all application data.
-
-Possible databases:
-
-* PostgreSQL
-* MySQL
-
-Tables:
-
-Users
-Events
-Tickets
-
-Relationships:
-
-Organizer → creates → Events
-Events → contain → Tickets
-
----
-
-# 4. Extended Database Entities (Phase 1 Features)
-
-These entities support advanced functionality such as event galleries, promotional discounts, and moderation workflows.
-
-## 1. New Table: event_images
-
-**Purpose:** Support multiple images per event for the event gallery feature.
-
-**Fields:**
-- `id`: Primary Key
-- `event_id`: Foreign Key (→ `events.id`)
-- `image_url`: URL/path to the image asset.
-- `display_order`: Integer (Controls position in the gallery slider).
-- `created_at`: Timestamp
-
-**Relationships:**
-- `events` (1) → (many) `event_images`
-
-**Behavior:**
-- One event can have multiple associated images.
-- Organizers can reorder images by updating `display_order`.
-
----
-
-## 2. New Table: promo_codes
-
-**Purpose:** Support event-level discount codes applied during checkout.
-
-**Fields:**
-- `id`: Primary Key
-- `event_id`: Foreign Key (→ `events.id`)
-- `code`: The alphanumeric code (e.g., `EARLYBIRD10`).
-- `discount_type`: Enum (`percentage` | `fixed`).
-- `discount_value`: Numerical value of the discount.
-- `max_usage`: Maximum number of times the code can be used.
-- `current_usage`: Count of how many times the code has been applied.
-- `expires_at`: Expiration date and time.
-- `created_at`: Timestamp
-
-**Relationships:**
-- `events` (1) → (many) `promo_codes`
-
-**Behavior:**
-- Codes are unique per event.
-- Usage is prevented if `current_usage` >= `max_usage` or if the current date is past `expires_at`.
-
----
-
-## 3. Updated Events Table (New Fields)
-
-The existing `events` table is extended with fields to support moderation, visibility, and marketing urgency.
-
-| New Field | Type | Description |
-| :--- | :--- | :--- |
-| `status` | Enum | Current lifecycle state: `Draft`, `Pending Approval`, `Approved`, `Rejected`, `Cancelled`. |
-| `is_public` | Boolean | `true` for public listings; `false` for private/hidden events accessible only via link. |
-| `selling_fast_threshold` | Integer | Percentage (e.g., 20) at which "Selling Fast" indicators trigger on the UI. |
-
----
-
-## 4. Event Status Workflow
-
-Events follow a strict lifecycle to ensure quality and moderation:
-
-1. **Draft:** Initial creation, not visible to anyone but the organizer.
-2. **Pending Approval:** Submitted by organizer, awaiting Admin review.
-3. **Approved:** Verified by Admin, ready for ticket sales (or hidden if `is_public` = false).
-4. **Live Event:** Event is active and appearing in public/private listings.
-5. **Sold Out / Cancelled:** Ticket capacity reached or event stopped by organizer/admin.
-
-*Note: Rejected events are returned to `Draft` status for correction by the organizer.*
-
----
-
-# 5. QR Code System
-
-
-Each ticket generates a QR code containing:
-
-* ticket_id
-* event_id
-* secure_token
-
-Example QR payload:
-
-ticket_id:event_id:token
-
----
-
-# 5. Ticket Validation Process
-
-1. Scanner reads QR code
-2. Frontend sends ticket data to backend
-3. Backend checks database
-
-Validation steps:
-
-* Ticket exists
-* Ticket belongs to the event
-* Ticket status = unused
-
-If valid:
-
-Ticket status changes to **used**.
-
----
-
-# 6. Deployment
-
-Frontend hosting options:
-
-* Vercel
-* Netlify
-
-Backend hosting options:
-
-* Render
-* Railway
-
-Database hosting:
-
-* Supabase
-* Neon
-* PlanetScale
+# Architecture & Configuration
+
+## 1. Environment-Based Configuration
+The application is entirely configured through standard environment variables, establishing a consistent local and development-ready baseline. The core values required:
+- `DATABASE_URL`: The entire MySQL connection DSN (e.g., `mysql://user:password@localhost:3306/event_platform_db`).
+- `PORT`: Server listening port (defaults to `3000` locally, dynamically injected by Railway).
+- `JWT_SECRET`: For encoding JWTs in the authentication middleware.
+
+**CRITICAL RULE:** There must be zero branching logic (`if (process.env.NODE_ENV === "production")`) pertaining to database hostnames or file paths.
+
+## 2. Server Startup & Shutdown Flow
+1. **Initialize ORM:** Global `PrismaClient` singleton is imported.
+2. **Environment Loaded:** `dotenv` loads local `.env` values (skipped dynamically if injected by Railway).
+3. **App Initialization (Express):** Global Middlewares attached (CORS, JSON parsers, Helmet security headers).
+4. **Route Registration:** Modular routers mounted for `/api/auth`, `/api/admin`, `/api/organizer`, and `/api/public`.
+5. **Listen:** Express binds to `process.env.PORT || 3000`.
+6. **Shutdown:** Handlers catch `SIGINT` / `SIGTERM` and execute `await prisma.$disconnect()` prior to exiting `process.exit(0)`.
+
+## 3. Database Connection Lifecycle
+- A single `PrismaClient` encapsulates the connection pool. Express routes reuse this pool continuously.
+- On initialization, Prisma natively utilizes `DATABASE_URL`.
+- At build step (for Railway), `prisma generate` creates the client binary specific to the platform.
+- Prisma effectively isolates the NodeJS engine from database layer implementation differences between local MySQL and Railway MySQL.
+
+## 4. Stack Characteristics
+- **Database:** Prisma with MySQL exclusively.
+- **REST Layers:** Standard HTTP JSON responses mapping to React hooks on the frontend.
+- **Stateless:** Zero disk-based dependencies or in-memory caches like Redis. Sessions are stateless JWT tokens verifying validity by looking up user records directly in MySQL or maintaining lightweight db-layer refresh scopes.
