@@ -6,6 +6,7 @@ import {
     AreaChart, Area,
 } from 'recharts';
 import { eventService } from '../../services/eventService';
+import DashboardLoader from '../../components/ui/DashboardLoader';
 
 // ─── Custom Tooltip ────────────────────────────────────────────────────────
 const CustomBarTooltip = ({ active, payload, label }) => {
@@ -62,6 +63,7 @@ const OrganizerReports = () => {
     const [reportData, setReportData] = useState(null);
     const [selectedId, setSelectedId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -74,6 +76,7 @@ const OrganizerReports = () => {
                 }
             } catch (err) {
                 console.error('Error fetching report:', err);
+                setError('Unable to load report data. Please try again.');
             } finally {
                 setIsLoading(false);
             }
@@ -81,11 +84,33 @@ const OrganizerReports = () => {
         fetchReport();
     }, []);
 
-    if (isLoading || !reportData) {
-        return <div className="py-20 text-center font-black text-gray-400 uppercase tracking-widest">Loading Analytics...</div>;
+    if (isLoading) {
+        return <DashboardLoader message="Fetching your performance data..." />;
     }
 
-    const { totalRevenue, ticketsSold, fillRate, totalEvents, events } = reportData;
+    if (error) {
+        return (
+            <div className="py-24 text-center max-w-md mx-auto space-y-6 animate-in fade-in duration-700">
+                <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </div>
+                <div>
+                   <h2 className="text-2xl font-black text-gray-900 tracking-tight">Report Failure</h2>
+                   <p className="text-gray-500 mt-2 font-medium">{error}</p>
+                </div>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-indigo-700 transition-all shadow-lg active:scale-95"
+                >
+                    Retry Fetch
+                </button>
+            </div>
+        );
+    }
+
+    if (!reportData) return null;
+
+    const { totalRevenue = 0, ticketsSold = 0, fillRate = 0, totalEvents = 0, totalCheckedIn = 0, events = [] } = reportData;
 
     // Chart datasets
     const salesData = events.map(e => ({
@@ -129,6 +154,10 @@ const OrganizerReports = () => {
                 <StatCard label="Total Events" value={totalEvents} sub="Active portfolio"
                     bg="bg-violet-50" text="text-violet-600"
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>}
+                />
+                <StatCard label="Total Attendees" value={totalCheckedIn.toLocaleString()} sub="Checked-in count"
+                    bg="bg-rose-50" text="text-rose-600"
+                    icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>}
                 />
             </div>
 

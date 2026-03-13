@@ -4,7 +4,9 @@ import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import { eventService } from '../../services/eventService';
+import DashboardLoader from '../../components/ui/DashboardLoader';
 import { ROUTES } from '../../router/routes';
+import ShareModal from '../../components/events/ShareModal';
 
 const STATUS_STYLES = {
     APPROVED: { label: 'Approved', dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
@@ -21,6 +23,7 @@ const MyEvents = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [sharingEvent, setSharingEvent] = useState(null);
 
     const fetchEvents = async () => {
         setIsLoading(true);
@@ -65,7 +68,7 @@ const MyEvents = () => {
     };
 
     if (isLoading) {
-        return <div className="p-20 text-center font-black text-gray-400 uppercase tracking-widest">Loading Events...</div>;
+        return <DashboardLoader message="Loading your events..." />;
     }
 
     return (
@@ -153,19 +156,35 @@ const MyEvents = () => {
                                                 )}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${st.badge}`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
-                                                {st.label}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-2">
+                                         <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-1.5">
+                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border w-fit ${st.badge}`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+                                                    {st.label}
+                                                </span>
+                                                {event.status === 'PENDING' && (
+                                                    <p className="text-[9px] text-amber-600 font-bold max-w-[120px] leading-tight flex items-center gap-1">
+                                                        <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                        Review in progress
+                                                    </p>
+                                                )}
+                                            </div>
+                                         </td>
+                                         <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end gap-1.5">
                                                 <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.ORGANIZER_EVENT_DETAILS.replace(':eventId', event.id))}>View</Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    onClick={() => setSharingEvent(event)}
+                                                    className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                                </Button>
                                                 <Button variant="ghost" size="sm" onClick={() => handleEditClick(event)}>Edit</Button>
                                                 <Button variant="outline" size="sm" onClick={() => navigate(`${ROUTES.SCANNER}?id=${event.id}`)}>Scan</Button>
                                             </div>
-                                        </td>
+                                         </td>
                                     </tr>
                                 );
                             })}
@@ -173,6 +192,15 @@ const MyEvents = () => {
                     </table>
                 </div>
             </div>
+
+            {sharingEvent && (
+                <ShareModal 
+                    isOpen={!!sharingEvent}
+                    onClose={() => setSharingEvent(null)}
+                    eventTitle={sharingEvent.title}
+                    eventUrl={`${window.location.origin}/events/${sharingEvent.id}${!sharingEvent.isPublic ? '?private=true' : ''}`}
+                />
+            )}
         </div>
     );
 };

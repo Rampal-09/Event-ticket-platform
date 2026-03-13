@@ -145,7 +145,10 @@ router.post('/validate', requireAuth, requireRole(['ADMIN', 'ORGANIZER']), async
         // Mark as used
         const updatedTicket = await prisma.ticket.update({
             where: { id: ticket.id },
-            data: { status: 'USED' }
+            data: { 
+                status: 'USED',
+                scannedAt: new Date()
+            }
         });
 
         res.json({

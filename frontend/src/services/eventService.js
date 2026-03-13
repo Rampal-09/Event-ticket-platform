@@ -32,5 +32,8 @@ export const eventService = {
     },
     getScannerStats: async (id) => {
         return api.get(`/organizer/events/${id}/scanner-stats`);
+    },
+    getEventAttendees: async (id) => {
+        return api.get(`/organizer/events/${id}/attendees`);
     }
 };

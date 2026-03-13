@@ -140,4 +140,5 @@ model Ticket {
   qrPayload    String       @unique
   status       TicketStatus @default(UNUSED)
   purchasedAt  DateTime     @default(now())
+  scannedAt    DateTime?
 }

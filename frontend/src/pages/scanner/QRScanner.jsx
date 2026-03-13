@@ -6,6 +6,32 @@ import Modal from '../../components/ui/Modal';
 import { eventService } from '../../services/eventService';
 import { ticketService } from '../../services/ticketService';
 
+// Audio Utilities for Scanner Feedback
+const playScanSound = (isSuccess) => {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = isSuccess ? 'sine' : 'sawtooth';
+        osc.frequency.setValueAtTime(isSuccess ? 880 : 110, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + (isSuccess ? 0.2 : 0.5));
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + (isSuccess ? 0.2 : 0.5));
+        
+        if (navigator.vibrate) {
+            navigator.vibrate(isSuccess ? 50 : [100, 50, 100]);
+        }
+    } catch (e) {
+        console.warn('Audio feedback failed:', e);
+    }
+};
+
 const QRScanner = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -65,21 +91,25 @@ const QRScanner = () => {
                 isAlreadyUsed: false,
                 ticketId: `TCK-${response.ticket.id}`,
                 event: response.ticket.eventTitle,
-                buyer: response.ticket.buyerEmail,
+                buyer: response.ticket.buyerName,
+                email: response.ticket.buyerEmail,
                 seat: 'General Admission',
             });
+            playScanSound(true);
             setScanCount(c => ({ ...c, valid: c.valid + 1 }));
             setShowResult(true);
             setManualInput('');
         } catch (err) {
+            const isUsed = err.response?.data?.error?.toLowerCase().includes('used') || err.message?.toLowerCase().includes('used');
             setScanResult({
                 isValid: false,
-                isAlreadyUsed: err.message?.includes('used'),
-                ticketId: 'Invalid',
+                isAlreadyUsed: isUsed,
+                ticketId: 'Verification Failed',
                 event: eventData.title,
-                buyer: 'Unknown',
-                seat: 'N/A',
+                buyer: 'N/A',
+                seat: 'Denied Access',
             });
+            playScanSound(false);
             setScanCount(c => ({ ...c, invalid: c.invalid + 1 }));
             setShowResult(true);
         } finally {
@@ -252,12 +282,18 @@ const QRScanner = () => {
 
                         <div className="w-full bg-gray-50 rounded-2xl p-4 space-y-3">
                             <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Buyer</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Name</span>
                                 <span className="text-xs font-bold text-gray-900">{scanResult.buyer}</span>
                             </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Seat</span>
-                                <span className="text-xs font-bold text-gray-900">{scanResult.seat}</span>
+                            {scanResult.email && (
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email</span>
+                                    <span className="text-xs font-bold text-gray-500">{scanResult.email}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Event</span>
+                                <span className="text-gray-900 font-bold truncate max-w-[150px]">{scanResult.event}</span>
                             </div>
                         </div>
 

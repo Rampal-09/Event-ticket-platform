@@ -13,12 +13,25 @@ import { ROUTES } from '../../router/routes';
 import { eventService } from '../../services/eventService';
 
 const CreateEvent = () => {
+    window._CREATE_EVENT_DEBUG = "V3-DEBUG-" + Date.now();
+    
+    // Safety function to catch and identify object-as-child errors
+    const safeRender = (val, label = 'unknown') => {
+        if (typeof val === 'object' && val !== null && !React.isValidElement(val)) {
+            console.error(`IDENTIFIED OBJECT RENDER: [${label}]`, val);
+            return `[ERROR: Object (${Object.keys(val).join(',')})]`;
+        }
+        return val;
+    };
+
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [createdEventId, setCreatedEventId] = useState(null);
     const [isCopying, setIsCopying] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const [formData, setFormData] = useState({
         title: '',
@@ -43,6 +56,36 @@ const CreateEvent = () => {
         }
     });
 
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.title.trim()) errors.title = 'Event title is required';
+        if (!formData.description.trim()) errors.description = 'Description is required';
+        if (!formData.location.trim()) errors.location = 'Location is required';
+        if (!formData.date) errors.date = 'Date is required';
+        
+        const eventDate = new Date(`${formData.date}T${formData.time || '00:00'}:00`);
+        if (eventDate < new Date()) {
+            errors.date = 'Event date cannot be in the past';
+        }
+
+        if (!formData.price && formData.price !== 0) errors.price = 'Ticket price is required';
+        if (!formData.totalTickets) errors.totalTickets = 'Total capacity is required';
+        if (parseInt(formData.totalTickets) <= 0) errors.totalTickets = 'Capacity must be greater than 0';
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleSubmitClick = (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            setShowConfirmModal(true);
+        } else {
+            setError('Please fix the errors before submitting.');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     const handleBasicChange = (field, value) => {
         setFormData(prev => {
             const newState = { ...prev, [field]: value };
@@ -58,8 +101,8 @@ const CreateEvent = () => {
         });
     };
 
-    const handleCreate = async (e) => {
-        e.preventDefault();
+    const handleCreate = async () => {
+        setShowConfirmModal(false);
         setIsSubmitting(true);
         setError('');
 
@@ -84,10 +127,15 @@ const CreateEvent = () => {
             console.log('Sending Create Event Payload:', backendData);
             
             const response = await eventService.createEvent(backendData);
-            setCreatedEventId(response.id);
+            console.log('Create Event Response:', response);
+            setCreatedEventId(response?.id);
             setShowSuccessModal(true);
         } catch (err) {
-            setError(err.message || 'Failed to create event');
+            console.error('Create Event Error:', err);
+            const errMsg = typeof err.response?.data?.error === 'string' 
+                ? err.response.data.error 
+                : (typeof err.message === 'string' ? err.message : 'Failed to create event');
+            setError(errMsg);
         } finally {
             setIsSubmitting(false);
         }
@@ -110,11 +158,11 @@ const CreateEvent = () => {
 
                 {error && (
                     <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl font-bold">
-                        {error}
+                        {String(error)}
                     </div>
                 )}
 
-                <form onSubmit={handleCreate} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <form onSubmit={handleSubmitClick} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* LEFT: Core Configuration */}
                     <div className="lg:col-span-2 space-y-8">
@@ -141,7 +189,7 @@ const CreateEvent = () => {
                                 <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-gray-50">
                                     {formData.promoCodes.map((c, i) => (
                                         <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold border border-indigo-100 flex items-center gap-2">
-                                            {c.code} ({c.type === 'percentage' ? `${c.value}%` : `$${c.value}`})
+                                            {safeRender(c.code, `promo-code-${i}`)} ({c.type === 'percentage' ? `${safeRender(c.value, `promo-val-${i}`)}%` : `$${safeRender(c.value, `promo-val-${i}`)}`})
                                         </span>
                                     ))}
                                 </div>
@@ -179,14 +227,14 @@ const CreateEvent = () => {
                                     <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                         <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest leading-none">Price Point</p>
                                         <p className="text-xl font-black text-gray-900 mt-1">
-                                            {formData.price === '0' || formData.price === 0 ? 'Free Entry' : `$${formData.price || '0.00'}`}
+                                            {formData.price === '0' || formData.price === 0 ? 'Free Entry' : `$${safeRender(formData.price, 'price') || '0.00'}`}
                                         </p>
                                     </div>
 
                                     <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                         <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest leading-none">Target Goal</p>
                                         <p className="text-xl font-black text-gray-900 mt-1">
-                                            {formData.totalTickets || '0'} Attendees
+                                            {safeRender(formData.totalTickets, 'capacity') || '0'} Attendees
                                         </p>
                                     </div>
 
@@ -254,6 +302,46 @@ const CreateEvent = () => {
             </div>
             {/* </OrganizerLayout> */}
 
+            {/* Confirmation Modal */}
+            <Modal
+                isOpen={showConfirmModal}
+                onClose={() => setShowConfirmModal(false)}
+                title="Review Your Event"
+                size="md"
+            >
+                <div className="space-y-6 py-2">
+                    <p className="text-gray-500 text-sm">Please confirm your event details before submitting for approval.</p>
+                    
+                    <div className="bg-gray-50 rounded-2xl p-5 space-y-4 border border-gray-100">
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-500 font-medium">Event Title</span>
+                            <span className="font-bold text-gray-900 truncate max-w-[200px]">{safeRender(formData.title, 'title')}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-500 font-medium">Date</span>
+                            <span className="font-bold text-gray-900">{formData.date} at {formData.time}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-500 font-medium">Pricing</span>
+                            <span className="font-bold text-indigo-600">${formData.price} per ticket</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-500 font-medium">Capacity</span>
+                            <span className="font-bold text-gray-900">{formData.totalTickets} tickets</span>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <Button variant="ghost" fullWidth onClick={() => setShowConfirmModal(false)}>
+                            Edit More
+                        </Button>
+                        <Button variant="primary" fullWidth onClick={handleCreate} isLoading={isSubmitting}>
+                            Confirm & Submit
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
             {/* Success Modal */}
             <Modal
                 isOpen={showSuccessModal}
@@ -282,7 +370,7 @@ const CreateEvent = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap text-left">
-                                        {window.location.origin}/events/{createdEventId}?private=true
+                                        {safeRender(window.location.origin, 'origin')}/events/{safeRender(createdEventId, 'eventId')}?private=true
                                     </div>
                                     <Button
                                         size="sm"
@@ -303,13 +391,7 @@ const CreateEvent = () => {
 
                         <div className="flex gap-3">
                             <Button
-                                fullWidth
-                                onClick={() => navigate(`/events/${createdEventId}?preview=true${!formData.isPublic ? '&private=true' : ''}`)}
-                            >
-                                Open Event
-                            </Button>
-                            <Button
-                                variant="ghost"
+                                variant="primary"
                                 fullWidth
                                 onClick={() => navigate(ROUTES.MY_EVENTS)}
                             >

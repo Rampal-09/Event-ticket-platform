@@ -324,13 +324,7 @@ const EditEvent = () => {
 
                         <div className="flex gap-3">
                             <Button
-                                fullWidth
-                                onClick={() => navigate(`/events/${eventId}?preview=true${!formData.isPublic ? '&private=true' : ''}`)}
-                            >
-                                View Listing
-                            </Button>
-                            <Button
-                                variant="ghost"
+                                variant="primary"
                                 fullWidth
                                 onClick={() => navigate(ROUTES.MY_EVENTS)}
                             >

@@ -52,7 +52,10 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
         res.status(201).json(newEvent);
     } catch (error) {
         console.error('Error creating event:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        if (error.name === 'PrismaClientKnownRequestError') {
+            return res.status(400).json({ error: 'Database constraint violation. Please check your data.' });
+        }
+        res.status(500).json({ error: 'Failed to create event. Please verify all fields and try again.' });
     }
 });
 
@@ -73,7 +76,7 @@ router.get('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (r
         res.json(events);
     } catch (error) {
         console.error('Error fetching organizer events:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Unable to retrieve your events. Please refresh the page.' });
     }
 });
 
@@ -101,7 +104,7 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
         res.json(event);
     } catch (error) {
         console.error('Error fetching event details:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Failed to load event details. Please try again.' });
     }
 });
 
@@ -197,6 +200,12 @@ router.get('/reports', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
             ticketsSold: stats.totalTicketsSold,
             fillRate: stats.totalCapacity > 0 ? (stats.totalTicketsSold / stats.totalCapacity) * 100 : 0,
             totalEvents: events.length,
+            totalCheckedIn: await prisma.ticket.count({
+                where: {
+                    event: { organizerId: req.user.id },
+                    status: 'USED'
+                }
+            }),
             events: events.map(e => ({
                 id: e.id,
                 title: e.title,
@@ -355,6 +364,31 @@ router.get('/events/:id/scanner-stats', requireAuth, requireRole(['ORGANIZER', '
     } catch (error) {
         console.error('Scanner stats error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @route GET /api/organizer/events/:id/attendees
+ * @desc  Get attendee list for an event
+ */
+router.get('/events/:id/attendees', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (req, res) => {
+    const { id } = req.params;
+    try {
+        const event = await prisma.event.findUnique({ where: { id: parseInt(id) } });
+        if (!event) return res.status(404).json({ error: 'Event not found' });
+        if (event.organizerId !== req.user.id && req.user.role !== 'ADMIN') {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
+        const attendees = await prisma.ticket.findMany({
+            where: { eventId: parseInt(id) },
+            orderBy: { purchasedAt: 'desc' }
+        });
+
+        res.json(attendees);
+    } catch (error) {
+        console.error('Error fetching attendees:', error);
+        res.status(500).json({ error: 'Failed to load attendee list. Please try again.' });
     }
 });
 
