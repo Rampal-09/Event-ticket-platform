@@ -14,7 +14,7 @@ import { eventService } from '../../services/eventService';
 
 const CreateEvent = () => {
     window._CREATE_EVENT_DEBUG = "V3-DEBUG-" + Date.now();
-    
+
     // Safety function to catch and identify object-as-child errors
     const safeRender = (val, label = 'unknown') => {
         if (typeof val === 'object' && val !== null && !React.isValidElement(val)) {
@@ -62,7 +62,7 @@ const CreateEvent = () => {
         if (!formData.description.trim()) errors.description = 'Description is required';
         if (!formData.location.trim()) errors.location = 'Location is required';
         if (!formData.date) errors.date = 'Date is required';
-        
+
         const eventDate = new Date(`${formData.date}T${formData.time || '00:00'}:00`);
         if (eventDate < new Date()) {
             errors.date = 'Event date cannot be in the past';
@@ -89,14 +89,14 @@ const CreateEvent = () => {
     const handleBasicChange = (field, value) => {
         setFormData(prev => {
             const newState = { ...prev, [field]: value };
-            
+
             // Sync isPublic and eventType
             if (field === 'isPublic') {
                 newState.eventType = value ? 'public' : 'private';
             } else if (field === 'eventType') {
                 newState.isPublic = value === 'public';
             }
-            
+
             return newState;
         });
     };
@@ -125,15 +125,15 @@ const CreateEvent = () => {
             };
 
             console.log('Sending Create Event Payload:', backendData);
-            
+
             const response = await eventService.createEvent(backendData);
             console.log('Create Event Response:', response);
             setCreatedEventId(response?.id);
             setShowSuccessModal(true);
         } catch (err) {
             console.error('Create Event Error:', err);
-            const errMsg = typeof err.response?.data?.error === 'string' 
-                ? err.response.data.error 
+            const errMsg = typeof err.response?.data?.error === 'string'
+                ? err.response.data.error
                 : (typeof err.message === 'string' ? err.message : 'Failed to create event');
             setError(errMsg);
         } finally {
@@ -311,7 +311,7 @@ const CreateEvent = () => {
             >
                 <div className="space-y-6 py-2">
                     <p className="text-gray-500 text-sm">Please confirm your event details before submitting for approval.</p>
-                    
+
                     <div className="bg-gray-50 rounded-2xl p-5 space-y-4 border border-gray-100">
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Event Title</span>

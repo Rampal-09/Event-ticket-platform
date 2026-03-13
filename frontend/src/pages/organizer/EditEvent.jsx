@@ -47,13 +47,13 @@ const EditEvent = () => {
     useEffect(() => {
         const fetchEvent = async () => {
             try {
-                const event = await eventService.getOrganizerEventById(eventId); 
-                
+                const event = await eventService.getOrganizerEventById(eventId);
+
                 // Parse tags for eventType and ageRestriction
                 const tags = event.tags || [];
                 const eventType = tags.includes('private') ? 'private' : 'public';
                 const ageRestriction = tags.find(t => ['all', '18', '21'].includes(t)) || '';
-                
+
                 // Parse highlights for parking and refundPolicy
                 const highlights = event.highlights || [];
                 const parking = highlights.find(h => ['available', 'limited', 'street', 'none'].includes(h)) || '';
@@ -131,7 +131,7 @@ const EditEvent = () => {
             };
 
             console.log('Sending Update Event Payload:', backendData);
-            
+
             await eventService.updateEvent(eventId, backendData);
             setShowSuccessModal(true);
         } catch (err) {
@@ -164,7 +164,7 @@ const EditEvent = () => {
             <form onSubmit={handleUpdate} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <EventBasicForm data={formData} onChange={handleBasicChange} />
-                    
+
                     <Card title="Event Media" subtitle="Showcase your event with a gallery of photos">
                         <EventGalleryUploader
                             images={formData.galleryImages}
@@ -213,7 +213,7 @@ const EditEvent = () => {
                             threshold={formData.urgency.threshold}
                             onChange={(val) => handleBasicChange('urgency', val)}
                         />
-                        
+
                         {/* Status Preview Card from CreateEvent pattern */}
                         <Card title="Listing Preview" subtitle="Current settings">
                             <div className="space-y-4">
@@ -234,11 +234,11 @@ const EditEvent = () => {
 
                         {/* Quick Copy for Private Events */}
                         {!formData.isPublic && (
-                             <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 space-y-3">
+                            <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 space-y-3">
                                 <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Private Link</p>
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     fullWidth
                                     onClick={() => {
                                         const url = `${window.location.origin}/events/${eventId}?private=true`;
@@ -248,24 +248,24 @@ const EditEvent = () => {
                                 >
                                     Copy Link
                                 </Button>
-                             </div>
+                            </div>
                         )}
 
                         <div className="pt-4 space-y-4">
-                            <Button 
-                                type="submit" 
-                                size="lg" 
-                                fullWidth 
+                            <Button
+                                type="submit"
+                                size="lg"
+                                fullWidth
                                 isLoading={isSubmitting}
                                 className="shadow-lg shadow-indigo-100"
                             >
                                 Save Changes
                             </Button>
-                            <Button 
-                                variant="ghost" 
-                                size="md" 
-                                fullWidth 
-                                type="button" 
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                fullWidth
+                                type="button"
                                 onClick={() => navigate(ROUTES.MY_EVENTS)}
                             >
                                 Discard Changes
