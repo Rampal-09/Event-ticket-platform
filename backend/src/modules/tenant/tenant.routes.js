@@ -107,7 +107,7 @@ router.post('/purchase', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Purchase error:', error.message);
+        console.error('Purchase transaction failed:', error);
         res.status(400).json({ error: error.message });
     }
 });

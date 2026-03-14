@@ -44,7 +44,7 @@ const TicketPage = () => {
 
     const { buyerName, createdAt, event, status, buyerEmail, id } = ticketData;
     const purchaseDate = new Date(createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    
+
     // Normalized event data for components
     const eventInfo = {
         title: event.title,
@@ -55,14 +55,15 @@ const TicketPage = () => {
     const ticketInfo = {
         id: id,
         status: status.toLowerCase(),
-        buyer_email: buyerEmail
+        buyer_email: buyerEmail,
+        buyer_name: buyerName
     };
 
     return (
         <div className="min-h-screen bg-[#FDFDFF] py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header with Back Button */}
-                <div className="flex items-center justify-between mb-12">
+                <div className="flex items-center justify-between mb-12 no-print">
                     <button
                         onClick={() => navigate(ROUTES.HOME)}
                         className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 transition-colors font-bold text-sm uppercase tracking-widest"
@@ -84,14 +85,14 @@ const TicketPage = () => {
                         <div className="w-full max-w-sm transform hover:rotate-1 transition-transform duration-500">
                             <TicketCard ticket={ticketInfo} event={eventInfo} />
                         </div>
-                        <p className="mt-8 text-sm text-gray-400 font-medium text-center max-w-xs">
+                        <p className="mt-8 text-sm text-gray-400 font-medium text-center max-w-xs no-print">
                             This is your official entry pass. Scan the QR code at the event gate.
                         </p>
                     </div>
 
                     {/* RIGHT: Confirmation Details */}
                     <div className="space-y-10">
-                        <div>
+                        <div className="no-print">
                             <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-100 mb-4">
                                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
                                 Confirmed & Verified

@@ -53,7 +53,7 @@ const OrderSuccessPage = () => {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <Link to={ROUTES.TICKET.replace(':ticketId', 'TCK-882291')}>
+                    <Link to={ROUTES.TICKET.replace(':ticketId', ticketId)}>
                         <Button variant="primary" size="xl" fullWidth className="bg-indigo-600 shadow-xl shadow-indigo-100">
                             Download My Tickets
                         </Button>

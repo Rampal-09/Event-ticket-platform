@@ -105,8 +105,13 @@ router.get('/events/:id', async (req, res) => {
  */
 router.get('/tickets/:id', async (req, res) => {
     try {
+        const ticketId = parseInt(req.params.id);
+        if (isNaN(ticketId)) {
+            return res.status(400).json({ error: 'Invalid ticket ID format' });
+        }
+
         const ticket = await prisma.ticket.findUnique({
-            where: { id: parseInt(req.params.id) },
+            where: { id: ticketId },
             include: {
                 event: {
                     select: {

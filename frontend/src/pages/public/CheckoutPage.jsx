@@ -66,9 +66,13 @@ const CheckoutPage = () => {
             
             // Navigate to success page with the first ticket ID as reference
             // The backend returns an array of tickets
-            const firstTicketId = response.tickets[0].id;
-            addToast('Tickets purchased successfully! Redirecting...', 'success');
-            navigate(`${ROUTES.ORDER_SUCCESS}?id=${firstTicketId}`);
+            if (response.tickets && response.tickets.length > 0) {
+                const firstTicketId = response.tickets[0].id;
+                addToast('Tickets purchased successfully! Redirecting...', 'success');
+                navigate(`${ROUTES.ORDER_SUCCESS}?id=${firstTicketId}`);
+            } else {
+                throw new Error('Purchase completed but no ticket ID was returned.');
+            }
         } catch (err) {
             addToast(err.message || 'Payment failed. Please try again.', 'error');
         } finally {

@@ -1,4 +1,4 @@
-import React from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 /**
  * TicketCard - A stunning visual representation of a digital ticket.
@@ -13,10 +13,12 @@ const TicketCard = ({ ticket, event }) => {
         hour: '2-digit', minute: '2-digit',
     });
 
+    const qrPayload = ticket.qrPayload || ticket.id?.toString() || 'TCK-MOCK-ID';
+
     return (
         <div className="w-full max-w-sm mx-auto select-none group">
             {/* Main Ticket Body */}
-            <div className="rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(79,70,229,0.25)] border border-white/20 relative transition-transform duration-500 hover:-rotate-1 active:scale-[0.98]"
+            <div className="ticket-body rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(79,70,229,0.25)] border border-white/20 relative transition-transform duration-500 hover:-rotate-1 active:scale-[0.98]"
                 style={{ background: 'linear-gradient(160deg, #1E1B4B 0%, #4338CA 50%, #6366F1 100%)' }}>
 
                 {/* Decorative Elements */}
@@ -61,45 +63,33 @@ const TicketCard = ({ ticket, event }) => {
                 <div className="px-8 py-8 bg-white relative z-10 transition-colors group-hover:bg-gray-50/50">
                     <div className="flex items-center gap-6">
                         {/* QR Code Container */}
-                        <div className="flex-shrink-0 w-32 h-32 bg-gray-900 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden shadow-xl shadow-gray-200 transition-transform group-hover:scale-105 duration-500">
-                            {/* Visual QR Simulation */}
-                            <svg viewBox="0 0 100 100" className="w-full h-full text-white" fill="currentColor">
-                                <rect x="0" y="0" width="30" height="30" rx="4" />
-                                <rect x="8" y="8" width="14" height="14" fill="#0f172a" rx="1" />
-
-                                <rect x="70" y="0" width="30" height="30" rx="4" />
-                                <rect x="78" y="8" width="14" height="14" fill="#0f172a" rx="1" />
-
-                                <rect x="0" y="70" width="30" height="30" rx="4" />
-                                <rect x="8" y="78" width="14" height="14" fill="#0f172a" rx="1" />
-
-                                {[40, 48, 56, 64].map(y =>
-                                    [40, 48, 56, 64, 72, 80, 88].map(x => (
-                                        Math.random() > 0.3 ? <rect key={`${x}-${y}`} x={x} y={y} width="6" height="6" rx="1" /> : null
-                                    ))
-                                )}
-                                {[70, 78, 86].map(x =>
-                                    [0, 8, 16, 24, 40, 48, 56, 64].map(y => (
-                                        Math.random() > 0.3 ? <rect key={`${x}-${y}`} x={x} y={y} width="6" height="6" rx="1" /> : null
-                                    ))
-                                )}
-                            </svg>
+                        <div className="qr-container flex-shrink-0 w-32 h-32 bg-gray-900 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden shadow-xl shadow-gray-200 transition-transform group-hover:scale-105 duration-500">
+                            <QRCodeSVG
+                                value={qrPayload}
+                                size={128}
+                                level="H"
+                                className="qr-code-svg w-full h-full"
+                                bgColor="#FFFFFF"
+                                fgColor="#000000"
+                            />
                         </div>
 
                         <div className="flex-1 space-y-4">
                             <div>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Attendee</p>
-                                <p className="text-sm font-bold text-gray-900 truncate">{(ticket.buyer_email || 'Verified Guest').split('@')[0]}</p>
+                                <p className="text-sm font-bold text-gray-900 truncate">
+                                    {ticket.buyer_name || (ticket.buyer_email || 'Verified Guest').split('@')[0]}
+                                </p>
                             </div>
                             <div>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Pass ID</p>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-mono font-black text-indigo-600 tracking-tight">
-                                        {ticket.id?.substring(0, 10) || 'TCK-882294'}
+                                        {ticket.id?.toString().substring(0, 10) || 'TCK-882294'}
                                     </span>
                                     <span className={`mt-2 w-fit px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${ticket.status === 'unused'
-                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                        : 'bg-rose-50 text-rose-600 border-rose-100'
                                         }`}>
                                         {ticket.status}
                                     </span>
