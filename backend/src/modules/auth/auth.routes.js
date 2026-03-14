@@ -116,4 +116,78 @@ router.post('/register', async (req, res) => {
     }
 });
 
+/**
+ * Middleware to verify JWT
+ */
+const authenticate = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersafe_jwt_secret_for_local_development');
+        req.user = decoded;
+        next();
+    } catch (err) {
+        res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+/**
+ * @route PUT /api/auth/profile
+ * @desc  Update user profile (name, email)
+ */
+router.put('/profile', authenticate, async (req, res) => {
+    const { name, email } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Check if email is already taken by another user
+        if (email) {
+            const existing = await prisma.user.findUnique({ where: { email } });
+            if (existing && existing.id !== userId) {
+                return res.status(400).json({ error: 'Email already in use' });
+            }
+        }
+
+        const updated = await prisma.user.update({
+            where: { id: userId },
+            data: { name, email },
+            select: { id: true, name: true, email: true, role: true, status: true }
+        });
+
+        res.json({ user: updated });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @route PUT /api/auth/update-password
+ * @desc  Update user password
+ */
+router.put('/update-password', authenticate, async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const isValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isValid) {
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await prisma.user.update({
+            where: { id: userId },
+            data: { password: hashedPassword }
+        });
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+        console.error('Password update error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getOptimizedImageUrl } from '../../utils/cloudinary';
 
 /**
  * EventGallery - Displays multiple event images in a responsive grid/slider
@@ -19,8 +20,9 @@ const EventGallery = ({ images = [] }) => {
             {/* Main Active Image */}
             <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 shadow-lg group">
                 <img
-                    src={galleryImages[activeIndex]}
+                    src={getOptimizedImageUrl(galleryImages[activeIndex])}
                     alt={`Event view ${activeIndex + 1}`}
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
             </div>
@@ -34,7 +36,7 @@ const EventGallery = ({ images = [] }) => {
                         className={`relative flex-shrink-0 w-24 aspect-[4/3] rounded-xl overflow-hidden border-2 transition-all ${activeIndex === idx ? 'border-indigo-600 scale-105 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
                             }`}
                     >
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={getOptimizedImageUrl(img)} alt="" loading="lazy" className="w-full h-full object-cover" />
                     </button>
                 ))}
             </div>

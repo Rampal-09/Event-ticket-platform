@@ -25,4 +25,14 @@ export const authService = {
             localStorage.removeItem('user');
         }
     },
+    updateProfile: async (data) => {
+        const response = await api.put('/auth/profile', data);
+        if (response.user) {
+            localStorage.setItem('user', JSON.stringify(response.user));
+        }
+        return response;
+    },
+    updatePassword: async (data) => {
+        return await api.put('/auth/update-password', data);
+    },
 };

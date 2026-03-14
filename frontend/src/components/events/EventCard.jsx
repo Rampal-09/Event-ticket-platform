@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '../ui/Button';
 import TicketsLeftBadge from './TicketsLeftBadge';
 import SellingFastBadge from './SellingFastBadge';
+import { getOptimizedImageUrl } from '../../utils/cloudinary';
 
 const GRADIENT_TOPS = [
     'from-violet-400 to-indigo-600',
@@ -37,8 +38,9 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
                     <>
                         {/* Real event image with zoom-on-hover */}
                         <img
-                            src={imgSrc}
+                            src={getOptimizedImageUrl(imgSrc)}
                             alt={title}
+                            loading="lazy"
                             className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
                         />
                         {/* Bottom scrim so badges stay readable */}

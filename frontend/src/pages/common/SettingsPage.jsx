@@ -1,0 +1,170 @@
+import React, { useState } from 'react';
+import { authService } from '../../services/authService';
+
+const SettingsPage = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const [profileData, setProfileData] = useState({
+        name: user.name || '',
+        email: user.email || ''
+    });
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [status, setStatus] = useState({ type: '', message: '' });
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleProfileUpdate = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setStatus({ type: '', message: '' });
+        try {
+            await authService.updateProfile(profileData);
+            setStatus({ type: 'success', message: 'Profile updated successfully!' });
+        } catch (err) {
+            setStatus({ type: 'error', message: err.response?.data?.error || 'Failed to update profile' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            return setStatus({ type: 'error', message: 'New passwords do not match' });
+        }
+        setIsLoading(true);
+        setStatus({ type: '', message: '' });
+        try {
+            await authService.updatePassword({
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword
+            });
+            setStatus({ type: 'success', message: 'Password updated successfully!' });
+            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (err) {
+            setStatus({ type: 'error', message: err.response?.data?.error || 'Failed to update password' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div>
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-1">Account Settings</h1>
+                <p className="text-gray-500 font-medium">Manage your personal information and security preferences.</p>
+            </div>
+
+            {status.message && (
+                <div className={`p-4 rounded-2xl border ${
+                    status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-rose-50 border-rose-100 text-rose-700'
+                } flex items-center gap-3 animate-in slide-in-from-top-4`}>
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={status.type === 'success' ? "M5 13l4 4L19 7" : "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"} />
+                    </svg>
+                    <p className="font-bold text-sm tracking-tight">{status.message}</p>
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Profile Information */}
+                <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 space-y-6">
+                    <div className="flex items-center gap-3 text-indigo-600 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Personal Details</h2>
+                    </div>
+
+                    <form onSubmit={handleProfileUpdate} className="space-y-4 text-left">
+                        <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 px-1">Full Name</label>
+                            <input
+                                type="text"
+                                value={profileData.name}
+                                onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                                className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-gray-900"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 px-1">Email Address</label>
+                            <input
+                                type="email"
+                                value={profileData.email}
+                                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                                className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-gray-900"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full py-3 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                        >
+                            {isLoading ? 'Processing...' : 'Save Profile'}
+                        </button>
+                    </form>
+                </div>
+
+                {/* Password Change */}
+                <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 space-y-6">
+                    <div className="flex items-center gap-3 text-amber-600 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Security & Password</h2>
+                    </div>
+
+                    <form onSubmit={handlePasswordUpdate} className="space-y-4 text-left">
+                        <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 px-1">Current Password</label>
+                            <input
+                                type="password"
+                                value={passwordData.currentPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-gray-900"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 px-1">New Password</label>
+                            <input
+                                type="password"
+                                value={passwordData.newPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-gray-900"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 px-1">Confirm New Password</label>
+                            <input
+                                type="password"
+                                value={passwordData.confirmPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-sm text-gray-900"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full py-3 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 shadow-lg shadow-gray-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                        >
+                            {isLoading ? 'Processing...' : 'Reset Password'}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default SettingsPage;

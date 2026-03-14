@@ -68,7 +68,7 @@ const Register = () => {
                 <div className="relative z-10 flex flex-col h-full justify-between">
                     {/* Logo Section */}
                     <Link to="/" className="mb-4 inline-block group cursor-pointer w-fit">
-                         <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center p-2 group-hover:scale-105 transition-transform duration-300">
                                 <span className="text-indigo-600 font-black text-2xl italic">E</span>
                             </div>
@@ -218,7 +218,7 @@ const Register = () => {
                             isLoading={isLoading}
                             className="h-16 xl:h-[72px] rounded-[24px] text-xl font-black shadow-[0_12px_24px_-4px_rgba(79,70,229,0.3)] hover:shadow-[0_16px_32px_-4px_rgba(79,70,229,0.4)] transition-all active:scale-[0.98] mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 border-none"
                         >
-                            Start Hosting Events 🚀
+                            Start Hosting Events
                         </Button>
 
                         <div className="text-center pt-4 xl:pt-6">

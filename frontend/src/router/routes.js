@@ -29,4 +29,8 @@ export const ROUTES = {
     ADMIN_EVENTS: '/admin/events',
     ADMIN_USERS: '/admin/users',
     ADMIN_REVIEW_HISTORY: '/admin/review-history',
+    ADMIN_SETTINGS: '/admin/settings',
+
+    // Organizer Settings (added)
+    ORGANIZER_SETTINGS: '/organizer/settings',
 };

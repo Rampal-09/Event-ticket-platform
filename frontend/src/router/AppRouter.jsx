@@ -28,6 +28,7 @@ import AdminEventsPage from '../pages/admin/AdminEventsPage';
 import AdminUsersPage from '../pages/admin/AdminUsersPage';
 import ReviewHistoryPage from '../pages/admin/ReviewHistoryPage';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
+import SettingsPage from '../pages/common/SettingsPage';
 
 import PublicLayout from '../layouts/PublicLayout';
 import OrganizerLayout from '../layouts/OrganizerLayout';
@@ -61,6 +62,7 @@ const AppRouter = () => {
                     <Route path={ROUTES.EDIT_EVENT} element={<EditEvent />} />
                     <Route path={ROUTES.ORGANIZER_EVENT_DETAILS} element={<OrganizerEventDetails />} />
                     <Route path={ROUTES.ORGANIZER_REPORTS} element={<OrganizerReports />} />
+                    <Route path={ROUTES.ORGANIZER_SETTINGS} element={<SettingsPage />} />
                 </Route>
 
                 {/* Protected Scanner Routes */}
@@ -74,6 +76,7 @@ const AppRouter = () => {
                     <Route path={ROUTES.ADMIN_EVENTS} element={<AdminEventsPage />} />
                     <Route path={ROUTES.ADMIN_USERS} element={<AdminUsersPage />} />
                     <Route path={ROUTES.ADMIN_REVIEW_HISTORY} element={<ReviewHistoryPage />} />
+                    <Route path={ROUTES.ADMIN_SETTINGS} element={<SettingsPage />} />
                 </Route>
 
                 {/* Fallback */}
