@@ -82,7 +82,7 @@ const EventBasicForm = ({ data, onChange }) => {
                 </div>
             </Card>
 
-            {/* Tickets */}
+            {/* Tickets
             <Card title="Ticket Settings" subtitle="Set your pricing and availability">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <Input
@@ -105,6 +105,54 @@ const EventBasicForm = ({ data, onChange }) => {
                         value={data.totalTickets}
                         onChange={e => onChange('totalTickets', e.target.value)}
                     />
+                </div>
+            </Card> */}
+
+            {/* Ticket Releases */}
+            <Card title="Ticket Releases" subtitle="Sell tickets in stages (e.g., Early Bird, General Admission)">
+                <div className="space-y-6">
+                    {data.ticketReleases?.map((release, index) => (
+                        <div key={index} className="p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
+                            <h4 className="font-bold text-gray-900 border-b border-gray-200 pb-2">{release.name}</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <Input
+                                    label="Quantity"
+                                    type="number"
+                                    min="0"
+                                    placeholder="Available tickets"
+                                    value={release.quantity}
+                                    onChange={e => {
+                                        const newReleases = [...data.ticketReleases];
+                                        newReleases[index].quantity = e.target.value;
+                                        onChange('ticketReleases', newReleases);
+                                    }}
+                                />
+                                <Input
+                                    label="Price ($)"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0 for free"
+                                    value={release.price}
+                                    onChange={e => {
+                                        const newReleases = [...data.ticketReleases];
+                                        newReleases[index].price = e.target.value;
+                                        onChange('ticketReleases', newReleases);
+                                    }}
+                                />
+                                <Input
+                                    label="Release Date (Optional)"
+                                    type="date"
+                                    value={release.releaseDate}
+                                    onChange={e => {
+                                        const newReleases = [...data.ticketReleases];
+                                        newReleases[index].releaseDate = e.target.value;
+                                        onChange('ticketReleases', newReleases);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </Card>
         </div>

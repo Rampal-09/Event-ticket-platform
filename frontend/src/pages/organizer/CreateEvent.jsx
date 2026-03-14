@@ -41,6 +41,11 @@ const CreateEvent = () => {
         time: '',
         price: '',
         totalTickets: '',
+        ticketReleases: [
+            { name: '1st Ticket Release', price: '', quantity: '', releaseDate: '' },
+            { name: '2nd Ticket Release', price: '', quantity: '', releaseDate: '' },
+            { name: 'Final Ticket Release', price: '', quantity: '', releaseDate: '' }
+        ],
         galleryImages: [],
         promoCodes: [],
         isPublic: true,
@@ -68,9 +73,20 @@ const CreateEvent = () => {
             errors.date = 'Event date cannot be in the past';
         }
 
-        if (!formData.price && formData.price !== 0) errors.price = 'Ticket price is required';
-        if (!formData.totalTickets) errors.totalTickets = 'Total capacity is required';
-        if (parseInt(formData.totalTickets) <= 0) errors.totalTickets = 'Capacity must be greater than 0';
+        let hasValidRelease = false;
+        formData.ticketReleases.forEach(release => {
+            if (release.quantity && parseInt(release.quantity) > 0) {
+                hasValidRelease = true;
+            }
+        });
+
+        if (!hasValidRelease) {
+            errors.ticketReleases = 'Please configure at least one ticket release with a valid quantity.';
+        }
+
+        if (!formData.price && formData.price !== 0) errors.price = 'Ticket price could not be calculated.';
+        if (!formData.totalTickets) errors.totalTickets = 'Total capacity could not be calculated.';
+        if (parseInt(formData.totalTickets) <= 0) errors.totalTickets = 'Capacity must be greater than 0.';
 
         setFieldErrors(errors);
         return Object.keys(errors).length === 0;
@@ -97,6 +113,22 @@ const CreateEvent = () => {
                 newState.isPublic = value === 'public';
             }
 
+            // Auto calculate totals if ticket releases changed
+            if (field === 'ticketReleases') {
+                let currentTotal = 0;
+                let currentPrice = null;
+                value.forEach(r => {
+                    const qty = parseInt(r.quantity) || 0;
+                    if (qty > 0) {
+                        currentTotal += qty;
+                        const p = parseFloat(r.price) || 0;
+                        if (currentPrice === null || p < currentPrice) currentPrice = p;
+                    }
+                });
+                newState.totalTickets = currentTotal;
+                newState.price = currentPrice !== null ? currentPrice : '';
+            }
+
             return newState;
         });
     };
@@ -116,6 +148,7 @@ const CreateEvent = () => {
                 totalTickets: formData.totalTickets,
                 image: formData.galleryImages[0] || '',
                 galleryImages: formData.galleryImages,
+                ticketReleases: formData.ticketReleases,
                 tags: [formData.eventType, formData.ageRestriction].filter(Boolean),
                 highlights: [formData.parking, formData.refundPolicy].filter(Boolean),
                 category: formData.category,
