@@ -93,6 +93,7 @@ const EventList = () => {
                 <EventFilters
                     activeCategory={activeCategory}
                     onFilterChange={handleFilterChange}
+                    count={filteredEvents.length}
                 />
 
                 {/* Grid */}

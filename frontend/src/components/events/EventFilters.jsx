@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * EventFilters - Component for filtering event lists by category, date, etc.
  */
-const EventFilters = ({ onFilterChange, activeCategory = 'All' }) => {
+const EventFilters = ({ onFilterChange, activeCategory = 'All', count = 0 }) => {
     const categories = ['All', 'Music', 'Tech', 'Food', 'Art', 'Networking', 'Fundraisers', 'School Events', 'Community Events'];
 
     return (
@@ -59,7 +59,7 @@ const EventFilters = ({ onFilterChange, activeCategory = 'All' }) => {
                 </div>
 
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                    Showing 24 events
+                    Showing {count} events
                 </p>
             </div>
         </div>

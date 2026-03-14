@@ -3,9 +3,9 @@ import { Link, useLocation, Outlet } from 'react-router-dom';
 import { ROUTES } from '../router/routes';
 
 const NAV_LINKS = [
-    { label: 'Events', href: '/events' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'About', href: '#' },
+    { label: 'Events', href: ROUTES.EVENT_LIST },
+    { label: 'FAQ', href: ROUTES.FAQ },
+    { label: 'About', href: '/#about' },
 ];
 
 const PublicLayout = ({ children }) => {

@@ -5,7 +5,9 @@ import EventReviewModal from '../../components/admin/EventReviewModal';
 import AdminStatsCard from '../../components/admin/AdminStatsCard';
 import { ROUTES } from '../../router/routes';
 import { adminService } from '../../services/adminService';
+import { useToast } from '../../components/ui/Toast';
 const AdminEventsPage = () => {
+    const { addToast } = useToast();
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
     const [stats, setStats] = useState(null);
@@ -52,7 +54,7 @@ const AdminEventsPage = () => {
             setIsModalOpen(false);
         } catch (err) {
             console.error(`Failed to ${status} event:`, err);
-            alert(`System error: Failed to ${status} event. Please try again.`);
+            addToast(`System error: Failed to ${status} event. Please try again.`, 'error');
         }
     };
 

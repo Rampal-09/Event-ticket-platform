@@ -6,6 +6,7 @@ import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
 import { eventService } from '../../services/eventService';
 import DashboardLoader from '../../components/ui/DashboardLoader';
+import { useToast } from '../../components/ui/Toast';
 
 const InfoRow = ({ icon, label, value, accent }) => (
     <div className="flex items-start gap-4">
@@ -20,6 +21,7 @@ const InfoRow = ({ icon, label, value, accent }) => (
 );
 
 const EventDetails = () => {
+    const { addToast } = useToast();
     const { id } = useParams();
     const navigate = useNavigate();
     const pageLocation = useLocation();
@@ -43,7 +45,9 @@ const EventDetails = () => {
                 setEvent(data);
             } catch (err) {
                 console.error('Fetch event detail error:', err);
-                setError(err.message || 'Event not found or failed to load.');
+                const msg = err.message || 'Event not found or failed to load.';
+                setError(msg);
+                addToast(msg, 'error');
             } finally {
                 setIsLoading(false);
             }
@@ -125,7 +129,7 @@ const EventDetails = () => {
                             {isSoldOut && <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-red-100 text-red-600">Sold Out</span>}
                         </div>
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 leading-tight">{title}</h1>
-                        <p className="text-gray-500 mt-2 text-lg font-medium">by {organizer}</p>
+                        <p className="text-gray-500 mt-2 text-lg font-medium">by {organizer?.name || (typeof organizer === 'string' ? organizer : 'Unknown Organizer')}</p>
 
                         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <InfoRow accent={accentColor}
@@ -218,7 +222,7 @@ const EventDetails = () => {
                                 <InfoRow accent={accentColor}
                                     icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
                                     label="Organizer"
-                                    value={organizer?.name || organizer}
+                                    value={organizer?.name || (typeof organizer === 'string' ? organizer : 'Unknown')}
                                 />
                             </div>
                         </div>

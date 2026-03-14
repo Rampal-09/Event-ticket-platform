@@ -11,8 +11,10 @@ import EventAdditionalSettings from '../../components/organizer/EventAdditionalS
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
 import { eventService } from '../../services/eventService';
+import { useToast } from '../../components/ui/Toast';
 
 const CreateEvent = () => {
+    const { addToast } = useToast();
     window._CREATE_EVENT_DEBUG = "V3-DEBUG-" + Date.now();
 
     // Safety function to catch and identify object-as-child errors
@@ -162,6 +164,7 @@ const CreateEvent = () => {
             const response = await eventService.createEvent(backendData);
             console.log('Create Event Response:', response);
             setCreatedEventId(response?.id);
+            addToast('Event created and submitted for approval!', 'success');
             setShowSuccessModal(true);
         } catch (err) {
             console.error('Create Event Error:', err);
@@ -169,6 +172,7 @@ const CreateEvent = () => {
                 ? err.response.data.error
                 : (typeof err.message === 'string' ? err.message : 'Failed to create event');
             setError(errMsg);
+            addToast(errMsg, 'error');
         } finally {
             setIsSubmitting(false);
         }

@@ -108,6 +108,7 @@ model ticket {
   qrPayload   String        @unique(map: "Ticket_qrPayload_key")
   status      ticket_status @default(UNUSED)
   purchasedAt DateTime      @default(now())
+  scannedAt   DateTime?
   event       event         @relation(fields: [eventId], references: [id], map: "Ticket_eventId_fkey")
 
   @@index([eventId], map: "Ticket_eventId_fkey")

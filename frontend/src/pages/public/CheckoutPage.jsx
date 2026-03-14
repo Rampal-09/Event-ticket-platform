@@ -9,8 +9,10 @@ import Input from '../../components/ui/Input';
 import { ROUTES } from '../../router/routes';
 import { eventService } from '../../services/eventService';
 import { ticketService } from '../../services/ticketService';
+import { useToast } from '../../components/ui/Toast';
 
 const CheckoutPage = () => {
+    const { addToast } = useToast();
     const { eventId } = useParams();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -65,9 +67,10 @@ const CheckoutPage = () => {
             // Navigate to success page with the first ticket ID as reference
             // The backend returns an array of tickets
             const firstTicketId = response.tickets[0].id;
+            addToast('Tickets purchased successfully! Redirecting...', 'success');
             navigate(`${ROUTES.ORDER_SUCCESS}?id=${firstTicketId}`);
         } catch (err) {
-            alert(err.message || 'Payment failed. Please try again.');
+            addToast(err.message || 'Payment failed. Please try again.', 'error');
         } finally {
             setIsSubmitting(false);
         }

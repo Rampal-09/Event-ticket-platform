@@ -47,7 +47,7 @@ const EventReviewModal = ({ isOpen, onClose, event, onApprove, onReject }) => {
                             {event.category}
                         </span>
                         <h3 className="text-xl font-black text-gray-900 mt-1">{event.title}</h3>
-                        <p className="text-sm text-gray-500 font-medium mt-1">Submitted by {event.organizer?.name || event.organizer}</p>
+                        <p className="text-sm text-gray-500 font-medium mt-1">Submitted by {event.organizer?.name || (typeof event.organizer === 'string' ? event.organizer : 'Unknown')}</p>
                         <div className="flex gap-4 mt-3 text-xs text-gray-400 font-bold uppercase tracking-widest">
                             <span>${event.ticketPrice} Ticket</span>
                             <span>•</span>
