@@ -104,12 +104,13 @@ const Home = () => {
                     <div className="max-w-4xl space-y-10 animate-fade-in">
                         <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-2xl">
                             <span className="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white/90">{(stats.totalEvents || 0).toLocaleString()}+ Live Experiences</span>
+                            {/* <span className="text-[10px] font-black uppercase tracking-widest text-white/90">{(stats.totalEvents || 0).toLocaleString()}+ Live Experiences</span> */}
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white/90">An Australian-owned ticketing platform built for local events and communities</span>
                         </div>
 
                         <h1 className="text-4xl sm:text-7xl font-black text-white leading-[1.05] tracking-tight">
-                            Your gateway to <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">unforgettable</span> moments.
+                            Discover and Host <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">unforgettable</span> events.
                         </h1>
 
                         <p className="text-lg sm:text-2xl text-gray-400 max-w-2xl leading-relaxed font-medium">
@@ -234,6 +235,25 @@ const Home = () => {
 
             {/* ========== TRUST BANNER ========== */}
             <TrustBanner />
+
+            {/* ========== SUPPORT STAFF SECTION ========== */}
+            <section className="py-12 bg-gray-900 border-t border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden relative">
+                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 pointer-events-none rounded-3xl" />
+                    <div className="relative z-10 text-center sm:text-left space-y-2">
+                        <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Need extra hands?</h3>
+                        <p className="text-indigo-200 font-medium max-w-lg leading-relaxed">Want to hire supportive staff for your upcoming event? We've got you covered with trained professionals.</p>
+                    </div>
+                    <div className="relative z-10 whitespace-nowrap">
+                         <a 
+                             href="mailto:support@eventticketplatform.com.au" 
+                             className="inline-block bg-indigo-600 text-white font-black px-8 py-3 rounded-2xl transition-all duration-300 hover:bg-indigo-500 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgb(99,102,241,0.3)]"
+                         >
+                            Contact Us
+                         </a>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 };

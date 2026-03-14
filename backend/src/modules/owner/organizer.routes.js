@@ -12,7 +12,7 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
     const {
         title, category, description, location, eventDate, ticketPrice,
         totalTickets, image, tags, highlights, promoCodes,
-        isPublic, sellingFastThreshold, galleryImages
+        isPublic, sellingFastThreshold, galleryImages, ticketReleases
     } = req.body;
 
     console.log('--- EVENT CREATION REQUEST ---');
@@ -55,6 +55,14 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
                 create: galleryImages.map((imgUrl, index) => ({
                     imageUrl: imgUrl,
                     displayOrder: index
+                }))
+            } : undefined,
+            ticketrelease: (ticketReleases && ticketReleases.length > 0) ? {
+                create: ticketReleases.filter(tr => parseInt(tr.quantity) > 0).map(tr => ({
+                    name: tr.name,
+                    price: parseFloat(tr.price) || 0,
+                    quantity: parseInt(tr.quantity) || 0,
+                    releaseDate: tr.releaseDate ? new Date(tr.releaseDate) : null
                 }))
             } : undefined,
             updatedAt: new Date()
@@ -112,7 +120,8 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
             include: {
                 eventimage: true,
                 promocode: true,
-                eventschedule: true
+                eventschedule: true,
+                ticketrelease: true
             }
         });
 
@@ -128,7 +137,8 @@ router.get('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), asyn
             highlights: event.highlights ? (typeof event.highlights === 'string' ? JSON.parse(event.highlights) : event.highlights) : [],
             galleryImages: event.eventimage,
             promoCodes: event.promocode,
-            schedule: event.eventschedule
+            schedule: event.eventschedule,
+            ticketReleases: event.ticketrelease
         };
 
         res.json(mappedEvent);
@@ -147,7 +157,7 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
     const {
         title, category, description, location, eventDate, ticketPrice,
         totalTickets, image, tags, highlights, promoCodes,
-        isPublic, sellingFastThreshold, galleryImages
+        isPublic, sellingFastThreshold, galleryImages, ticketReleases
     } = req.body;
 
     try {
@@ -192,6 +202,15 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
                     create: galleryImages.map((imgUrl, index) => ({
                         imageUrl: imgUrl,
                         displayOrder: index
+                    }))
+                } : undefined,
+                ticketrelease: ticketReleases ? {
+                    deleteMany: {},
+                    create: ticketReleases.filter(tr => parseInt(tr.quantity) > 0).map(tr => ({
+                        name: tr.name,
+                        price: parseFloat(tr.price) || 0,
+                        quantity: parseInt(tr.quantity) || 0,
+                        releaseDate: tr.releaseDate ? new Date(tr.releaseDate) : null
                     }))
                 } : undefined,
                 updatedAt: new Date(),

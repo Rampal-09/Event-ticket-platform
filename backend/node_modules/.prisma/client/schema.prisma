@@ -34,9 +34,22 @@ model event {
   eventschedule                 eventschedule[]
   promocode                     promocode[]
   ticket                        ticket[]
+  ticketrelease                 ticketrelease[]
 
   @@index([organizerId], map: "Event_organizerId_fkey")
   @@index([reviewedById], map: "Event_reviewedById_fkey")
+}
+
+model ticketrelease {
+  id          Int       @id @default(autoincrement())
+  eventId     Int
+  name        String
+  price       Float
+  quantity    Int
+  releaseDate DateTime?
+  event       event     @relation(fields: [eventId], references: [id], onDelete: Cascade, map: "TicketRelease_eventId_fkey")
+
+  @@index([eventId], map: "TicketRelease_eventId_fkey")
 }
 
 model eventimage {
