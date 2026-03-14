@@ -1,10 +1,13 @@
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 /**
  * TicketCard - A stunning visual representation of a digital ticket.
  */
 const TicketCard = ({ ticket, event }) => {
     if (!ticket || !event) return null;
+
+    // Use full payload if available, else fallback to ticket ID for validation
+    const qrValue = ticket.qrPayload || (ticket.id ? String(ticket.id) : 'TCK-882294');
 
     const dateStr = new Date(event.event_date).toLocaleDateString('en-US', {
         weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
@@ -63,14 +66,13 @@ const TicketCard = ({ ticket, event }) => {
                 <div className="px-8 py-8 bg-white relative z-10 transition-colors group-hover:bg-gray-50/50">
                     <div className="flex items-center gap-6">
                         {/* QR Code Container */}
-                        <div className="qr-container flex-shrink-0 w-32 h-32 bg-gray-900 rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden shadow-xl shadow-gray-200 transition-transform group-hover:scale-105 duration-500">
-                            <QRCodeSVG
-                                value={qrPayload}
+                        <div className="flex-shrink-0 w-32 h-32 bg-white rounded-[2rem] p-4 flex items-center justify-center relative overflow-hidden shadow-xl shadow-indigo-100 transition-transform group-hover:scale-105 duration-500">
+                            <QRCodeCanvas
+                                value={qrValue}
                                 size={128}
                                 level="H"
-                                className="qr-code-svg w-full h-full"
-                                bgColor="#FFFFFF"
-                                fgColor="#000000"
+                                includeMargin={false}
+                                style={{ width: '100%', height: '100%' }}
                             />
                         </div>
 
@@ -85,7 +87,7 @@ const TicketCard = ({ ticket, event }) => {
                                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Pass ID</p>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-mono font-black text-indigo-600 tracking-tight">
-                                        {ticket.id?.toString().substring(0, 10) || 'TCK-882294'}
+                                        {String(ticket.id || '').substring(0, 10) || 'TCK-882294'}
                                     </span>
                                     <span className={`mt-2 w-fit px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${ticket.status === 'unused'
                                         ? 'bg-emerald-50 text-emerald-600 border-emerald-100'

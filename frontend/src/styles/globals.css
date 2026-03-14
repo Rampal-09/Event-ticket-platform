@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
 /* =============================================
    DESIGN SYSTEM — EVENT TICKET PLATFORM
@@ -54,15 +53,7 @@ body {
     background: #94A3B8;
 }
 
-
-
-.glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
+/* ---- Line clamp utilities ---- */
 .line-clamp-1 {
     overflow: hidden;
     display: -webkit-box;
@@ -127,99 +118,42 @@ body {
     animation: scan-beam 2.2s ease-in-out infinite alternate;
 }
 
-/* =============================================
-   PRINT STYLES — TICKETS & PDF
-   ============================================= */
+/* ---- Glass card effect ---- */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ---- Print Styles ---- */
 @media print {
-    @page { 
-        margin: 1cm !important;
-        size: auto;
-    }
-
-    html, body {
-        background: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        font-family: sans-serif !important;
-    }
-
-    /* Aggressive Print Isolation */
-    nav, 
-    header, 
-    footer, 
-    .no-print, 
-    button,
-    aside,
-    .help-box,
-    .bg-indigo-600.rounded-3xl.p-8.text-white { 
-        display: none !important; 
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-
-    /* Layout Consolidation */
-    .grid {
-        display: block !important;
-    }
-
-    .grid > div {
-        width: 100% !important;
-        margin-bottom: 2cm !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    /* Print Legibility System */
-    * {
-        font-size: 13pt !important;
-        line-height: 1.5 !important;
-        color: #000000 !important;
-    }
-
-    h1 { font-size: 26pt !important; font-weight: 900 !important; margin-bottom: 15pt !important; }
-    h2 { font-size: 20pt !important; font-weight: 800 !important; }
-    
-    /* Metadata Labels */
-    p.text-[10px], 
-    span.text-[10px] { 
-        font-size: 11pt !important; 
-        font-weight: 900 !important; 
-        color: #333 !important;
-        text-transform: uppercase !important;
-    }
-
-    /* QR Stability */
-    .qr-container {
-        display: flex !important;
-        background: white !important;
-        padding: 10pt !important;
-        border: 2pt solid #000 !important;
-        width: 160px !important;
-        height: 160px !important;
-        margin: 0 auto 10pt !important;
-    }
-
-    .qr-code-svg, .qr-code-svg * {
-        fill: #000000 !important;
-        color: #000000 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-    }
-
-    /* Ticket Body Cleanup */
-    .ticket-body {
-        background: white !important;
-        color: black !important;
-        border: 3pt solid #000 !important;
-        border-radius: 15pt !important;
-        padding: 1.5cm !important;
-        margin-bottom: 2cm !important;
-    }
-
-    /* Hide background noise */
-    .animate-ping, .animate-bounce, .blur-3xl {
+    .no-print {
         display: none !important;
     }
-}
+
+    body {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .print-only-ticket {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9999 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    .print-content {
+        transform: scale(1.1) !important;
+    }
+}

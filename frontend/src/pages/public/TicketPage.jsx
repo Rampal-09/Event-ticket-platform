@@ -5,19 +5,77 @@ import TicketDetails from '../../components/tickets/TicketDetails';
 import Button from '../../components/ui/Button';
 import { ROUTES } from '../../router/routes';
 import { ticketService } from '../../services/ticketService';
+import { useToast } from '../../components/ui/Toast';
+import * as htmlToImage from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 const TicketPage = () => {
+    const { addToast } = useToast();
     const { ticketId } = useParams();
     const navigate = useNavigate();
     const [ticketData, setTicketData] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [isGenerating, setIsGenerating] = React.useState(false);
     const [error, setError] = React.useState(null);
+    const ticketRef = React.useRef(null);
+
+    const handleDownloadPDF = async () => {
+        if (!ticketRef.current || isGenerating) return;
+        
+        setIsGenerating(true);
+        addToast('Generating your PDF ticket...', 'info');
+        
+        try {
+            // html-to-image is much better at handling modern CSS like oklab() colors
+            const dataUrl = await htmlToImage.toPng(ticketRef.current, {
+                quality: 1.0,
+                pixelRatio: 2,
+                backgroundColor: '#ffffff',
+                style: {
+                    transform: 'none',
+                    transition: 'none'
+                }
+            });
+            
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            
+            // Image size and ratio
+            const img = new Image();
+            img.src = dataUrl;
+            
+            await new Promise((resolve) => (img.onload = resolve));
+            
+            const ratio = img.height / img.width;
+            const imgWidth = pdfWidth * 0.7; 
+            const imgHeight = imgWidth * ratio;
+            
+            // Center the ticket
+            const xOffset = (pdfWidth - imgWidth) / 2;
+            pdf.addImage(dataUrl, 'PNG', xOffset, 40, imgWidth, imgHeight);
+            
+            pdf.save(`EventHubix-Ticket-${ticketId}.pdf`);
+            addToast('Ticket downloaded successfully!', 'success');
+        } catch (err) {
+            console.error('PDF Generation failed:', err);
+            addToast('Failed to generate PDF. Please try again or use the Print option.', 'error');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
 
     React.useEffect(() => {
         const fetchTicket = async () => {
             setIsLoading(true);
             try {
-                const data = await ticketService.getTicketById(ticketId);
+                // Ensure ticketId is just the ID (remove TCK- prefix if present)
+                const sanitizedId = ticketId?.replace('TCK-', '');
+                const data = await ticketService.getTicketById(sanitizedId);
                 setTicketData(data);
             } catch (err) {
                 console.error('Fetch ticket error:', err);
@@ -26,7 +84,7 @@ const TicketPage = () => {
                 setIsLoading(false);
             }
         };
-        fetchTicket();
+        if (ticketId) fetchTicket();
     }, [ticketId]);
 
     if (isLoading) {
@@ -56,7 +114,7 @@ const TicketPage = () => {
         id: id,
         status: status.toLowerCase(),
         buyer_email: buyerEmail,
-        buyer_name: buyerName
+        qrPayload: ticketData.qrPayload
     };
 
     return (
@@ -74,15 +132,22 @@ const TicketPage = () => {
                         Back to Events
                     </button>
                     <div className="flex gap-3">
-                        <Button variant="outline" size="sm" onClick={() => window.print()}>Save PDF</Button>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleDownloadPDF}
+                            isLoading={isGenerating}
+                        >
+                            Save PDF
+                        </Button>
                         <Button variant="outline" size="sm" onClick={() => window.print()}>Print</Button>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
                     {/* LEFT: Ticket Visual */}
-                    <div className="flex flex-col items-center">
-                        <div className="w-full max-w-sm transform hover:rotate-1 transition-transform duration-500">
+                    <div className="flex flex-col items-center print-only-ticket">
+                        <div ref={ticketRef} className="w-full max-w-sm transform hover:rotate-1 transition-transform duration-500 print-content">
                             <TicketCard ticket={ticketInfo} event={eventInfo} />
                         </div>
                         <p className="mt-8 text-sm text-gray-400 font-medium text-center max-w-xs no-print">
@@ -91,8 +156,8 @@ const TicketPage = () => {
                     </div>
 
                     {/* RIGHT: Confirmation Details */}
-                    <div className="space-y-10">
-                        <div className="no-print">
+                    <div className="space-y-10 no-print">
+                        <div>
                             <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-100 mb-4">
                                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
                                 Confirmed & Verified

@@ -35,7 +35,10 @@ const CheckoutPage = () => {
         const fetchEvent = async () => {
             setIsLoadingEvent(true);
             try {
-                const data = await eventService.getPublicEventById(eventId);
+                const isPrivateFlag = searchParams.get('private') === 'true';
+                const data = await eventService.getPublicEventById(eventId, { 
+                    private: isPrivateFlag 
+                });
                 setEvent(data);
             } catch (err) {
                 console.error('Fetch event detail error:', err);

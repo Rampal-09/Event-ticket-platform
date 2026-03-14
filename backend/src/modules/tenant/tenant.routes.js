@@ -130,7 +130,7 @@ router.post('/validate', requireAuth, requireRole(['ADMIN', 'ORGANIZER']), async
         });
 
         if (!ticket) {
-            return res.status(404).json({ error: 'Invalid Ticket' });
+            return res.status(400).json({ error: 'Invalid Ticket: No matching record found.' });
         }
 
         if (ticket.status === 'USED') {

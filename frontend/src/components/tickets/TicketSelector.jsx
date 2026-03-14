@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 /**
  * TicketSelector - Component for selecting ticket quantity and initiating checkout
  */
-const TicketSelector = ({ eventId, ticketPrice, maxTickets = 10 }) => {
+const TicketSelector = ({ eventId, ticketPrice, maxTickets = 10, isPrivate = false }) => {
     const [quantity, setQuantity] = useState(1);
     const navigate = useNavigate();
 
@@ -15,8 +15,9 @@ const TicketSelector = ({ eventId, ticketPrice, maxTickets = 10 }) => {
 
     const handleCheckout = () => {
         // Correctly handle navigation to checkout with selection data
-        // For now using the simple path, but can extend with state if needed
-        navigate(`/checkout/${eventId}?qty=${quantity}`);
+        let url = `/checkout/${eventId}?qty=${quantity}`;
+        if (isPrivate) url += '&private=true';
+        navigate(url);
     };
 
     return (

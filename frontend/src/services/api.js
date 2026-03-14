@@ -17,7 +17,9 @@ export const api = {
         return response.json();
     },
     post: async (endpoint, data) => {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
+        const url = `${BASE_URL}${endpoint}`;
+        console.log(`[API POST] Fetching: ${url}`, { data });
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${getAuthToken()}`,

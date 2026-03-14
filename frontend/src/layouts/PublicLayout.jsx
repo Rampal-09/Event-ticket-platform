@@ -26,7 +26,7 @@ const PublicLayout = ({ children }) => {
         <div className="min-h-screen flex flex-col" style={{ background: '#F8F9FC' }}>
             {/* ====== NAVBAR ====== */}
             <nav
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 no-print ${scrolled
                     ? 'bg-white/95 backdrop-blur-md shadow-md border-b border-gray-100'
                     : 'bg-white border-b border-gray-100'
                     }`}
@@ -105,8 +105,8 @@ const PublicLayout = ({ children }) => {
             </main>
 
             {/* ====== FOOTER ====== */}
-            <div className="border-t border-gray-200" />
-            <footer style={{ background: '#F8F9FC' }} className="text-gray-500 mt-auto">
+            <div className="border-t border-gray-200 no-print" />
+            <footer style={{ background: '#F8F9FC' }} className="text-gray-500 mt-auto no-print">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 mb-12">
 

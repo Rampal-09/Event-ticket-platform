@@ -257,6 +257,7 @@ const EventDetails = () => {
                                         eventId={id}
                                         ticketPrice={ticketPrice}
                                         maxTickets={totalTickets - ticketsSold}
+                                        isPrivate={isPrivateFlag}
                                     />
                                 </div>
                             ) : (

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import { Html5Qrcode } from 'html5-qrcode';
 
 import { eventService } from '../../services/eventService';
 import { ticketService } from '../../services/ticketService';
@@ -36,6 +37,7 @@ const QRScanner = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const eventId = searchParams.get('id');
+    const scannerRef = useRef(null);
     const [eventData, setEventData] = useState({ title: 'Loading...' });
     const [stats, setStats] = useState({ admitted: 0, pending: 0 });
     const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +66,11 @@ const QRScanner = () => {
 
     useEffect(() => {
         fetchData();
+        return () => {
+            if (scannerRef.current && scannerRef.current.getState() === 2) {
+                scannerRef.current.stop().catch(() => {});
+            }
+        };
     }, [eventId]);
 
     const [isScanning, setIsScanning] = useState(false);
@@ -73,18 +80,39 @@ const QRScanner = () => {
     const [showShareToast, setShowShareToast] = useState(false);
     const [manualInput, setManualInput] = useState('');
 
-    const handleStartScan = async () => {
-        if (!manualInput && !isScanning) {
-            setIsScanning(true);
-            setTimeout(() => setIsScanning(false), 2000);
-            return;
+    const validateTicketPayload = async (payload) => {
+        if (!payload) return;
+        
+        let targetPayload = payload;
+        // If the payload is a URL, try to extract the ticket ID or relevant parts
+        if (payload.includes('http')) {
+            try {
+                const url = new URL(payload);
+                // Check for /ticket/:id pattern
+                const ticketMatch = url.pathname.match(/\/ticket\/([^/]+)/);
+                if (ticketMatch && ticketMatch[1]) {
+                    targetPayload = ticketMatch[1].replace('TCK-', '');
+                    console.log('Extracted ticket ID from URL:', targetPayload);
+                }
+            } catch (e) {
+                console.warn('URL parsing failed for payload:', payload);
+            }
         }
+        
+        // Immediately try to stop the scanner to prevent double-scans
+        if (scannerRef.current && scannerRef.current.getState() === 2) {
+            try {
+                await scannerRef.current.stop();
+            } catch (err) {
+                console.warn('Scanner stop warning:', err);
+            }
+        }
+        setIsScanning(false);
 
-        setIsScanning(true);
         try {
-            // Validate using the manual input as the payload for now 
-            // In a real mobile app, this would be the QR result
-            const response = await ticketService.validateTicket(manualInput);
+            console.log('Sending validation request for payload:', payload);
+            const response = await ticketService.validateTicket(payload);
+            console.log('Validation response:', response);
             
             setScanResult({
                 isValid: true,
@@ -98,13 +126,15 @@ const QRScanner = () => {
             playScanSound(true);
             setScanCount(c => ({ ...c, valid: c.valid + 1 }));
             setShowResult(true);
-            setManualInput('');
         } catch (err) {
-            const isUsed = err.response?.data?.error?.toLowerCase().includes('used') || err.message?.toLowerCase().includes('used');
+            console.error('Validation error object:', err);
+            const isUsed = err.message?.toLowerCase().includes('used') || 
+                           (err.response?.data?.error?.toLowerCase().includes('used'));
+            
             setScanResult({
                 isValid: false,
                 isAlreadyUsed: isUsed,
-                ticketId: 'Verification Failed',
+                ticketId: payload || 'Verification Failed',
                 event: eventData.title,
                 buyer: 'N/A',
                 seat: 'Denied Access',
@@ -112,8 +142,41 @@ const QRScanner = () => {
             playScanSound(false);
             setScanCount(c => ({ ...c, invalid: c.invalid + 1 }));
             setShowResult(true);
-        } finally {
+        }
+    };
+
+    const handleStartScan = async () => {
+        if (manualInput) {
+            validateTicketPayload(manualInput);
+            setManualInput('');
+            return;
+        }
+
+        if (isScanning) return; // Prevent multiple starts
+
+        setIsScanning(true);
+        try {
+            // Re-use or Create instance
+            if (!scannerRef.current) {
+                scannerRef.current = new Html5Qrcode("reader");
+            }
+
+            const config = { fps: 15, qrbox: { width: 250, height: 250 } };
+            
+            await scannerRef.current.start(
+                { facingMode: "environment" }, 
+                config, 
+                (decodedText) => {
+                    // Check if we are still in a state to handle scans
+                    if (scannerRef.current && scannerRef.current.getState() === 2) {
+                        validateTicketPayload(decodedText);
+                    }
+                }
+            );
+        } catch (err) {
+            console.error('Camera access error:', err);
             setIsScanning(false);
+            alert('Unable to access camera or scanner already active. Please refresh and try again.');
         }
     };
 
@@ -170,9 +233,12 @@ const QRScanner = () => {
                 <div className="relative w-64 h-64 sm:w-80 sm:h-80">
                     {/* Camera area */}
                     <div className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-900 border border-white/10">
-                        {isScanning ? (
+                        {/* THE SCANNER VIDEO INJECTION POINT */}
+                        <div id="reader" className="w-full h-full"></div>
+                        
+                        {isScanning && (
                             <>
-                                <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <div className="w-full h-full flex items-center justify-center opacity-20">
                                         <svg viewBox="0 0 200 200" className="w-48 h-48 text-white" fill="currentColor">
                                             <rect x="10" y="10" width="55" height="55" rx="4" /><rect x="18" y="18" width="39" height="39" rx="2" fill="#0A0A0F" /><rect x="24" y="24" width="27" height="27" rx="1" />
@@ -188,12 +254,14 @@ const QRScanner = () => {
                                         style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.8), transparent)', boxShadow: '0 0 12px 2px rgba(99,102,241,0.6)' }}
                                     />
                                 </div>
-                                <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                     <div className="w-44 h-44 border-2 border-indigo-500/60 rounded-xl" />
                                 </div>
                             </>
-                        ) : (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-700">
+                        )}
+                        
+                        {!isScanning && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-700 bg-gray-900 z-10">
                                 <svg className="w-16 h-16 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
