@@ -4,7 +4,7 @@
   "description": "Event Ticket Platform Backend",
   "main": "src/server.js",
   "scripts": {
-    "start": "prisma generate && node src/server.js",
+    "start": "npx prisma generate && node src/server.js",
     "dev": "node --watch src/server.js",
     "db:push": "prisma db push",
     "db:generate": "prisma generate"
