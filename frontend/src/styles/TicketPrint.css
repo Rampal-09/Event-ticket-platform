@@ -1,0 +1,49 @@
+@media print {
+    /* Hide everything that isn't the ticket */
+    body * {
+        visibility: hidden;
+    }
+
+    .print-only-ticket,
+    .print-only-ticket * {
+        visibility: visible;
+    }
+
+    .print-only-ticket {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: white !important;
+    }
+
+    /* Reset background colors for printing */
+    .ticket-card {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Remove interactive elements for print */
+    .no-print {
+        display: none !important;
+    }
+
+    /* A4 centered layout */
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    /* Professional ticket sizing */
+    .print-content {
+        transform: scale(1.2) !important;
+        transform-origin: center;
+        box-shadow: none !important;
+    }
+}

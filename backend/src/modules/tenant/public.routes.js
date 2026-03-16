@@ -118,7 +118,14 @@ router.get('/tickets/:id', async (req, res) => {
                         title: true,
                         location: true,
                         eventDate: true,
-                        image: true
+                        image: true,
+                        isPublic: true,
+                        user_event_organizerIdTouser: {
+                            select: {
+                                name: true,
+                                email: true
+                            }
+                        }
                     }
                 }
             }

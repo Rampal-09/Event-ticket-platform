@@ -28,14 +28,14 @@ const PromoCodeInput = ({ eventId, onApply }) => {
     return (
         <div className="space-y-3">
             <h4 className="text-sm font-bold text-gray-900">Promo Code</h4>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
                 <input
                     type="text"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="Enter code (e.g. SAVE10)"
+                    placeholder="ENTER CODE"
                     disabled={isApplied}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all uppercase font-mono tracking-wider"
+                    className="min-w-0 flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all uppercase font-mono tracking-wider bg-gray-50/30 disabled:bg-gray-50 disabled:text-gray-400"
                 />
                 <Button
                     type="button"
@@ -44,6 +44,7 @@ const PromoCodeInput = ({ eventId, onApply }) => {
                     onClick={handleApply}
                     disabled={isApplied}
                     isLoading={isLoading}
+                    className="flex-shrink-0 px-4 min-w-[80px]"
                 >
                     {isApplied ? 'Applied' : 'Apply'}
                 </Button>

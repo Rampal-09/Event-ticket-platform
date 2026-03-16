@@ -352,39 +352,58 @@ const OrganizerEventDetails = () => {
                                         a.buyerName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                                         a.buyerEmail.toLowerCase().includes(searchTerm.toLowerCase())
                                     ).map((attendee) => (
-                                        <tr key={attendee.id} className="group hover:bg-gray-50/50 transition-colors">
+                                        <tr key={attendee.id} className="group hover:bg-slate-50/80 transition-all duration-300 border-b border-gray-50/50">
                                             <td className="px-4 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center font-bold text-indigo-600 border border-indigo-50 group-hover:scale-110 transition-transform">
-                                                        {attendee.buyerName.charAt(0)}
+                                                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                                                        {attendee.buyerName.charAt(0).toUpperCase()}
                                                     </div>
                                                     <div>
-                                                        <p className="font-bold text-gray-900">{attendee.buyerName}</p>
-                                                        <p className="text-xs text-gray-500">{attendee.buyerEmail}</p>
+                                                        <p className="font-black text-gray-900 text-sm tracking-tight">{attendee.buyerName}</p>
+                                                        <p className="text-[11px] text-gray-400 font-medium">{attendee.buyerEmail}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-5">
-                                                <span className="font-mono text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-md border border-gray-100 font-bold">
-                                                    {attendee.qrPayload.split(':')[1].substring(0, 8)}
-                                                </span>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-mono text-[10px] text-indigo-500 font-black uppercase tracking-widest bg-indigo-50/30 px-2.5 py-1 rounded-lg border border-indigo-100/50 w-fit">
+                                                        {attendee.qrPayload?.includes('/verify/') 
+                                                            ? attendee.qrPayload.split('/verify/')[1]?.substring(0, 10).toUpperCase() 
+                                                            : attendee.qrPayload?.substring(0, 10).toUpperCase() || 'TICKET-ID'}
+                                                    </span>
+                                                    <span className="text-[9px] font-bold text-gray-300 uppercase tracking-tighter">Verified Order</span>
+                                                </div>
                                             </td>
                                             <td className="px-4 py-5 text-sm">
                                                 {attendee.status === 'USED' ? (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                                        ✓ Admitted
-                                                    </span>
+                                                    <div className="flex items-center gap-2 text-emerald-600">
+                                                        <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Admitted</span>
+                                                    </div>
                                                 ) : (
-                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-400 border border-gray-100">
-                                                        Unchecked
-                                                    </span>
+                                                    <div className="flex items-center gap-2 text-slate-400">
+                                                        <div className="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
+                                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Unchecked</span>
+                                                    </div>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-5 text-xs text-gray-500 font-medium whitespace-nowrap">
-                                                {new Date(attendee.purchasedAt).toLocaleDateString()}
+                                            <td className="px-4 py-5">
+                                                <p className="text-xs font-bold text-gray-700">{new Date(attendee.purchasedAt).toLocaleDateString('en-GB')}</p>
+                                                <p className="text-[10px] text-gray-400 font-medium">Standard Release</p>
                                             </td>
-                                            <td className="px-4 py-5 text-right font-medium text-xs text-gray-700 whitespace-nowrap">
-                                                {attendee.scannedAt ? new Date(attendee.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                                            <td className="px-4 py-5 text-right">
+                                                {attendee.scannedAt ? (
+                                                    <div className="inline-flex flex-col items-end">
+                                                        <span className="text-xs font-black text-indigo-600">{new Date(attendee.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                        <span className="text-[9px] font-bold text-gray-300 uppercase tracking-tighter">Live Scan</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs font-bold text-gray-300">—</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}

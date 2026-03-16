@@ -8,6 +8,7 @@ import { ticketService } from '../../services/ticketService';
 import { useToast } from '../../components/ui/Toast';
 import * as htmlToImage from 'html-to-image';
 import { jsPDF } from 'jspdf';
+import '../../styles/TicketPrint.css';
 
 const TicketPage = () => {
     const { addToast } = useToast();
@@ -26,10 +27,9 @@ const TicketPage = () => {
         addToast('Generating your PDF ticket...', 'info');
         
         try {
-            // html-to-image is much better at handling modern CSS like oklab() colors
             const dataUrl = await htmlToImage.toPng(ticketRef.current, {
                 quality: 1.0,
-                pixelRatio: 2,
+                pixelRatio: 3, // High precision for PDF
                 backgroundColor: '#ffffff',
                 style: {
                     transform: 'none',
@@ -44,26 +44,29 @@ const TicketPage = () => {
             });
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
             
-            // Image size and ratio
             const img = new Image();
             img.src = dataUrl;
             
             await new Promise((resolve) => (img.onload = resolve));
             
             const ratio = img.height / img.width;
-            const imgWidth = pdfWidth * 0.7; 
+            const imgWidth = pdfWidth * 0.75; 
             const imgHeight = imgWidth * ratio;
             
             // Center the ticket
             const xOffset = (pdfWidth - imgWidth) / 2;
-            pdf.addImage(dataUrl, 'PNG', xOffset, 40, imgWidth, imgHeight);
+            const yOffset = (pdfHeight - imgHeight) / 2;
             
-            pdf.save(`EventHubix-Ticket-${ticketId}.pdf`);
+            pdf.addImage(dataUrl, 'PNG', xOffset, yOffset - 10, imgWidth, imgHeight);
+            
+            pdf.save(`Ticket-${ticketData.event.title.replace(/\s+/g, '-')}-${ticketId}.pdf`);
             addToast('Ticket downloaded successfully!', 'success');
         } catch (err) {
             console.error('PDF Generation failed:', err);
-            addToast('Failed to generate PDF. Please try again or use the Print option.', 'error');
+            addToast('Failed to generate PDF. Using browser print instead.', 'warning');
+            window.print();
         } finally {
             setIsGenerating(false);
         }
@@ -73,7 +76,6 @@ const TicketPage = () => {
         const fetchTicket = async () => {
             setIsLoading(true);
             try {
-                // Ensure ticketId is just the ID (remove TCK- prefix if present)
                 const sanitizedId = ticketId?.replace('TCK-', '');
                 const data = await ticketService.getTicketById(sanitizedId);
                 setTicketData(data);
@@ -88,105 +90,144 @@ const TicketPage = () => {
     }, [ticketId]);
 
     if (isLoading) {
-        return <div className="min-h-screen flex items-center justify-center font-black text-gray-400 tracking-widest uppercase">Fetching Your Ticket...</div>;
+        return <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                <p className="font-bold text-gray-400 uppercase tracking-widest text-xs">Authenticating Ticket...</p>
+            </div>
+        </div>;
     }
 
     if (error || !ticketData) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
-                <h2 className="text-2xl font-black text-gray-900">{error || 'Ticket not found'}</h2>
-                <Button onClick={() => navigate(ROUTES.HOME)}>Back to Events</Button>
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-gray-50">
+                <div className="bg-white p-12 rounded-[3rem] shadow-xl text-center space-y-6 max-w-md">
+                    <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto">
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <h2 className="text-3xl font-black text-gray-900 tracking-tight">{error || 'Ticket not found'}</h2>
+                    <p className="text-gray-500">We couldn't find the ticket you're looking for. Please check your link or contact support.</p>
+                    <Button onClick={() => navigate(ROUTES.HOME)} className="w-full">Back to Events</Button>
+                </div>
             </div>
         );
     }
 
-    const { buyerName, createdAt, event, status, buyerEmail, id } = ticketData;
-    const purchaseDate = new Date(createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const { 
+        buyerName, 
+        buyerEmail, 
+        id, 
+        status, 
+        purchasedAt,
+        event 
+    } = ticketData;
 
-    // Normalized event data for components
-    const eventInfo = {
+    const formattedPurchaseDate = new Date(purchasedAt).toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+
+    // Enhanced event data with organizer
+    const mappedEvent = {
         title: event.title,
         location: event.location,
-        event_date: event.eventDate
+        event_date: event.eventDate,
+        organizer: event.user_event_organizerIdTouser?.name,
+        organizerEmail: event.user_event_organizerIdTouser?.email,
+        isPublic: event.isPublic,
+        image: event.image
     };
 
-    const ticketInfo = {
+    // Full ticket data for the card
+    const mappedTicket = {
         id: id,
-        status: status.toLowerCase(),
+        buyer_name: buyerName,
         buyer_email: buyerEmail,
-        qrPayload: ticketData.qrPayload
+        status: status,
+        purchasedAt: purchasedAt,
+        scannedAt: ticketData.scannedAt,
+        qrPayload: ticketData.qrPayload,
+        type: event.ticketType || 'REGULAR PASS'
     };
 
     return (
-        <div className="min-h-screen bg-[#FDFDFF] py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-[#FDFDFF] py-12 selection:bg-indigo-100">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header with Back Button */}
-                <div className="flex items-center justify-between mb-12 no-print">
+                <div className="flex items-center justify-between mb-16 no-print">
                     <button
                         onClick={() => navigate(ROUTES.HOME)}
-                        className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 transition-colors font-bold text-sm uppercase tracking-widest"
+                        className="group flex items-center gap-3 text-gray-400 hover:text-indigo-600 transition-all font-black text-xs uppercase tracking-[0.2em]"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Back to Events
+                        <div className="w-10 h-10 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:border-indigo-100 group-hover:bg-indigo-50 transition-colors">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </div>
+                        Back to browsing
                     </button>
-                    <div className="flex gap-3">
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                    <div className="flex gap-4">
+                        <button 
                             onClick={handleDownloadPDF}
-                            isLoading={isGenerating}
+                            disabled={isGenerating}
+                            className="bg-white border-2 border-gray-900 px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all disabled:opacity-50"
                         >
-                            Save PDF
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => window.print()}>Print</Button>
+                            {isGenerating ? 'Generating...' : 'Save PDF'}
+                        </button>
+                        <button 
+                            onClick={() => window.print()}
+                            className="bg-indigo-600 text-white px-8 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all"
+                        >
+                            Print Pass
+                        </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     {/* LEFT: Ticket Visual */}
-                    <div className="flex flex-col items-center print-only-ticket">
-                        <div ref={ticketRef} className="w-full max-w-sm transform hover:rotate-1 transition-transform duration-500 print-content">
-                            <TicketCard ticket={ticketInfo} event={eventInfo} />
+                    <div className="flex flex-col items-center print-only-ticket animate-fade-in-up">
+                        <div ref={ticketRef} className="w-full max-w-[400px] print-content">
+                            <TicketCard ticket={mappedTicket} event={mappedEvent} />
                         </div>
-                        <p className="mt-8 text-sm text-gray-400 font-medium text-center max-w-xs no-print">
-                            This is your official entry pass. Scan the QR code at the event gate.
-                        </p>
                     </div>
 
                     {/* RIGHT: Confirmation Details */}
-                    <div className="space-y-10 no-print">
+                    <div className="space-y-12 no-print animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                         <div>
-                            <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-100 mb-4">
-                                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-                                Confirmed & Verified
+                            <div className="inline-flex items-center gap-2.5 bg-emerald-50 text-emerald-700 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100 mb-8">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                Booking Confirmed
                             </div>
-                            <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-tight">
-                                Your Ticket is Ready for <span className="text-indigo-600">{eventInfo.title}</span>
+                            <h1 className="text-5xl font-black text-gray-900 tracking-tight leading-[1.1]">
+                                Success! You're going to <span className="text-indigo-600">{event.title}</span>
                             </h1>
-                            <p className="text-gray-500 mt-4 text-lg">
-                                We've sent a confirmation email with your digital ticket to <b>{buyerEmail}</b>.
+                            <p className="text-gray-500 mt-6 text-lg leading-relaxed">
+                                We've secured your spot. A digital copy of this ticket has been sent to <span className="text-gray-900 font-bold underline decoration-indigo-200 underline-offset-4">{buyerEmail}</span>.
                             </p>
                         </div>
 
                         <TicketDetails
                             attendeeName={buyerName}
                             ticketId={id}
-                            purchaseDate={purchaseDate}
+                            purchaseDate={formattedPurchaseDate}
+                            status={status}
+                            scannedAt={ticketData.scannedAt}
                         />
 
-                        {/* Helper Box */}
-                        <div className="bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
-                            <div className="relative z-10">
-                                <h3 className="text-xl font-bold mb-2">Need help?</h3>
-                                <p className="text-indigo-100 text-sm leading-relaxed mb-6">
-                                    If you have any issues with your ticket or need to change attendee information, please contact our support team.
-                                </p>
-                                <Button white className="text-indigo-600 font-black">Contact Support</Button>
-                            </div>
-                            {/* Decorative Circle */}
-                            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
+                        {/* Support Info */}
+                        <div className="flex flex-col gap-2 p-1">
+                            <p className="text-sm font-bold text-gray-900">
+                                Need help? <a href={`mailto:${mappedEvent.organizerEmail || 'support@eventhubix.com'}?subject=Inquiry for Ticket #${id}`} className="text-indigo-600 hover:underline">
+                                    Contact {mappedEvent.organizer || 'Organizer'}
+                                </a>
+                            </p>
+                            <p className="text-xs text-gray-400 font-medium tracking-wide uppercase">Support provided by the organizer for {buyerName}</p>
                         </div>
                     </div>
                 </div>

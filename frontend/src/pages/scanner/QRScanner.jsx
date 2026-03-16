@@ -84,19 +84,10 @@ const QRScanner = () => {
         if (!payload) return;
         
         let targetPayload = payload;
-        // If the payload is a URL, try to extract the ticket ID or relevant parts
+        // The backend now handles smart parsing for both raw tokens and full URLs.
+        // We log it here for debugging purposes.
         if (payload.includes('http')) {
-            try {
-                const url = new URL(payload);
-                // Check for /ticket/:id pattern
-                const ticketMatch = url.pathname.match(/\/ticket\/([^/]+)/);
-                if (ticketMatch && ticketMatch[1]) {
-                    targetPayload = ticketMatch[1].replace('TCK-', '');
-                    console.log('Extracted ticket ID from URL:', targetPayload);
-                }
-            } catch (e) {
-                console.warn('URL parsing failed for payload:', payload);
-            }
+            console.log('Detected URL payload in scanner, sending to backend for smart validation');
         }
         
         // Immediately try to stop the scanner to prevent double-scans
@@ -128,16 +119,22 @@ const QRScanner = () => {
             setShowResult(true);
         } catch (err) {
             console.error('Validation error object:', err);
+            const errorData = err.response?.data;
             const isUsed = err.message?.toLowerCase().includes('used') || 
-                           (err.response?.data?.error?.toLowerCase().includes('used'));
+                           (errorData?.error?.toLowerCase().includes('used'));
             
+            // Extract ticket info from error response if available (e.g. for already used tickets)
+            const errorTicket = errorData?.ticket;
+
             setScanResult({
                 isValid: false,
                 isAlreadyUsed: isUsed,
-                ticketId: payload || 'Verification Failed',
-                event: eventData.title,
-                buyer: 'N/A',
+                ticketId: errorTicket ? `TCK-${errorTicket.id}` : (payload || 'Verification Failed'),
+                event: errorTicket?.eventTitle || eventData?.title || 'Unknown Event',
+                buyer: errorTicket?.buyerName || 'N/A',
+                email: errorTicket?.buyerEmail || null,
                 seat: 'Denied Access',
+                scannedAt: errorTicket?.scannedAt
             });
             playScanSound(false);
             setScanCount(c => ({ ...c, invalid: c.invalid + 1 }));
@@ -169,6 +166,7 @@ const QRScanner = () => {
                 (decodedText) => {
                     // Check if we are still in a state to handle scans
                     if (scannerRef.current && scannerRef.current.getState() === 2) {
+                        console.log('Decoded QR:', decodedText);
                         validateTicketPayload(decodedText);
                     }
                 }
@@ -357,6 +355,14 @@ const QRScanner = () => {
                                 <div className="flex justify-between items-center">
                                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email</span>
                                     <span className="text-xs font-bold text-gray-500">{scanResult.email}</span>
+                                </div>
+                            )}
+                            {scanResult.scannedAt && (
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Scanned At</span>
+                                    <span className="text-xs font-bold text-rose-500 italic">
+                                        {new Date(scanResult.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
                                 </div>
                             )}
                             <div className="flex justify-between items-center text-xs">
