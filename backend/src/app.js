@@ -5,7 +5,19 @@ const path = require('path');
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        // Allow localhost dev and any ngrok tunnel
+        const allowed = /localhost|127\.0\.0\.1|192\.168\.|ngrok/;
+        if (allowed.test(origin)) return callback(null, true);
+        callback(new Error(`CORS blocked: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning']
+}));
 app.use(express.json());
 
 // Request Logger

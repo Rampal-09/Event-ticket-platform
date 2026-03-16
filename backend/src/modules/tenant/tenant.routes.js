@@ -78,13 +78,14 @@ router.post('/purchase', async (req, res) => {
             const tickets = [];
             // 3. Generate tickets
             for (let i = 0; i < quantity; i++) {
-                const secureToken = crypto.randomBytes(16).toString('hex');
+                const secureToken = crypto.randomBytes(8).toString('hex');
                 const ticket = await tx.ticket.create({
                     data: {
                         eventId: eventIdInt,
                         buyerName: attendeeName,
                         buyerEmail: attendeeEmail,
-                        qrPayload: `${eventIdInt}:${secureToken}`,
+                        // Store a dynamic verification payload that matches the URL format
+                        qrPayload: `/verify/${secureToken}`, 
                         status: 'UNUSED'
                     }
                 });
@@ -124,17 +125,49 @@ router.post('/validate', requireAuth, requireRole(['ADMIN', 'ORGANIZER']), async
     }
 
     try {
-        const ticket = await prisma.ticket.findUnique({
+        // Try direct lookup first
+        let ticket = await prisma.ticket.findUnique({
             where: { qrPayload },
             include: { event: true }
         });
+
+        // Smart Fallback: If it's a URL, extract the payload part
+        if (!ticket && qrPayload.includes('/verify/')) {
+            const parts = qrPayload.split('/verify/');
+            const extractedPayload = '/verify/' + parts[parts.length - 1];
+            
+            ticket = await prisma.ticket.findUnique({
+                where: { qrPayload: extractedPayload },
+                include: { event: true }
+            });
+            
+            // Extreme Fallback: If still not found, check if it's just the ID at the end
+            if (!ticket) {
+                const idMatch = qrPayload.match(/\/(\d+)$/);
+                if (idMatch) {
+                    ticket = await prisma.ticket.findUnique({
+                        where: { id: parseInt(idMatch[1]) },
+                        include: { event: true }
+                    });
+                }
+            }
+        }
 
         if (!ticket) {
             return res.status(400).json({ error: 'Invalid Ticket: No matching record found.' });
         }
 
         if (ticket.status === 'USED') {
-            return res.status(400).json({ error: 'Ticket already used' });
+            return res.status(400).json({ 
+                error: 'Ticket already used',
+                ticket: {
+                    id: ticket.id,
+                    buyerName: ticket.buyerName,
+                    buyerEmail: ticket.buyerEmail,
+                    eventTitle: ticket.event.title,
+                    scannedAt: ticket.scannedAt
+                }
+            });
         }
 
         // Optional: Check if the logged in user has permission for THIS specific event

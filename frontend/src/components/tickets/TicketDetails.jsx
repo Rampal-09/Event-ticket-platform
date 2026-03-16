@@ -1,9 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * TicketDetails - Breakdown of ticket info for the TicketPage
  */
-const TicketDetails = ({ attendeeName, ticketId, purchaseDate, status = 'Verified' }) => {
+const TicketDetails = ({ attendeeName, ticketId, purchaseDate, status = 'UNUSED', scannedAt }) => {
+    const isUsed = status.toLowerCase() === 'used';
+    const scannedTime = scannedAt ? new Date(scannedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : null;
+
     return (
         <div className="w-full bg-white rounded-3xl border border-gray-100 p-8 shadow-sm space-y-8">
             <div className="grid grid-cols-2 gap-8">
@@ -13,7 +17,7 @@ const TicketDetails = ({ attendeeName, ticketId, purchaseDate, status = 'Verifie
                 </div>
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Ticket ID</p>
-                    <p className="text-base font-mono font-bold text-indigo-600">{ticketId}</p>
+                    <p className="text-base font-mono font-bold text-indigo-600">#{String(ticketId).padStart(6, '0')}</p>
                 </div>
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Purchase Date</p>
@@ -22,27 +26,15 @@ const TicketDetails = ({ attendeeName, ticketId, purchaseDate, status = 'Verifie
                 <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5">Status</p>
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-                        <span className="text-sm font-bold text-emerald-600 uppercase tracking-wide">{status}</span>
+                        <div className={`w-2 h-2 rounded-full ${isUsed ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                        <span className={`text-sm font-bold uppercase tracking-wide ${isUsed ? 'text-rose-600' : 'text-emerald-600'}`}>
+                            {status}
+                            {isUsed && scannedTime && <span className="text-[10px] ml-2 text-gray-400">(at {scannedTime})</span>}
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <div className="pt-6 border-t border-gray-50">
-                <h4 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Entry Instructions</h4>
-                <ul className="space-y-3">
-                    {[
-                        'Please arrive 30 minutes before the event starts.',
-                        'Keep your QR code ready on your mobile device.',
-                        'Physical ID might be required at the entrance.'
-                    ].map((step, i) => (
-                        <li key={i} className="flex gap-3 text-sm text-gray-600 font-medium">
-                            <span className="text-indigo-500 font-black">{i + 1}.</span>
-                            {step}
-                        </li>
-                    ))}
-                </ul>
-            </div>
         </div>
     );
 };

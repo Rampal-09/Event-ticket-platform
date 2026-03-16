@@ -198,7 +198,8 @@ const MyEvents = () => {
                     isOpen={!!sharingEvent}
                     onClose={() => setSharingEvent(null)}
                     eventTitle={sharingEvent.title}
-                    eventUrl={`${window.location.origin}/events/${sharingEvent.id}${!sharingEvent.isPublic ? '?private=true' : ''}`}
+                    eventId={sharingEvent.id}
+                    isPublic={sharingEvent.isPublic}
                 />
             )}
         </div>
