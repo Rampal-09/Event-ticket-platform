@@ -324,4 +324,74 @@ router.patch('/users/:id/verify', requireAuth, requireRole(['ADMIN']), async (re
     }
 });
 
+/**
+ * @route GET /api/admin/organizer-requests
+ * @desc  Get all organizers for approval
+ */
+router.get('/organizer-requests', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    const { status } = req.query; // optional filter: PENDING | APPROVED | REJECTED
+
+    try {
+        const where = { role: 'ORGANIZER' };
+        if (status) {
+            where.organizerStatus = status;
+        }
+
+        const organizers = await prisma.user.findMany({
+            where,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                organizerStatus: true,
+                status: true,
+                createdAt: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(organizers);
+    } catch (error) {
+        console.error('Error fetching organizer requests:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @route PATCH /api/admin/organizers/:id/approve
+ * @desc  Approve organizer account
+ */
+router.patch('/organizers/:id/approve', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { organizerStatus: 'APPROVED' }
+        });
+        res.json({ message: 'Organizer approved successfully', user });
+    } catch (error) {
+        console.error('Approve organizer error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @route PATCH /api/admin/organizers/:id/reject
+ * @desc  Reject organizer account
+ */
+router.patch('/organizers/:id/reject', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { organizerStatus: 'REJECTED' }
+        });
+        res.json({ message: 'Organizer rejected successfully', user });
+    } catch (error) {
+        console.error('Reject organizer error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;

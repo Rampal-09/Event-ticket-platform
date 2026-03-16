@@ -27,7 +27,7 @@ model event {
   tags                          String?         @db.LongText
   highlights                    String?         @db.LongText
   createdAt                     DateTime        @default(now())
-  updatedAt                     DateTime
+  updatedAt                     DateTime        @updatedAt
   user_event_organizerIdTouser  user            @relation("event_organizerIdTouser", fields: [organizerId], references: [id], map: "Event_organizerId_fkey")
   user_event_reviewedByIdTouser user?           @relation("event_reviewedByIdTouser", fields: [reviewedById], references: [id], map: "Event_reviewedById_fkey")
   eventimage                    eventimage[]
@@ -115,17 +115,18 @@ model ticket {
 }
 
 model user {
-  id                             Int            @id @default(autoincrement())
+  id                             Int               @id @default(autoincrement())
   name                           String
-  email                          String         @unique(map: "User_email_key")
+  email                          String            @unique(map: "User_email_key")
   password                       String
-  role                           user_role      @default(TENANT)
-  status                         user_status    @default(ACTIVE)
-  createdAt                      DateTime       @default(now())
-  updatedAt                      DateTime
-  isVerified                     Boolean        @default(false)
-  event_event_organizerIdTouser  event[]        @relation("event_organizerIdTouser")
-  event_event_reviewedByIdTouser event[]        @relation("event_reviewedByIdTouser")
+  role                           user_role         @default(TENANT)
+  status                         user_status       @default(ACTIVE)
+  organizerStatus                organizer_status? @default(PENDING)
+  createdAt                      DateTime          @default(now())
+  updatedAt                      DateTime          @updatedAt
+  isVerified                     Boolean           @default(false)
+  event_event_organizerIdTouser  event[]           @relation("event_organizerIdTouser")
+  event_event_reviewedByIdTouser event[]           @relation("event_reviewedByIdTouser")
   refreshtoken                   refreshtoken[]
 }
 
@@ -148,6 +149,12 @@ enum ticket_status {
 enum user_status {
   ACTIVE
   SUSPENDED
+}
+
+enum organizer_status {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum event_status {

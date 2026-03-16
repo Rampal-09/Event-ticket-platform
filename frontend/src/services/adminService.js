@@ -30,5 +30,15 @@ export const adminService = {
     },
     verifyUser: async (id, isVerified) => {
         return api.patch(`/admin/users/${id}/verify`, { isVerified });
+    },
+    getOrganizerRequests: async (status) => {
+        const query = status ? `?status=${status}` : '';
+        return api.get(`/admin/organizer-requests${query}`);
+    },
+    approveOrganizer: async (id) => {
+        return api.patch(`/admin/organizers/${id}/approve`);
+    },
+    rejectOrganizer: async (id) => {
+        return api.patch(`/admin/organizers/${id}/reject`);
     }
 };

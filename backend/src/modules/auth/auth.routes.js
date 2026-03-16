@@ -34,17 +34,35 @@ router.post('/login', async (req, res) => {
         if (email === 'admin@eventplatform.com' && user.role !== 'ADMIN') {
             await prisma.user.update({ where: { email }, data: { role: 'ADMIN' } });
             user.role = 'ADMIN';
-        } else if (email === 'organizer@eventplatform.com' && user.role !== 'ORGANIZER') {
-            await prisma.user.update({ where: { email }, data: { role: 'ORGANIZER' } });
-            user.role = 'ORGANIZER';
+        } else if (email === 'organizer@eventplatform.com') {
+            const updates = {};
+            if (user.role !== 'ORGANIZER') updates.role = 'ORGANIZER';
+            if (user.organizerStatus !== 'APPROVED') updates.organizerStatus = 'APPROVED';
+            
+            if (Object.keys(updates).length > 0) {
+                await prisma.user.update({ where: { email }, data: updates });
+                Object.assign(user, updates);
+            }
         }
 
         if (user.status === 'SUSPENDED') {
             return res.status(403).json({ error: 'Your account has been suspended. Please contact support.' });
         }
 
+        // Organizer Approval Gate: Block pending/rejected organizers from logging in
+        if (user.role === 'ORGANIZER' && user.organizerStatus !== 'APPROVED') {
+            if (user.organizerStatus === 'REJECTED') {
+                return res.status(403).json({ 
+                    error: 'Your organizer account application has been rejected. Please contact support.' 
+                });
+            }
+            return res.status(403).json({ 
+                error: 'Your organizer account is awaiting admin approval. Please wait until admin approves your request.' 
+            });
+        }
+
         const token = jwt.sign(
-            { id: user.id, role: user.role, email: user.email, status: user.status },
+            { id: user.id, role: user.role, email: user.email, status: user.status, organizerStatus: user.organizerStatus },
             process.env.JWT_SECRET || 'supersafe_jwt_secret_for_local_development',
             { expiresIn: '1d' }
         );
@@ -55,7 +73,8 @@ router.post('/login', async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                status: user.status
+                status: user.status,
+                organizerStatus: user.organizerStatus
             },
             token
         });
@@ -91,24 +110,15 @@ router.post('/register', async (req, res) => {
                 name,
                 email,
                 password: hashedPassword,
-                role: 'ORGANIZER' // Default to organizer for public registration
+                role: 'ORGANIZER', // Default to organizer for public registration
+                organizerStatus: 'PENDING'
             }
         });
 
-        const token = jwt.sign(
-            { id: user.id, role: user.role, email: user.email },
-            process.env.JWT_SECRET || 'supersafe_jwt_secret_for_local_development',
-            { expiresIn: '1d' }
-        );
-
-        res.status(201).json({
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            },
-            token
+        // No auto-login for organizer registrations - return pending status
+        res.status(202).json({
+            pending: true,
+            message: 'Your organizer account is pending admin approval. You will be able to login after approval.'
         });
     } catch (error) {
         console.error('Registration error:', error);

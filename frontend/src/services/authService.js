@@ -11,7 +11,8 @@ export const authService = {
     },
     register: async (userData) => {
         const response = await api.post('/auth/register', userData);
-        if (response.token) {
+        // If registration is pending approval, don't store token/user
+        if (response.token && !response.pending) {
             localStorage.setItem('token', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
         }

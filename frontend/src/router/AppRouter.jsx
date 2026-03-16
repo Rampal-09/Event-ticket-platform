@@ -29,6 +29,8 @@ import AdminUsersPage from '../pages/admin/AdminUsersPage';
 import ReviewHistoryPage from '../pages/admin/ReviewHistoryPage';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import SettingsPage from '../pages/common/SettingsPage';
+import AccountPendingPage from '../pages/auth/AccountPendingPage';
+import AdminOrganizerRequestsPage from '../pages/admin/AdminOrganizerRequestsPage';
 
 import PublicLayout from '../layouts/PublicLayout';
 import OrganizerLayout from '../layouts/OrganizerLayout';
@@ -53,16 +55,19 @@ const AppRouter = () => {
                 {/* Auth Routes (Standalone) */}
                 <Route path={ROUTES.LOGIN} element={<Login />} />
                 <Route path={ROUTES.REGISTER} element={<Register />} />
+                <Route path={ROUTES.ACCOUNT_PENDING} element={<AccountPendingPage />} />
 
                 {/* Protected Organizer Routes */}
-                <Route element={<OrganizerLayout />}>
-                    <Route path={ROUTES.ORGANIZER_DASHBOARD} element={<Dashboard />} />
-                    <Route path={ROUTES.CREATE_EVENT} element={<CreateEvent />} />
-                    <Route path={ROUTES.MY_EVENTS} element={<MyEvents />} />
-                    <Route path={ROUTES.EDIT_EVENT} element={<EditEvent />} />
-                    <Route path={ROUTES.ORGANIZER_EVENT_DETAILS} element={<OrganizerEventDetails />} />
-                    <Route path={ROUTES.ORGANIZER_REPORTS} element={<OrganizerReports />} />
-                    <Route path={ROUTES.ORGANIZER_SETTINGS} element={<SettingsPage />} />
+                <Route element={<ProtectedRoute allowedRoles={['ORGANIZER']} />}>
+                    <Route element={<OrganizerLayout />}>
+                        <Route path={ROUTES.ORGANIZER_DASHBOARD} element={<Dashboard />} />
+                        <Route path={ROUTES.CREATE_EVENT} element={<CreateEvent />} />
+                        <Route path={ROUTES.MY_EVENTS} element={<MyEvents />} />
+                        <Route path={ROUTES.EDIT_EVENT} element={<EditEvent />} />
+                        <Route path={ROUTES.ORGANIZER_EVENT_DETAILS} element={<OrganizerEventDetails />} />
+                        <Route path={ROUTES.ORGANIZER_REPORTS} element={<OrganizerReports />} />
+                        <Route path={ROUTES.ORGANIZER_SETTINGS} element={<SettingsPage />} />
+                    </Route>
                 </Route>
 
                 {/* Protected Scanner Routes */}
@@ -75,6 +80,7 @@ const AppRouter = () => {
                     <Route path={ROUTES.ADMIN_DASHBOARD} element={<AdminDashboardPage />} />
                     <Route path={ROUTES.ADMIN_EVENTS} element={<AdminEventsPage />} />
                     <Route path={ROUTES.ADMIN_USERS} element={<AdminUsersPage />} />
+                    <Route path={ROUTES.ADMIN_ORGANIZER_REQUESTS} element={<AdminOrganizerRequestsPage />} />
                     <Route path={ROUTES.ADMIN_REVIEW_HISTORY} element={<ReviewHistoryPage />} />
                     <Route path={ROUTES.ADMIN_SETTINGS} element={<SettingsPage />} />
                 </Route>

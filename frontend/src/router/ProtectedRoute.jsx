@@ -33,6 +33,11 @@ const ProtectedRoute = ({ allowedRoles = [], pathPrefix }) => {
         return <Navigate to={ROUTES.HOME} replace />;
     }
 
+    // New: Organizer Approval Gate
+    if (user?.role?.toUpperCase() === 'ORGANIZER' && user?.organizerStatus && user.organizerStatus !== 'APPROVED') {
+        return <Navigate to={ROUTES.ACCOUNT_PENDING} replace />;
+    }
+
     return <Outlet />;
 };
 

@@ -35,12 +35,17 @@ const Register = () => {
         setIsLoading(true);
         setError('');
         try {
-            await authService.register({
+            const response = await authService.register({
                 name: formData.name,
                 email: formData.email,
                 password: formData.password
             });
-            navigate(ROUTES.ORGANIZER_DASHBOARD);
+            
+            if (response?.pending) {
+                navigate(ROUTES.ACCOUNT_PENDING);
+            } else {
+                navigate(ROUTES.ORGANIZER_DASHBOARD);
+            }
         } catch (err) {
             setError(err.message || 'Registration failed');
         } finally {

@@ -30,7 +30,9 @@ export const ROUTES = {
     ADMIN_USERS: '/admin/users',
     ADMIN_REVIEW_HISTORY: '/admin/review-history',
     ADMIN_SETTINGS: '/admin/settings',
+    ADMIN_ORGANIZER_REQUESTS: '/admin/organizer-requests',
 
     // Organizer Settings (added)
     ORGANIZER_SETTINGS: '/organizer/settings',
+    ACCOUNT_PENDING: '/account-pending',
 };
