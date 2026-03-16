@@ -11,19 +11,25 @@ const Input = ({
     className = '',
     id,
     required,
+    icon,
     ...props
 }) => {
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
     return (
-        <div className={`flex flex-col gap-1.5 w-full ${className}`}>
+        <div className={`flex flex-col gap-2 w-full ${className}`}>
             {label && (
-                <label htmlFor={inputId} className="text-sm font-semibold text-gray-700">
+                <label htmlFor={inputId} className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">
                     {label}
                     {required && <span className="text-red-500 ml-0.5">*</span>}
                 </label>
             )}
-            <div className="relative">
+            <div className="relative group">
+                {icon && (
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors">
+                        {icon}
+                    </div>
+                )}
                 <input
                     id={inputId}
                     type={type}
@@ -32,14 +38,14 @@ const Input = ({
                     onChange={onChange}
                     required={required}
                     className={`
-            w-full px-4 py-2.5 rounded-xl border text-sm bg-white text-gray-900
-            transition-all duration-150 outline-none
-            placeholder:text-gray-400
-            focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
-            hover:border-gray-300
+            w-full ${icon ? 'pl-12' : 'px-5'} py-3.5 rounded-2xl border text-sm bg-gray-50/50 text-gray-900
+            transition-all duration-300 outline-none
+            placeholder:text-gray-400 font-bold
+            focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500
+            hover:border-indigo-200 shadow-sm
             ${error
                             ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 bg-red-50/30'
-                            : 'border-gray-200'
+                            : 'border-gray-100'
                         }
           `}
                     {...props}

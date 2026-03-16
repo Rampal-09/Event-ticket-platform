@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
 import { authService } from '../../services/authService';
 import Button from '../../components/ui/Button';
@@ -25,6 +25,8 @@ const PaymentIcon = () => (
 
 const Login = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const nextPath = searchParams.get('next'); // e.g. /scanner?id=5
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -40,13 +42,15 @@ const Login = () => {
         try {
             const res = await authService.login({ email, password });
             const role = (res.user.role || '').toUpperCase();
-            
-            if (role === 'ADMIN') {
+
+            // If there's a ?next= param (e.g. shared scanner link), go there first
+            if (nextPath) {
+                navigate(nextPath);
+            } else if (role === 'ADMIN') {
                 navigate(ROUTES.ADMIN_DASHBOARD);
             } else if (role === 'ORGANIZER') {
                 navigate(ROUTES.ORGANIZER_DASHBOARD);
             } else {
-                // Default to homepage for TENANT or other roles
                 navigate(ROUTES.HOME);
             }
         } catch (err) {

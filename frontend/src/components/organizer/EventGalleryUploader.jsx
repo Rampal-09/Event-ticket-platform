@@ -164,20 +164,23 @@ const EventGalleryUploader = ({ images = [], onImagesUpdate }) => {
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
-                    className={`aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 cursor-pointer group
-                        ${dragActive ? 'border-indigo-600 bg-indigo-50/50 scale-[0.98]' : 'border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/30'}
+                    className={`aspect-square rounded-[32px] border-2 border-dashed transition-all duration-500 flex flex-col items-center justify-center gap-3 cursor-pointer group relative overflow-hidden
+                        ${dragActive ? 'border-indigo-600 bg-indigo-50/50 scale-[0.98] shadow-inner' : 'border-gray-100 hover:border-indigo-400 hover:bg-indigo-50/20 hover:shadow-xl hover:shadow-indigo-500/5'}
                     `}
                 >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                        ${dragActive ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-50 text-gray-400 group-hover:text-indigo-600'}
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300
+                        ${dragActive ? 'bg-indigo-600 text-white rotate-90 scale-110' : 'bg-white text-indigo-500 shadow-lg shadow-indigo-100 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white'}
                     `}>
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
                         </svg>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-indigo-600 text-center px-2">
-                        {dragActive ? 'Drop Files' : 'Add Photos'}
-                    </span>
+                    <div className="text-center">
+                        <span className={`text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-300 ${dragActive ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}`}>
+                            {dragActive ? 'Drop Now' : 'Add Gallery'}
+                        </span>
+                        <p className="text-[9px] text-gray-300 font-bold group-hover:text-indigo-300 transition-colors mt-1">MAX 10MB</p>
+                    </div>
                     <input 
                         ref={fileInputRef}
                         type="file" 

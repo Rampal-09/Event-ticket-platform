@@ -12,7 +12,8 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
     const {
         title, category, description, location, eventDate, ticketPrice,
         totalTickets, image, tags, highlights, promoCodes,
-        isPublic, sellingFastThreshold, galleryImages, ticketReleases
+        isPublic, sellingFastThreshold, galleryImages, ticketReleases,
+		serviceFeeType, serviceFeeRate
     } = req.body;
 
     console.log('--- EVENT CREATION REQUEST ---');
@@ -40,6 +41,8 @@ router.post('/events', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
             status: 'PENDING',
             isPublic: isPublic !== undefined ? isPublic : true,
             sellingFastThreshold: sellingFastThreshold ? parseInt(sellingFastThreshold) : 20,
+            serviceFeeType: serviceFeeType || 'BUYER',
+            serviceFeeRate: serviceFeeRate ? parseFloat(serviceFeeRate) : 0.03,
             tags: tags ? JSON.stringify(tags) : null,
             highlights: highlights ? JSON.stringify(highlights) : null,
             promocode: (promoCodes && promoCodes.length > 0) ? {
@@ -157,7 +160,8 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
     const {
         title, category, description, location, eventDate, ticketPrice,
         totalTickets, image, tags, highlights, promoCodes,
-        isPublic, sellingFastThreshold, galleryImages, ticketReleases
+        isPublic, sellingFastThreshold, galleryImages, ticketReleases,
+		serviceFeeType, serviceFeeRate
     } = req.body;
 
     try {
@@ -184,6 +188,8 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
                 image,
                 isPublic: isPublic !== undefined ? isPublic : undefined,
                 sellingFastThreshold: sellingFastThreshold !== undefined ? parseInt(sellingFastThreshold) : undefined,
+                serviceFeeType: serviceFeeType || undefined,
+                serviceFeeRate: serviceFeeRate !== undefined ? parseFloat(serviceFeeRate) : undefined,
                 tags: tags ? JSON.stringify(tags) : undefined,
                 highlights: highlights ? JSON.stringify(highlights) : undefined,
                 // Simple strategy: delete and recreate linked items if provided
@@ -231,6 +237,10 @@ router.patch('/events/:id', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), as
  */
 router.get('/reports', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (req, res) => {
     try {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
         const events = await prisma.event.findMany({
             where: {
                 organizerId: req.user.id
@@ -238,32 +248,62 @@ router.get('/reports', requireAuth, requireRole(['ORGANIZER', 'ADMIN']), async (
         });
 
         const stats = events.reduce((acc, event) => {
-            const revenue = (event.ticketsSold || 0) * event.ticketPrice;
-            acc.totalRevenue += revenue;
+            const gross = (event.ticketsSold || 0) * event.ticketPrice;
+            const feeRate = event.serviceFeeRate || 0.03;
+            const platformFee = gross * feeRate;
+
+            acc.totalGross += gross;
+            acc.totalFees += platformFee;
+            
+            // If organizer covers fee, net is gross - fee. If buyer covers, net is full ticket price.
+            const net = event.serviceFeeType === 'ORGANIZER' ? (gross - platformFee) : gross;
+            acc.totalNet += net;
+
             acc.totalTicketsSold += (event.ticketsSold || 0);
             acc.totalCapacity += event.totalTickets;
             return acc;
-        }, { totalRevenue: 0, totalTicketsSold: 0, totalCapacity: 0 });
+        }, { totalGross: 0, totalNet: 0, totalFees: 0, totalTicketsSold: 0, totalCapacity: 0 });
+
+        // Calculate Revenue this month
+        const recentTickets = await prisma.ticket.findMany({
+            where: {
+                event: { organizerId: req.user.id },
+                purchasedAt: { gte: startOfMonth }
+            },
+            include: { event: { select: { ticketPrice: true } } }
+        });
+
+        const revenueThisMonth = recentTickets.reduce((sum, t) => sum + t.event.ticketPrice, 0);
 
         const report = {
-            totalRevenue: stats.totalRevenue,
+            totalGross: stats.totalGross,
+            totalNet: stats.totalNet,
+            totalFees: stats.totalFees,
             ticketsSold: stats.totalTicketsSold,
-            fillRate: stats.totalCapacity > 0 ? (stats.totalTicketsSold / stats.totalCapacity) * 100 : 0,
             totalEvents: events.length,
+            revenueThisMonth: `$${revenueThisMonth.toLocaleString()}`,
             totalCheckedIn: await prisma.ticket.count({
                 where: {
                     event: { organizerId: req.user.id },
                     status: 'USED'
                 }
             }),
-            events: events.map(e => ({
-                id: e.id,
-                title: e.title,
-                revenue: (e.ticketsSold || 0) * e.ticketPrice,
-                ticketsSold: (e.ticketsSold || 0),
-                totalTickets: e.totalTickets,
-                status: e.status
-            })),
+            events: events.map(e => {
+                const gross = (e.ticketsSold || 0) * e.ticketPrice;
+                const fee = gross * (e.serviceFeeRate || 0.03);
+                const net = e.serviceFeeType === 'ORGANIZER' ? (gross - fee) : gross;
+                return {
+                    id: e.id,
+                    title: e.title,
+                    grossRevenue: gross,
+                    netPayout: net,
+                    platformFee: fee,
+                    feeType: e.serviceFeeType,
+                    ticketsSold: (e.ticketsSold || 0),
+                    totalTickets: e.totalTickets,
+                    status: e.status
+                };
+            }),
             recentSales: await prisma.ticket.findMany({
                 where: {
                     event: { organizerId: req.user.id }

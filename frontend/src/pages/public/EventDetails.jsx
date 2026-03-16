@@ -51,6 +51,7 @@ const EventDetails = () => {
     const isPrivateFlag = queryParams.get('private') === 'true';
 
     useEffect(() => {
+        if (!id) return;
         const fetchEvent = async () => {
             setIsLoading(true);
             try {

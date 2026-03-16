@@ -96,89 +96,113 @@ const OrganizerEventDetails = () => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-4 border-b border-gray-100">
+                <div className="space-y-4">
                     <button 
                         onClick={() => navigate(ROUTES.MY_EVENTS)}
-                        className="text-xs font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-2 hover:text-indigo-700 transition-colors"
+                        className="group text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] flex items-center gap-2 hover:text-indigo-700 transition-all"
                     >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-                        Back to Events
+                        <div className="w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center group-hover:-translate-x-1 transition-transform">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" /></svg>
+                        </div>
+                        Back to Command Center
                     </button>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight">{event.title}</h1>
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">{event.title}</h1>
+                            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md border border-emerald-100 shadow-sm self-start mt-1">
+                                <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span className="text-[8px] font-black uppercase tracking-tighter">{event.status}</span>
+                            </div>
+                        </div>
+                        <p className="text-gray-400 font-bold text-sm tracking-tight flex items-center gap-2">
+                            <span className="uppercase tracking-widest text-[10px] text-gray-300">Instance ID</span>
+                            <span className="font-mono bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{event.id}</span>
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                     <Link to={ROUTES.EDIT_EVENT.replace(':eventId', event.id)}>
-                        <Button variant="outline" size="lg">Edit Event</Button>
+                        <Button variant="ghost" size="lg" className="rounded-2xl font-black text-xs uppercase tracking-widest px-8 hover:bg-gray-50">Edit Project</Button>
                     </Link>
                     <Link to={`${ROUTES.SCANNER}?id=${event.id}`}>
-                        <Button variant="primary" size="lg">Open Scanner</Button>
+                        <Button variant="primary" size="lg" className="rounded-2xl font-black text-xs uppercase tracking-widest px-8 shadow-xl shadow-indigo-100">
+                            Launch Scanner
+                        </Button>
                     </Link>
                 </div>
             </div>
 
-            {/* Tab Navigation */}
-            <div className="flex border-b border-gray-200">
+            {/* Tab Navigation - Refined */}
+            <div className="flex gap-2 p-1.5 bg-gray-50/50 rounded-2xl w-fit border border-gray-100/50">
                 <button 
                     onClick={() => setActiveTab('overview')}
-                    className={`px-8 py-4 text-sm font-black uppercase tracking-[0.2em] transition-all border-b-2 ${activeTab === 'overview' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                    className={`px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl ${activeTab === 'overview' ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     Overview
                 </button>
                 <button 
                     onClick={() => setActiveTab('attendees')}
-                    className={`px-8 py-4 text-sm font-black uppercase tracking-[0.2em] transition-all border-b-2 ${activeTab === 'attendees' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+                    className={`px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl ${activeTab === 'attendees' ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     Attendees
                 </button>
             </div>
 
             {activeTab === 'overview' ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Main Info */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Event Banner */}
-                    <div className="relative aspect-[21/9] rounded-3xl overflow-hidden shadow-2xl group">
+                <div className="lg:col-span-2 space-y-10">
+                    {/* Event Banner - More Premium */}
+                    <div className="relative aspect-[21/9] rounded-[3rem] overflow-hidden shadow-2xl group border-8 border-white">
                         <img 
                             src={event.image || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80'} 
                             alt={event.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                        <div className="absolute bottom-6 left-8">
-                           <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest backdrop-blur-md border ${event.isPublic ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-purple-500/20 text-purple-300 border-purple-500/30'}`}>
-                                {event.isPublic ? '🌐 Public Event' : '🔒 Private Event'}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                        <div className="absolute bottom-10 left-10 flex items-center gap-3">
+                           <span className={`px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-xl border-2 ${event.isPublic ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-purple-500/10 text-purple-400 border-purple-500/20'}`}>
+                                {event.isPublic ? '🌐 Platform Discovery' : '🔒 Private Access'}
+                           </span>
+                           <span className="px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-xl border-2 bg-white/10 text-white border-white/20">
+                                {event.category}
                            </span>
                         </div>
                     </div>
 
-                    {/* About Section */}
-                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-6">
-                        <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                            <span className="w-2 h-8 bg-indigo-600 rounded-full"></span>
-                            About the Event
-                        </h3>
-                        <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{event.description}</p>
+                    {/* About Section - Refined */}
+                    <div className="bg-white rounded-[3rem] p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.04)] border border-gray-100 space-y-8 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/50 rounded-bl-[5rem] -mr-16 -mt-16 border border-gray-100" />
                         
-                        <div className="pt-6 border-t border-gray-50 grid grid-cols-2 sm:grid-cols-4 gap-6">
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</p>
-                                <p className="font-bold text-gray-900">{event.category}</p>
+                        <div className="flex items-center justify-between relative z-10">
+                            <h3 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-4">
+                                <span className="w-3 h-10 bg-indigo-600 rounded-full"></span>
+                                Narrative & Vision
+                            </h3>
+                        </div>
+                        
+                        <p className="text-gray-600 leading-[1.8] text-base relative z-10 font-medium whitespace-pre-wrap">{event.description}</p>
+                        
+                        <div className="pt-10 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
+                            <div className="space-y-1.5">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Classification</p>
+                                <p className="font-black text-gray-900 text-sm">{event.category}</p>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</p>
-                                <span className="inline-flex items-center gap-1 text-sm font-bold text-amber-600">
-                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                    {event.status}
-                                </span>
-                            </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Visibility</p>
-                                <p className="font-bold text-gray-900">{event.isPublic ? 'Public' : 'Private'}</p>
+                                <p className="font-black text-gray-900 text-sm">{event.isPublic ? 'Marketplace' : 'Link Only'}</p>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Created On</p>
-                                <p className="font-bold text-gray-900">{new Date(event.createdAt).toLocaleDateString()}</p>
+                            <div className="space-y-1.5">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Instance Status</p>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span className="font-black text-emerald-600 text-[10px] uppercase tracking-tighter">{event.status}</span>
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Deployment</p>
+                                <p className="font-black text-gray-900 text-sm">{new Date(event.createdAt).toLocaleDateString('en-GB')}</p>
                             </div>
                         </div>
                     </div>

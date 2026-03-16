@@ -110,19 +110,23 @@ const OrganizerReports = () => {
 
     if (!reportData) return null;
 
-    const { totalRevenue = 0, ticketsSold = 0, fillRate = 0, totalEvents = 0, totalCheckedIn = 0, events = [] } = reportData;
+    const { totalGross = 0, totalNet = 0, totalFees = 0, ticketsSold = 0, totalEvents = 0, totalCheckedIn = 0, events = [] } = reportData;
 
-    // Chart datasets
+    // Derived fill rate from events
+    const fillRate = events.length > 0
+        ? (events.reduce((s, e) => s + e.ticketsSold, 0) / events.reduce((s, e) => s + e.totalTickets, 0)) * 100
+        : 0;
+
     const salesData = events.map(e => ({
         name: e.title.split(' ').slice(0, 2).join(' '),
         fullName: e.title,
         sold: e.ticketsSold,
-        revenue: e.revenue,
+        revenue: e.netPayout,
     }));
 
     const pieData = events.map((e, i) => ({
         name: e.title.split(' ').slice(0, 2).join(' '),
-        value: e.revenue,
+        value: e.netPayout,
         color: PALETTE[i % PALETTE.length],
     }));
 
@@ -139,11 +143,11 @@ const OrganizerReports = () => {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-                <StatCard label="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} sub="All events combined"
+                <StatCard label="Net Payout" value={`$${totalNet.toLocaleString()}`} sub="After platform fees"
                     bg="bg-emerald-50" text="text-emerald-600"
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}
                 />
-                <StatCard label="Tickets Sold" value={ticketsSold.toLocaleString()} sub="Gross tickets"
+                <StatCard label="Platform Fees" value={`$${totalFees.toLocaleString()}`} sub="Service charges"
                     bg="bg-indigo-50" text="text-indigo-600"
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>}
                 />
@@ -215,8 +219,18 @@ const OrganizerReports = () => {
                                         <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${selectedDetail.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>{selectedDetail.status}</span>
                                     </div>
                                     <div className="flex justify-between text-sm font-bold">
-                                        <span className="text-slate-500">Revenue</span>
-                                        <span className="text-slate-900">${selectedDetail.revenue.toLocaleString()}</span>
+                                        <span className="text-slate-500">Net Payout</span>
+                                        <span className="text-emerald-600 font-black">${(selectedDetail.netPayout || 0).toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm font-bold">
+                                        <span className="text-slate-500">Platform Fee</span>
+                                        <span className="text-rose-500">${(selectedDetail.platformFee || 0).toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm font-bold">
+                                        <span className="text-slate-500">Fee Type</span>
+                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                                            selectedDetail.feeType === 'ORGANIZER' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'
+                                        }`}>{selectedDetail.feeType === 'ORGANIZER' ? 'You Pay Fee' : 'Buyer Pays Fee'}</span>
                                     </div>
                                     <div className="flex justify-between text-sm font-bold">
                                         <span className="text-slate-500">Tickets Sold</span>

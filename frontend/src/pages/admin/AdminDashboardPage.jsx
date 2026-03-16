@@ -26,9 +26,9 @@ const AdminDashboardPage = () => {
 
     const stats = [
         {
-            label: 'Total Users', value: realStats?.totalUsers?.toLocaleString() || '0', trend: 0, color: 'indigo', icon: (
+            label: 'Gross Volume', value: `$${(realStats?.totalGrossRevenue || 0).toLocaleString()}`, trend: 0, color: 'indigo', icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
             )
         },
@@ -47,9 +47,9 @@ const AdminDashboardPage = () => {
             )
         },
         {
-            label: 'Total Revenue', value: `$${(realStats?.totalRevenue || 0).toLocaleString()}`, trend: 0, color: 'rose', icon: (
+            label: 'Platform Revenue', value: `$${(realStats?.totalPlatformRevenue || 0).toLocaleString()}`, trend: 0, color: 'rose', icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             )
         },
@@ -113,16 +113,20 @@ const AdminDashboardPage = () => {
                     </h2>
                     <div className="space-y-6">
                         {[
-                            { label: 'Event Growth', value: '+12%', status: 'Stable' },
-                            { label: 'User Conversion', value: '68%', status: 'Optimal' },
-                            { label: 'Pending Support', value: '4', status: 'Action Required' },
-                            { label: 'System Uptime', value: '99.9%', status: 'Optimal' },
+                            { label: 'Active Organizers', value: realStats?.totalOrganizers || '0', status: 'Verified' },
+                            { label: 'User Onboarding', value: realStats?.userGrowth || '0', status: 'Stable' },
+                            { label: 'Pending Reviews', value: realStats?.pendingEvents || '0', status: 'Action Required' },
+                            { label: 'Event Creation', value: realStats?.eventGrowth || '0', status: 'Optimal' },
                         ].map((m, i) => (
                             <div key={i} className="flex items-center justify-between gap-4 py-2 border-b border-gray-50 last:border-0">
                                 <span className="text-gray-500 font-medium text-sm">{m.label}</span>
                                 <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
                                     <span className="font-bold text-gray-900 text-sm">{m.value}</span>
-                                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${m.status === 'Optimal' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                                        m.status === 'Optimal' || m.status === 'Verified' || m.status === 'Stable' 
+                                            ? 'bg-emerald-50 text-emerald-600' 
+                                            : 'bg-amber-50 text-amber-600'
+                                    }`}>
                                         {m.status}
                                     </span>
                                 </div>

@@ -105,24 +105,32 @@ router.post('/register', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        console.log('Attempting to create user with data:', { name, email, role: 'ORGANIZER' });
+        
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
-                role: 'ORGANIZER', // Default to organizer for public registration
+                role: 'ORGANIZER', 
                 organizerStatus: 'PENDING'
             }
         });
 
-        // No auto-login for organizer registrations - return pending status
+        console.log('User created successfully:', user.id);
+
         res.status(202).json({
             pending: true,
             message: 'Your organizer account is pending admin approval. You will be able to login after approval.'
         });
     } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Registration error details:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            meta: error.meta
+        });
+        res.status(500).json({ error: 'Internal server error: ' + error.message });
     }
 });
 

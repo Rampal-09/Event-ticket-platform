@@ -18,10 +18,10 @@ const Dashboard = () => {
             const report = await eventService.getReports();
             
             setStats([
-                { label: 'Total Events', value: report.totalEvents || 0, change: 'All time', icon: '📅', bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100' },
-                { label: 'Tickets Sold', value: (report.ticketsSold || 0).toLocaleString(), change: 'Across all events', icon: '🎟️', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
-                { label: 'Total Revenue', value: `$${(report.totalRevenue || 0).toLocaleString()}`, change: 'Current gross', icon: '💰', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
-                { label: 'Avg Fill Rate', value: `${Math.round(report.fillRate || 0)}%`, change: 'Capacity utilized', icon: '⏳', bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-100' },
+                { label: 'Total Events', value: report.totalEvents || 0, change: 'Lifetime Hosting', icon: '📅', bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100' },
+                { label: 'Tickets Sold', value: (report.ticketsSold || 0).toLocaleString(), change: 'Global Audience', icon: '🎟️', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
+                { label: 'Net Payout', value: `$${(report.totalNet || 0).toLocaleString()}`, change: 'Actual Earnings', icon: '💰', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
+                { label: 'Platform Fees', value: `$${(report.totalFees || 0).toLocaleString()}`, change: 'Service Charges', icon: '🏦', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100' },
             ]);
 
             setTopEvents(report.events ? report.events.slice(0, 3) : []);
@@ -137,7 +137,10 @@ const Dashboard = () => {
                                 <div key={i} className="space-y-2">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="font-semibold text-gray-800 truncate">{event.title}</span>
-                                        <span className="font-bold text-indigo-600 flex-shrink-0 ml-2">${event.revenue.toLocaleString()}</span>
+                                        <div className="flex flex-col items-end">
+                                            <span className="font-bold text-indigo-600 flex-shrink-0 ml-2">${(event.netPayout || 0).toLocaleString()}</span>
+                                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Net Payout</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">

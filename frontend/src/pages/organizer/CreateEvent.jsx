@@ -185,11 +185,22 @@ const CreateEvent = () => {
             */}
             <div className="max-w-5xl space-y-8">
                 {/* Page Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <div>
-                        <p className="text-sm text-indigo-500 font-bold uppercase tracking-wider">Event Creation</p>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight mt-1">Design Your Experience</h1>
-                        <p className="text-gray-500 mt-1">Set the stage, define your tickets, and go live.</p>
+                <div className="relative overflow-hidden bg-white rounded-[40px] border border-gray-100 p-10 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)]">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl -mr-32 -mt-32" />
+                    <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="w-8 h-1 bg-indigo-600 rounded-full" />
+                                <p className="text-xs text-indigo-500 font-black uppercase tracking-[0.2em]">Launch Control</p>
+                            </div>
+                            <h1 className="text-4xl font-black text-gray-900 tracking-tight">Create New Event</h1>
+                            <p className="text-gray-500 mt-2 font-medium max-w-xl">Configure your event details, ticket releases, and visibility settings in one place.</p>
+                        </div>
+                        <div className="hidden lg:block">
+                            <div className="px-4 py-2 bg-gray-50 rounded-2xl border border-gray-100">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Auto-Save Active</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -199,56 +210,69 @@ const CreateEvent = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmitClick} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <form onSubmit={handleSubmitClick} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                     {/* LEFT: Core Configuration */}
-                    <div className="lg:col-span-2 space-y-8">
+                    <div className="lg:col-span-2 space-y-10">
                         {/* 1. Basic Details */}
-                        <EventBasicForm
-                            data={formData}
-                            onChange={handleBasicChange}
-                        />
+                        <div className="animate-in fade-in slide-in-from-left-4 duration-700">
+                            <EventBasicForm
+                                data={formData}
+                                onChange={handleBasicChange}
+                            />
+                        </div>
 
                         {/* 2. Visuals */}
-                        <Card title="Event Media" subtitle="Showcase your event with a gallery of photos">
-                            <EventGalleryUploader
-                                images={formData.galleryImages}
-                                onImagesUpdate={(imgs) => handleBasicChange('galleryImages', imgs)}
-                            />
-                        </Card>
+                        <div className="animate-in fade-in slide-in-from-left-4 duration-700 delay-100">
+                            <Card title={<span className="tracking-tighter uppercase font-black text-gray-900">Event Media</span>} subtitle="Showcase your event with a gallery of photos">
+                                <EventGalleryUploader
+                                    images={formData.galleryImages}
+                                    onImagesUpdate={(imgs) => handleBasicChange('galleryImages', imgs)}
+                                />
+                            </Card>
+                        </div>
 
                         {/* 3. Marketing & Discounts */}
-                        <Card title="Promotional Codes" subtitle="Drive sales with fixed or percentage discounts">
-                            <PromoCodeForm
-                                onSave={(code) => setFormData(prev => ({ ...prev, promoCodes: [...prev.promoCodes, code] }))}
-                            />
-                            {formData.promoCodes.length > 0 && (
-                                <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-gray-50">
-                                    {formData.promoCodes.map((c, i) => (
-                                        <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold border border-indigo-100 flex items-center gap-2">
-                                            {safeRender(c.code, `promo-code-${i}`)} ({c.type === 'percentage' ? `${safeRender(c.value, `promo-val-${i}`)}%` : `$${safeRender(c.value, `promo-val-${i}`)}`})
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </Card>
+                        <div className="animate-in fade-in slide-in-from-left-4 duration-700 delay-200">
+                            <Card title={<span className="tracking-tighter uppercase font-black text-gray-900">Promotional Codes</span>} subtitle="Drive sales with fixed or percentage discounts">
+                                <PromoCodeForm
+                                    onSave={(code) => setFormData(prev => ({ ...prev, promoCodes: [...prev.promoCodes, code] }))}
+                                />
+                                {formData.promoCodes.length > 0 && (
+                                    <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-gray-50 uppercase font-black text-[10px] tracking-widest text-gray-400">
+                                        Active Codes:
+                                        <div className="w-full mt-2 flex flex-wrap gap-2">
+                                            {formData.promoCodes.map((c, i) => (
+                                                <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 flex items-center gap-2 group hover:bg-indigo-600 hover:text-white transition-all duration-300">
+                                                    {safeRender(c.code, `promo-code-${i}`)}
+                                                    <span className="opacity-50 text-[8px]">/</span>
+                                                    {c.type === 'percentage' ? `${safeRender(c.value, `promo-val-${i}`)}%` : `$${safeRender(c.value, `promo-val-${i}`)}`}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </Card>
+                        </div>
 
                         {/* 4. Additional Settings */}
-                        <EventAdditionalSettings
-                            data={formData}
-                            onChange={handleBasicChange}
-                        />
+                        <div className="animate-in fade-in slide-in-from-left-4 duration-700 delay-300">
+                            <EventAdditionalSettings
+                                data={formData}
+                                onChange={handleBasicChange}
+                            />
+                        </div>
 
                         {/* Private Event link warning */}
                         {!formData.isPublic && (
-                            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 border-dashed animate-in fade-in slide-in-from-bottom-2">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-600 flex-shrink-0">
+                            <div className="p-8 bg-slate-900 rounded-[2.5rem] border border-slate-800 shadow-2xl animate-in flip-in-x duration-700">
+                                <div className="flex items-start gap-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl flex-shrink-0 border border-slate-700">
                                         🔒
                                     </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-slate-900">Private Event Mode</h3>
-                                        <p className="text-sm text-slate-600">This event will not appear in the discovery hub. Only people with the direct link can view and purchase tickets once the event is approved.</p>
+                                    <div className="space-y-2">
+                                        <h3 className="font-black text-white text-lg tracking-tight uppercase">Private Stealth Mode</h3>
+                                        <p className="text-sm text-slate-400 leading-relaxed">This event will not appear in the discovery hub. Only people with the direct link can view and purchase tickets once the event is approved.</p>
                                     </div>
                                 </div>
                             </div>
@@ -256,60 +280,87 @@ const CreateEvent = () => {
                     </div>
 
                     {/* RIGHT: Visibility & Publishing */}
-                    <div className="space-y-6">
-                        <div className="sticky top-24 space-y-6">
+                    <div className="lg:h-full self-start sticky top-24">
+                        <div className="space-y-6">
                             {/* Live Preview Summary */}
-                            <Card title="Status Preview" subtitle="How your listing is configured">
-                                <div className="space-y-4">
-                                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                        <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest leading-none">Price Point</p>
-                                        <p className="text-xl font-black text-gray-900 mt-1">
-                                            {formData.price === '0' || formData.price === 0 ? 'Free Entry' : `$${safeRender(formData.price, 'price') || '0.00'}`}
-                                        </p>
+                            <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] space-y-8 relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-600" />
+                                
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-widest leading-none">Draft Snapshot</h3>
+                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">Real-time metrics</p>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center animate-pulse">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-5">
+                                    <div className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 transition-all hover:border-indigo-100 hover:bg-white hover:shadow-xl hover:shadow-indigo-500/5 group/stat">
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.15em] leading-none">Entry Floor</p>
+                                            <svg className="w-4 h-4 text-gray-200 group-hover/stat:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </div>
+                                        <div className="flex items-baseline gap-1 mt-3">
+                                            <p className="text-3xl font-black text-gray-900 tracking-tighter">
+                                                {formData.price === '0' || formData.price === 0 ? 'Free' : `$${safeRender(formData.price, 'price') || '0.00'}`}
+                                            </p>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">USD</span>
+                                        </div>
                                     </div>
 
-                                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                        <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest leading-none">Target Goal</p>
-                                        <p className="text-xl font-black text-gray-900 mt-1">
-                                            {safeRender(formData.totalTickets, 'capacity') || '0'} Attendees
-                                        </p>
+                                    <div className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100 transition-all hover:border-indigo-100 hover:bg-white hover:shadow-xl hover:shadow-indigo-500/5 group/stat">
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.15em] leading-none">Event Reach</p>
+                                            <svg className="w-4 h-4 text-gray-200 group-hover/stat:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                        </div>
+                                        <div className="flex items-baseline gap-2 mt-3">
+                                            <p className="text-3xl font-black text-gray-900 tracking-tighter">
+                                                {safeRender(formData.totalTickets, 'capacity') || '0'}
+                                            </p>
+                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50/50 px-2 py-0.5 rounded-lg border border-indigo-100/50">Total Pax</span>
+                                        </div>
                                     </div>
 
                                     {formData.urgency.enabled && (
-                                        <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center justify-between">
+                                        <div className="p-6 bg-amber-500 rounded-3xl shadow-lg shadow-amber-500/20 flex items-center justify-between animate-in zoom-in-95 duration-500 text-white border-4 border-amber-400">
                                             <div>
-                                                <p className="text-[10px] font-black uppercase text-amber-600 tracking-widest leading-none">Urgency Indicator</p>
-                                                <p className="text-sm font-bold text-gray-900 mt-1">🔥 Selling Fast</p>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none opacity-80">Demand Driver</p>
+                                                <p className="text-base font-black mt-2 flex items-center gap-2">
+                                                    <span className="animate-bounce">🔥</span> SELLING FAST
+                                                </p>
                                             </div>
-                                            <div className="text-xs font-black text-amber-600">
+                                            <div className="text-xs font-black bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl">
                                                 {formData.urgency.threshold}%
                                             </div>
                                         </div>
                                     )}
                                 </div>
-                            </Card>
+                            </div>
 
-                            {/* Visibility Toggle */}
-                            <EventVisibilityToggle
-                                isPublic={formData.isPublic}
-                                onChange={(val) => handleBasicChange('isPublic', val)}
-                            />
+                            {/* Visibility & Urgency Toggles */}
+                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-700 delay-400">
+                                <EventVisibilityToggle
+                                    isPublic={formData.isPublic}
+                                    onChange={(val) => handleBasicChange('isPublic', val)}
+                                />
 
-                            {/* Urgency Toggle */}
-                            <SellingFastToggle
-                                enabled={formData.urgency.enabled}
-                                threshold={formData.urgency.threshold}
-                                onChange={(val) => handleBasicChange('urgency', val)}
-                            />
+                                <SellingFastToggle
+                                    enabled={formData.urgency.enabled}
+                                    threshold={formData.urgency.threshold}
+                                    onChange={(val) => handleBasicChange('urgency', val)}
+                                />
+                            </div>
 
                             {/* Action Buttons */}
-                            <div className="pt-4 space-y-4">
-                                <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex gap-3">
-                                    <svg className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <p className="text-xs font-bold text-indigo-900 leading-relaxed">
-                                        All events undergo admin review. This typically takes 2-4 hours. You'll receive an email once approved.
+                            <div className="pt-2 space-y-4 animate-in fade-in slide-in-from-right-4 duration-700 delay-500">
+                                <div className="p-6 bg-indigo-900 rounded-[2rem] border border-indigo-800 shadow-xl flex gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-indigo-800 flex items-center justify-center text-xl flex-shrink-0 border border-indigo-700">
+                                        🚀
+                                    </div>
+                                    <p className="text-[11px] font-bold text-indigo-100/80 leading-relaxed">
+                                        Submission triggers automatic verification. Review cycle targets <span className="text-white font-black underline">2-4 Hours</span> standard.
                                     </p>
                                 </div>
 
@@ -318,19 +369,20 @@ const CreateEvent = () => {
                                     size="lg"
                                     fullWidth
                                     isLoading={isSubmitting}
-                                    className="shadow-xl shadow-indigo-200"
-                                    rightIcon={!isSubmitting && <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>}
+                                    className="h-16 rounded-[2rem] text-lg font-black bg-indigo-600 hover:bg-indigo-700 shadow-2xl shadow-indigo-500/30 border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1 transition-all"
+                                    rightIcon={!isSubmitting && <svg className="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>}
                                 >
-                                    Submit for Approval
+                                    Push to Registry
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="md"
                                     fullWidth
                                     type="button"
+                                    className="font-black text-gray-400 hover:text-rose-500 uppercase tracking-widest text-[11px]"
                                     onClick={() => navigate(ROUTES.ORGANIZER_DASHBOARD)}
                                 >
-                                    Cancel & Discard
+                                    Abort Operation
                                 </Button>
                             </div>
                         </div>

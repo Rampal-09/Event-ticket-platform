@@ -45,9 +45,13 @@ router.get('/events', async (req, res) => {
  */
 router.get('/events/:id', async (req, res) => {
     const { id } = req.params;
+    const eventId = parseInt(id);
+    if (isNaN(eventId)) {
+        return res.status(400).json({ error: 'Invalid event ID' });
+    }
     try {
         const event = await prisma.event.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: eventId },
             include: {
                 user_event_organizerIdTouser: {
                     select: {

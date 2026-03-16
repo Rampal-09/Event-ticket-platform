@@ -24,6 +24,8 @@ model event {
   status                        event_status    @default(PENDING)
   isPublic                      Boolean         @default(true)
   sellingFastThreshold          Int             @default(20)
+  serviceFeeType                event_serviceFeeType @default(BUYER)
+  serviceFeeRate                Float           @default(0.03)
   tags                          String?         @db.LongText
   highlights                    String?         @db.LongText
   createdAt                     DateTime        @default(now())
@@ -163,4 +165,9 @@ enum event_status {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+enum event_serviceFeeType {
+  BUYER
+  ORGANIZER
 }

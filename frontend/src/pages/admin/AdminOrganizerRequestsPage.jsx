@@ -61,10 +61,10 @@ const AdminOrganizerRequestsPage = () => {
     };
 
     const tabs = [
-        { id: 'PENDING', label: 'Pending' },
-        { id: 'APPROVED', label: 'Approved' },
-        { id: 'REJECTED', label: 'Rejected' },
-        { id: 'ALL', label: 'All Requests' }
+        { id: 'PENDING', label: 'Pending', count: requests.filter(r => r.organizerStatus === 'PENDING').length },
+        { id: 'APPROVED', label: 'Approved', count: requests.filter(r => r.organizerStatus === 'APPROVED').length },
+        { id: 'REJECTED', label: 'Rejected', count: requests.filter(r => r.organizerStatus === 'REJECTED').length },
+        { id: 'ALL', label: 'All Log', count: requests.length }
     ];
 
     return (
@@ -91,18 +91,21 @@ const AdminOrganizerRequestsPage = () => {
             )}
 
             {/* Tabs */}
-            <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
+            <div className="flex p-1.5 bg-gray-100/50 border border-gray-100 rounded-2xl w-fit gap-1">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${
+                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
                             activeTab === tab.id 
-                            ? 'bg-white text-indigo-600 shadow-sm' 
-                            : 'text-gray-500 hover:text-gray-900'
+                            ? 'bg-white text-indigo-600 shadow-md border border-gray-100' 
+                            : 'text-gray-400 hover:text-gray-600'
                         }`}
                     >
                         {tab.label}
+                        <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === tab.id ? 'bg-indigo-50 text-indigo-500' : 'bg-gray-200 text-gray-500'}`}>
+                            {tab.count}
+                        </span>
                     </button>
                 ))}
             </div>

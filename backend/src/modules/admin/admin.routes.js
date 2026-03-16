@@ -103,7 +103,13 @@ router.get('/events/history', requireAuth, requireRole(['ADMIN']), async (req, r
 
         const mappedHistory = history.map(e => ({
             id: e.id,
+            eventId: e.id, // for details lookup
             eventName: e.title,
+            category: e.category,
+            location: e.location,
+            eventDate: e.eventDate,
+            ticketPrice: e.ticketPrice,
+            totalTickets: e.totalTickets,
             organizer: e.user_event_organizerIdTouser?.name || 'Unknown',
             decision: e.status === 'APPROVED' ? 'Approved' : 'Rejected',
             reviewedBy: e.user_event_reviewedByIdTouser?.name || 'Platform Admin',
@@ -119,12 +125,63 @@ router.get('/events/history', requireAuth, requireRole(['ADMIN']), async (req, r
 });
 
 /**
+ * @route GET /api/admin/events/:id
+ * @desc  Get full detailed event for admin audit
+ */
+router.get('/events/:id', requireAuth, requireRole(['ADMIN']), async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'Invalid event identifier provided' });
+        }
+
+        const eventDetail = await prisma.event.findUnique({
+            where: { id: id },
+            include: {
+                user_event_organizerIdTouser: {
+                    select: { name: true, email: true }
+                },
+                user_event_reviewedByIdTouser: {
+                    select: { name: true }
+                },
+                eventimage: true,
+                ticketrelease: true,
+                promocode: true,
+                eventschedule: {
+                    orderBy: { orderIndex: 'asc' }
+                }
+            }
+        });
+
+        if (!eventDetail) {
+            return res.status(404).json({ error: 'Event record not found' });
+        }
+
+        res.json(eventDetail);
+    } catch (error) {
+        console.error('Error fetching admin event detail:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+/**
  * @route GET /api/admin/dashboard
  * @desc  Get system-wide stats and recent events for admin dashboard
  */
 router.get('/dashboard', requireAuth, requireRole(['ADMIN']), async (req, res) => {
     try {
-        const [totalEvents, pendingEvents, totalUsers, totalTickets, recentEvents] = await Promise.all([
+        const now = new Date();
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+        const [
+            totalEvents, 
+            pendingEvents, 
+            totalUsers, 
+            totalTickets, 
+            recentEvents,
+            eventsLastMonth,
+            usersLastMonth,
+            totalOrganizers
+        ] = await Promise.all([
             prisma.event.count(),
             prisma.event.count({ where: { status: 'PENDING' } }),
             prisma.user.count(),
@@ -137,24 +194,49 @@ router.get('/dashboard', requireAuth, requireRole(['ADMIN']), async (req, res) =
                         select: { name: true }
                     }
                 }
-            })
+            }),
+            prisma.event.count({ where: { createdAt: { gte: lastMonth } } }),
+            prisma.user.count({ where: { createdAt: { gte: lastMonth } } }),
+            prisma.user.count({ where: { role: 'ORGANIZER' } })
         ]);
 
         const revStats = await prisma.event.findMany({
             select: {
                 ticketsSold: true,
-                ticketPrice: true
+                ticketPrice: true,
+                serviceFeeType: true,
+                serviceFeeRate: true
             }
         });
 
         const totalRevenue = revStats.reduce((sum, ev) => sum + ((ev.ticketsSold || 0) * ev.ticketPrice), 0);
+        const platformRevenue = revStats.reduce((sum, ev) => {
+            const gross = (ev.ticketsSold || 0) * ev.ticketPrice;
+            const fee = gross * (ev.serviceFeeRate || 0.03);
+            return sum + fee;
+        }, 0);
+        const netRevenue = totalRevenue - platformRevenue;
+        
+        // Calculate Growth Percentages
+        const eventGrowth = totalEvents > eventsLastMonth 
+            ? Math.round(((totalEvents - (totalEvents - eventsLastMonth)) / (totalEvents - eventsLastMonth || 1)) * 100) 
+            : 0;
+            
+        const userGrowth = totalUsers > usersLastMonth
+            ? Math.round(((totalUsers - (totalUsers - usersLastMonth)) / (totalUsers - usersLastMonth || 1)) * 100)
+            : 0;
 
         res.json({
             totalEvents,
             pendingEvents,
             totalUsers,
             totalTicketsSold: totalTickets,
-            totalRevenue,
+            totalGrossRevenue: totalRevenue,
+            totalPlatformRevenue: platformRevenue,
+            totalNetRevenue: netRevenue,
+            eventGrowth: `+${eventsLastMonth} this month`,
+            userGrowth: `+${usersLastMonth} this month`,
+            totalOrganizers,
             recentEvents: recentEvents.map(e => ({
                 ...e,
                 organizerName: e.user_event_organizerIdTouser?.name || 'Unknown'
@@ -182,18 +264,26 @@ router.get('/stats', requireAuth, requireRole(['ADMIN']), async (req, res) => {
         const revStats = await prisma.event.findMany({
             select: {
                 ticketsSold: true,
-                ticketPrice: true
+                ticketPrice: true,
+                serviceFeeType: true,
+                serviceFeeRate: true
             }
         });
 
         const totalRevenue = revStats.reduce((sum, ev) => sum + ((ev.ticketsSold || 0) * ev.ticketPrice), 0);
+        const platformRevenue = revStats.reduce((sum, ev) => {
+            const gross = (ev.ticketsSold || 0) * ev.ticketPrice;
+            const fee = gross * (ev.serviceFeeRate || 0.03);
+            return sum + fee;
+        }, 0);
 
         res.json({
             totalEvents,
             pendingEvents,
             totalUsers,
             ticketsSold: totalTickets,
-            revenue: totalRevenue
+            revenue: totalRevenue,
+            platformRevenue
         });
     } catch (error) {
         console.error('Admin stats error:', error);

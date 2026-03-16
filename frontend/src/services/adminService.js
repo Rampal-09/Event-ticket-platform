@@ -40,5 +40,8 @@ export const adminService = {
     },
     rejectOrganizer: async (id) => {
         return api.patch(`/admin/organizers/${id}/reject`);
+    },
+    getEventDetail: async (id) => {
+        return api.get(`/admin/events/${id}`);
     }
 };

@@ -12,6 +12,7 @@ const EventList = () => {
     const [activeFilters, setActiveFilters] = useState({ dateRange: 'any', priceOrder: 'default' });
     const [allEvents, setAllEvents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [visibleCount, setVisibleCount] = useState(9);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -99,7 +100,7 @@ const EventList = () => {
                 {/* Grid */}
                 {filteredEvents.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-                        {filteredEvents.map((event, i) => (
+                        {filteredEvents.slice(0, visibleCount).map((event, i) => (
                             <EventCard
                                 key={event.id}
                                 event={event}
@@ -122,13 +123,27 @@ const EventList = () => {
                     </div>
                 )}
 
-                {/* Bottom Pagination / Load More Simulation */}
-                {filteredEvents.length > 0 && (
+                {/* Bottom Pagination / Load More */}
+                {filteredEvents.length > visibleCount && (
                     <div className="mt-20 flex flex-col items-center border-t border-gray-100 pt-12">
-                        <p className="text-sm font-bold text-gray-400 mb-6 uppercase tracking-widest">End of results</p>
-                        <button className="px-8 py-3 border-2 border-gray-900 rounded-2xl font-black text-gray-900 hover:bg-gray-900 hover:text-white transition-all">
-                            Load 20 More
+                        <button 
+                            onClick={() => setVisibleCount(prev => prev + 9)}
+                            className="px-10 py-4 border-2 border-gray-900 rounded-2xl font-black text-gray-900 hover:bg-gray-900 hover:text-white transition-all shadow-xl active:scale-95"
+                        >
+                            Load More Events
                         </button>
+                        <p className="mt-4 text-xs text-gray-400 font-semibold">
+                            Showing {Math.min(visibleCount, filteredEvents.length)} of {filteredEvents.length} events
+                        </p>
+                    </div>
+                )}
+                {filteredEvents.length > 0 && visibleCount >= filteredEvents.length && (
+                    <div className="mt-20 flex flex-col items-center border-t border-gray-100 pt-12">
+                        <p className="text-sm font-bold text-gray-400 mb-6 uppercase tracking-[0.3em] flex items-center gap-3">
+                            <span className="w-8 h-[1px] bg-gray-200" />
+                            End of discovery
+                            <span className="w-8 h-[1px] bg-gray-200" />
+                        </p>
                     </div>
                 )}
             </div>

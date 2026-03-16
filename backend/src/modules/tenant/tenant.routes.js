@@ -93,7 +93,10 @@ router.post('/purchase', async (req, res) => {
             }
 
             const isFree = event.ticketPrice === 0;
-            const fee = isFree ? 0 : (quantity * 0.30) + (subtotal * 0.015);
+            const isBuyerCovering = event.serviceFeeType === 'BUYER';
+            const feeRate = event.serviceFeeRate || 0.03;
+            
+            const fee = (isFree || !isBuyerCovering) ? 0 : parseFloat((subtotal * feeRate).toFixed(2));
             const finalTotal = subtotal + fee - discountAmount;
 
             return { tickets, totalAmount: finalTotal, discountApplied: discountAmount > 0 };

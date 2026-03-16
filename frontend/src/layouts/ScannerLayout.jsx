@@ -1,24 +1,26 @@
 import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 
 /**
- * ScannerLayout for entry staff
- * Focuses on full-screen utility with minimal chrome
+ * ScannerLayout - Standalone fullscreen scanner for entry staff.
+ * No nav, no sidebar. Redirects to login (not home) if unauthenticated,
+ * preserving the scanner URL so they return here after logging in.
  */
-const ScannerLayout = ({ children }) => {
-    // Auth Guard
+const ScannerLayout = () => {
+    const location = useLocation();
     const token = localStorage.getItem('token');
     const userRole = JSON.parse(localStorage.getItem('user') || '{}')?.role?.toUpperCase();
-    const isAuthorized = userRole === 'ORGANIZER' || userRole === 'STAFF';
+    const isAuthorized = userRole === 'ORGANIZER' || userRole === 'STAFF' || userRole === 'ADMIN';
 
     if (!token || !isAuthorized) {
-        return <Navigate to="/" replace />;
+        // Redirect to login and pass the current scanner URL as `next`
+        return <Navigate to={`/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
     }
 
     return (
         <div className="min-h-screen bg-[#0A0A0F] text-white">
             <main>
-                {children || <Outlet />}
+                <Outlet />
             </main>
         </div>
     );
