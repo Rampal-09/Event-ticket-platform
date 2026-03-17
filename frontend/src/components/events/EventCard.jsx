@@ -31,6 +31,11 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
     const remainingTickets = totalTickets - (ticketsSold || 0);
     const showSellingFast = remainingTickets > 0 && remainingTickets < 20;
 
+    // Calculate dynamic display price (ticket price + service fee if paid by buyer)
+    const feeRate = event.serviceFeeRate || 0.03;
+    const isBuyerPaid = event.serviceFeeType === 'BUYER';
+    const displayPrice = isBuyerPaid ? ticketPrice * (1 + feeRate) : ticketPrice;
+
     return (
         <div className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300">
 
@@ -75,7 +80,7 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
 
                 {/* Price Badge — always shown */}
                 <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white font-black text-base px-3 py-1.5 rounded-xl border border-white/20 z-10">
-                    {formatPrice(ticketPrice)}
+                    {formatPrice(displayPrice)}
                 </div>
 
                 {/* Urgency Badge */}

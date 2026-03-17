@@ -324,7 +324,7 @@ const EventDetails = () => {
                     {/* ── RIGHT SIDEBAR (4/12) ── */}
                     <div className="lg:col-span-4 sticky top-12 pb-12">
                         <div className="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                            <div className="p-10 space-y-10">
+                            <div className="p-6 sm:p-10 space-y-10">
                                 
                                 {/* Price Header */}
                                 <div className="space-y-2">
@@ -362,13 +362,13 @@ const EventDetails = () => {
                                 </div>
 
                                 {/* ── INTEGRATED TICKET SELECTOR ── */}
-                                <div className="bg-slate-50/50 p-6 rounded-[2.5rem] border border-slate-100 space-y-8">
+                                <div className="bg-slate-50/50 p-4 sm:p-6 rounded-[2.5rem] border border-slate-100 space-y-8">
                                     {!isSoldOut ? (
                                         <>
                                             {/* Qty Stepper */}
                                             <div className="flex items-center justify-between">
-                                                <span className="text-xs font-black uppercase tracking-widest text-gray-400">Select Quantity</span>
-                                                <div className="flex items-center gap-4 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100">
+                                                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-400">Select Quantity</span>
+                                                <div className="flex items-center gap-2 sm:gap-4 bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
                                                     <button
                                                         onClick={() => setQuantity(q => Math.max(1, q - 1))}
                                                         className="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-black text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
