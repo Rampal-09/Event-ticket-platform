@@ -1,10 +1,12 @@
 import React from 'react';
+import { useCurrency } from '../../context/CurrencyContext';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { eventService } from '../../services/eventService';
 
 const Dashboard = () => {
+    const { formatPrice } = useCurrency();
     const [stats, setStats] = React.useState([]);
     const [topEvents, setTopEvents] = React.useState([]);
     const [recentSales, setRecentSales] = React.useState([]);
@@ -20,8 +22,8 @@ const Dashboard = () => {
             setStats([
                 { label: 'Total Events', value: report.totalEvents || 0, change: 'Lifetime Hosting', icon: '📅', bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100' },
                 { label: 'Tickets Sold', value: (report.ticketsSold || 0).toLocaleString(), change: 'Global Audience', icon: '🎟️', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
-                { label: 'Net Payout', value: `$${(report.totalNet || 0).toLocaleString()}`, change: 'Actual Earnings', icon: '💰', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
-                { label: 'Platform Fees', value: `$${(report.totalFees || 0).toLocaleString()}`, change: 'Service Charges', icon: '🏦', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100' },
+                { label: 'Net Payout', value: formatPrice(report.totalNet || 0), change: 'Actual Earnings', icon: '💰', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
+                { label: 'Platform Fees', value: formatPrice(report.totalFees || 0), change: 'Service Charges', icon: '🏦', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100' },
             ]);
 
             setTopEvents(report.events ? report.events.slice(0, 3) : []);
@@ -73,14 +75,14 @@ const Dashboard = () => {
             {/* Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                 {stats.map(stat => (
-                    <div key={stat.label} className={`bg-white rounded-2xl p-5 border ${stat.border} hover:shadow-md transition-all duration-300 hover:-translate-y-0.5`}>
+                    <div key={stat.label} className={`bg-white rounded-2xl p-4 sm:p-5 border ${stat.border} hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 group`}>
                         <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{stat.label}</p>
-                                <p className="text-3xl font-black text-gray-900 mt-2">{stat.value}</p>
-                                <p className={`text-xs font-semibold mt-1.5 ${stat.text}`}>{stat.change}</p>
+                            <div className="min-w-0">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate">{stat.label}</p>
+                                <p className="text-2xl sm:text-3xl font-black text-gray-900 mt-2 truncate">{stat.value}</p>
+                                <p className={`text-[10px] sm:text-xs font-semibold mt-1.5 ${stat.text} truncate`}>{stat.change}</p>
                             </div>
-                            <div className={`${stat.bg} ${stat.text} w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0`}>
+                            <div className={`${stat.bg} ${stat.text} w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 transition-transform group-hover:scale-110`}>
                                 {stat.icon}
                             </div>
                         </div>
@@ -138,7 +140,7 @@ const Dashboard = () => {
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="font-semibold text-gray-800 truncate">{event.title}</span>
                                         <div className="flex flex-col items-end">
-                                            <span className="font-bold text-indigo-600 flex-shrink-0 ml-2">${(event.netPayout || 0).toLocaleString()}</span>
+                                            <span className="font-bold text-indigo-600 flex-shrink-0 ml-2">{formatPrice(event.netPayout || 0)}</span>
                                             <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Net Payout</span>
                                         </div>
                                     </div>

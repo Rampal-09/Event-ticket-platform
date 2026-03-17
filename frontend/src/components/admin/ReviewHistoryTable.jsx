@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { adminService } from '../../services/adminService';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const ReviewHistoryTable = ({ history }) => {
+    const { formatPrice } = useCurrency();
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalLoading, setIsModalLoading] = useState(false);
     const [modalError, setModalError] = useState(null);
@@ -135,7 +137,7 @@ const ReviewHistoryTable = ({ history }) => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-500">
                     <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-md" onClick={() => {setSelectedEvent(null); setModalError(null);}}></div>
                     
-                    <div className="relative w-full max-w-3xl bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 max-h-[95vh] flex flex-col border border-white/20">
+                    <div className="relative w-full max-w-3xl bg-white rounded-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 max-h-[95vh] flex flex-col border border-white/20">
                         {isModalLoading ? (
                             <div className="py-32 flex flex-col items-center justify-center space-y-6">
                                 <div className="relative w-16 h-16">
@@ -155,62 +157,63 @@ const ReviewHistoryTable = ({ history }) => {
                             </div>
                         ) : (
                             <>
-                                {/* Modal Header */}
-                                <div className="p-10 border-b border-gray-100 flex items-start justify-between bg-gradient-to-br from-gray-50 to-white relative">
-                                    <div className="space-y-3 relative z-10">
-                                        <div className="flex items-center gap-2">
-                                            <span className="px-3 py-1 bg-gray-900 text-white text-[9px] font-black uppercase tracking-[0.3em] rounded-lg shadow-lg">Review Information</span>
-                                            <span className="text-[10px] font-black text-indigo-300 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">Event #{selectedEvent.id}</span>
+                                 {/* Modal Header */}
+                                <div className="p-6 sm:p-10 border-b border-gray-100 flex items-start justify-between bg-gradient-to-br from-gray-50 to-white relative">
+                                    <div className="space-y-2 sm:space-y-3 relative z-10 w-[calc(100%-4rem)]">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <span className="px-2 sm:px-3 py-1 bg-gray-900 text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] rounded-lg shadow-lg">Review Info</span>
+                                            <span className="text-[9px] sm:text-[10px] font-black text-indigo-300 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 whitespace-nowrap">Event #{selectedEvent.id}</span>
                                         </div>
-                                        <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">{selectedEvent.title}</h2>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{selectedEvent.category}</span>
-                                            <span className="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
-                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none bg-indigo-50 px-2 py-1 rounded border border-indigo-100">{selectedEvent.user_event_organizerIdTouser?.name}</span>
+                                        <h2 className="text-xl sm:text-4xl font-black text-gray-900 tracking-tighter uppercase line-clamp-2 md:line-clamp-none">{selectedEvent.title}</h2>
+                                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                            <span className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">{selectedEvent.category}</span>
+                                            <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-gray-200"></span>
+                                            <span className="text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none bg-indigo-50 px-2 py-1 rounded border border-indigo-100">{selectedEvent.user_event_organizerIdTouser?.name}</span>
                                         </div>
                                     </div>
                                     <button 
                                         onClick={() => setSelectedEvent(null)}
-                                        className="p-3 bg-white hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-2xl transition-all duration-300 shadow-sm border border-gray-100 hover:rotate-90 group"
+                                        className="p-2 sm:p-3 bg-white hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-xl sm:rounded-2xl transition-all duration-300 shadow-sm border border-gray-100 hover:rotate-90 group"
                                     >
-                                        <svg className="w-6 h-6 border-2 border-transparent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        <svg className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-transparent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
 
-                                {/* Modal Body - Scrollable */}
-                                <div className="p-10 overflow-y-auto space-y-10 scrollbar-thin scrollbar-thumb-gray-100">
+                                 {/* Modal Body - Scrollable */}
+                                <div className="p-6 sm:p-10 overflow-y-auto space-y-8 sm:space-y-10 scrollbar-thin scrollbar-thumb-gray-100">
                                     {/* Resolution Info */}
                                     <div className="grid grid-cols-1 gap-6">
-                                        <div className={`p-8 rounded-[2rem] border-2 flex items-center justify-between gap-4 shadow-xl ${
+                                        <div className={`p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border-2 flex flex-col md:flex-row md:items-center justify-between gap-6 sm:gap-4 shadow-xl ${
                                             selectedEvent.status === 'APPROVED' ? 'bg-emerald-50 border-emerald-100 shadow-emerald-500/5' : 'bg-rose-50 border-rose-100 shadow-rose-500/5'
                                         }`}>
-                                            <div className="flex items-center gap-8">
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
                                                 <div className="space-y-1">
-                                                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${selectedEvent.status === 'APPROVED' ? 'text-emerald-500' : 'text-rose-500'}`}>Review Status</p>
+                                                    <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] ${selectedEvent.status === 'APPROVED' ? 'text-emerald-500' : 'text-rose-500'}`}>Review Status</p>
                                                     <div className="flex items-center gap-3">
-                                                        <span className={`w-3 h-3 rounded-full animate-pulse ${selectedEvent.status === 'APPROVED' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-                                                        <p className={`text-4xl font-black tracking-tighter ${selectedEvent.status === 'APPROVED' ? 'text-emerald-900' : 'text-rose-900'}`}>{selectedEvent.status}</p>
+                                                        <span className={`w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full animate-pulse ${selectedEvent.status === 'APPROVED' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                                                        <p className={`text-2xl sm:text-4xl font-black tracking-tighter ${selectedEvent.status === 'APPROVED' ? 'text-emerald-900' : 'text-rose-900'}`}>{selectedEvent.status}</p>
                                                     </div>
                                                 </div>
-                                                <div className="w-[1px] h-12 bg-black/5 hidden md:block"></div>
-                                                <div className="hidden md:block">
-                                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Review Date</p>
-                                                    <p className="text-sm font-black text-gray-900">{new Date(selectedEvent.updatedAt).toLocaleDateString()}</p>
-                                                </div>
-                                                <div className="w-[1px] h-12 bg-black/5 hidden md:block"></div>
-                                                <div className="hidden md:block">
-                                                    <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Review ID</p>
-                                                    <p className="text-sm font-black text-gray-900">#RV-{selectedEvent.id}</p>
+                                                <div className="w-full sm:w-[1px] h-[1px] sm:h-12 bg-black/5"></div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
+                                                    <div>
+                                                        <p className="text-[8px] sm:text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Review Date</p>
+                                                        <p className="text-xs sm:text-sm font-black text-gray-900">{new Date(selectedEvent.updatedAt).toLocaleDateString()}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[8px] sm:text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Review ID</p>
+                                                        <p className="text-xs sm:text-sm font-black text-gray-900">#RV-{selectedEvent.id}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             
-                                            <div className="flex items-center gap-3 border-l border-black/5 pl-8">
+                                            <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-black/5 pt-6 md:pt-0 md:pl-8">
                                                 <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-indigo-600 font-black text-xs shadow-md border border-gray-100">
                                                     {selectedEvent.user_event_reviewedByIdTouser?.name?.charAt(0) || 'A'}
                                                 </div>
-                                                <div className="hidden sm:block text-right">
-                                                    <p className="font-black text-gray-900 text-sm">{selectedEvent.user_event_reviewedByIdTouser?.name || 'Admin Council'}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Platform Admin</p>
+                                                <div className="text-left md:text-right">
+                                                    <p className="font-black text-gray-900 text-sm whitespace-nowrap">{selectedEvent.user_event_reviewedByIdTouser?.name || 'Admin Council'}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest whitespace-nowrap">Platform Admin</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -307,7 +310,7 @@ const ReviewHistoryTable = ({ history }) => {
                                                                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Tier Name</p>
                                                                     <p className="font-black text-gray-900 uppercase tracking-tight text-sm">{tier.name}</p>
                                                                 </div>
-                                                                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100">${tier.price}</span>
+                                                                <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg border border-indigo-100">{formatPrice(tier.price)}</span>
                                                             </div>
                                                             <div className="flex justify-between items-end border-t border-gray-50 pt-4">
                                                                 <div>
@@ -342,7 +345,7 @@ const ReviewHistoryTable = ({ history }) => {
                                                                 <p className="text-[18px] font-black text-rose-600 tracking-tighter mb-1 font-mono">{promo.code}</p>
                                                                 <div className="flex items-center gap-2 mb-4">
                                                                     <span className="px-2 py-0.5 bg-rose-600 text-white text-[9px] font-black uppercase rounded">
-                                                                        {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `$${promo.discountValue} OFF`}
+                                                                        {promo.discountType === 'PERCENTAGE' ? `${promo.discountValue}% OFF` : `${formatPrice(promo.discountValue)} OFF`}
                                                                     </span>
                                                                 </div>
                                                                 <div className="flex justify-between items-center text-[9px] font-black text-rose-900/40 uppercase tracking-widest pt-3 border-t border-rose-100">
@@ -399,13 +402,13 @@ const ReviewHistoryTable = ({ history }) => {
                                                     Pricing & Capacity
                                                 </h4>
                                                 <div className="grid grid-cols-2 gap-6">
-                                                    <div className="p-6 bg-white rounded-[2rem] border-2 border-gray-100 shadow-xl shadow-gray-200/20 group hover:border-indigo-600 transition-all">
+                                                    <div className="px-4 py-6 bg-white rounded-[2rem] border-2 border-gray-100 shadow-xl shadow-gray-200/20 group hover:border-indigo-600 transition-all">
                                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Ticket Price</p>
-                                                        <p className="text-3xl font-black text-indigo-600 tracking-tighter group-hover:scale-110 transition-transform origin-left">${selectedEvent.ticketPrice}</p>
+                                                        <p className="text-xl font-black text-indigo-600 tracking-tight group-hover:scale-110 transition-transform origin-left">{formatPrice(selectedEvent.ticketPrice)}</p>
                                                     </div>
-                                                    <div className="p-6 bg-white rounded-[2rem] border-2 border-gray-100 shadow-xl shadow-gray-200/20 group hover:border-indigo-600 transition-all">
+                                                    <div className="px-4 py-6 bg-white rounded-[2rem] border-2 border-gray-100 shadow-xl shadow-gray-200/20 group hover:border-indigo-600 transition-all">
                                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Capacity</p>
-                                                        <p className="text-3xl font-black text-gray-900 tracking-tighter group-hover:scale-110 transition-transform origin-left">{selectedEvent.totalTickets}</p>
+                                                        <p className="text-xl font-black text-gray-900 tracking-tight group-hover:scale-110 transition-transform origin-left">{selectedEvent.totalTickets}</p>
                                                     </div>
                                                 </div>
                                             </section>
@@ -429,11 +432,11 @@ const ReviewHistoryTable = ({ history }) => {
                                     </div>
                                 </div>
 
-                                {/* Modal Footer */}
-                                <div className="p-10 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-4">
+                                 {/* Modal Footer */}
+                                <div className="p-6 sm:p-10 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3 sm:gap-4">
                                     <button 
                                         onClick={() => setSelectedEvent(null)}
-                                        className="relative group px-12 py-4 bg-transparent border-2 border-rose-500 text-rose-500 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-300 shadow-lg shadow-rose-500/10 hover:bg-rose-50 active:scale-95"
+                                        className="relative group w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-transparent border-2 border-rose-500 text-rose-500 rounded-xl sm:rounded-[1.5rem] text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all duration-300 shadow-lg shadow-rose-500/10 hover:bg-rose-50 active:scale-95"
                                     >
                                         <span className="relative z-10 transition-colors">Close</span>
                                     </button>

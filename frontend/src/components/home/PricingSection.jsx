@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../router/routes';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const PRICING_POINTS = [
     {
@@ -38,6 +39,7 @@ const PRICING_POINTS = [
 ];
 
 const PricingSection = () => {
+    const { currency } = useCurrency();
     const navigate = useNavigate();
 
     return (
@@ -102,7 +104,7 @@ const PricingSection = () => {
                                         </div>
                                         <div className="h-px bg-white/10 w-12 mx-auto" />
                                         <div className="space-y-1">
-                                            <p className="text-3xl font-black text-white">1.5% + $0.30</p>
+                                            <p className="text-3xl font-black text-white">1.5% + {currency.symbol}0.30</p>
                                             <p className="text-indigo-200 text-[10px] font-bold uppercase tracking-widest leading-tight">
                                                 Processing fee per paid ticket
                                             </p>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import Modal from '../../components/ui/Modal';
@@ -14,6 +15,7 @@ import { eventService } from '../../services/eventService';
 import { useToast } from '../../components/ui/Toast';
 
 const CreateEvent = () => {
+    const { formatPrice, currency } = useCurrency();
     const { addToast } = useToast();
     window._CREATE_EVENT_DEBUG = "V3-DEBUG-" + Date.now();
 
@@ -246,7 +248,7 @@ const CreateEvent = () => {
                                                 <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 flex items-center gap-2 group hover:bg-indigo-600 hover:text-white transition-all duration-300">
                                                     {safeRender(c.code, `promo-code-${i}`)}
                                                     <span className="opacity-50 text-[8px]">/</span>
-                                                    {c.type === 'percentage' ? `${safeRender(c.value, `promo-val-${i}`)}%` : `$${safeRender(c.value, `promo-val-${i}`)}`}
+                                                    {c.type === 'percentage' ? `${safeRender(c.value, `promo-val-${i}`)}%` : formatPrice(safeRender(c.value, `promo-val-${i}`)) }
                                                 </span>
                                             ))}
                                         </div>
@@ -304,9 +306,9 @@ const CreateEvent = () => {
                                         </div>
                                         <div className="flex items-baseline gap-1 mt-3">
                                             <p className="text-3xl font-black text-gray-900 tracking-tighter">
-                                                {formData.price === '0' || formData.price === 0 ? 'Free' : `$${safeRender(formData.price, 'price') || '0.00'}`}
+                                                {formData.price === '0' || formData.price === 0 ? 'Free' : formatPrice(safeRender(formData.price, 'price')) || '0.00'}
                                             </p>
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">USD</span>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{currency.code}</span>
                                         </div>
                                     </div>
 
@@ -412,7 +414,7 @@ const CreateEvent = () => {
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Pricing</span>
-                            <span className="font-bold text-indigo-600">${formData.price} per ticket</span>
+                            <span className="font-bold text-indigo-600">{formatPrice(formData.price)} per ticket</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-gray-500 font-medium">Capacity</span>

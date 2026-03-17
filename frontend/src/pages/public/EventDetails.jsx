@@ -6,6 +6,7 @@ import { ROUTES } from '../../router/routes';
 import { eventService } from '../../services/eventService';
 import DashboardLoader from '../../components/ui/DashboardLoader';
 import { useToast } from '../../components/ui/Toast';
+import { useCurrency } from '../../context/CurrencyContext';
 
 // ── MODERN INFO CHIP COMPONENT (Icon + Label + Description) ──
 const HighlightChip = ({ icon, label, description }) => (
@@ -38,6 +39,7 @@ const EventDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const pageLocation = useLocation();
+    const { formatPrice } = useCurrency();
     const [event, setEvent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -105,8 +107,9 @@ const EventDetails = () => {
     const isAlmostGone  = threshold > 0 && !isSoldOut && ticketsRemaining <= (totalTickets * (threshold / 200));
 
     // Checkout Calculations
+    const feeRate = event.serviceFeeRate || 0.03;
     const subtotal = quantity * ticketPrice;
-    const serviceFee = parseFloat((subtotal * 0.03).toFixed(2));
+    const serviceFee = parseFloat((subtotal * feeRate).toFixed(2));
     const total = subtotal + serviceFee;
 
     const handleCheckout = () => {
@@ -330,7 +333,7 @@ const EventDetails = () => {
                                         {!isSoldOut && <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1 rounded-full font-black uppercase tracking-widest">Available</span>}
                                     </div>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-5xl font-black text-gray-900 tracking-tighter">${ticketPrice}</span>
+                                        <span className="text-5xl font-black text-gray-900 tracking-tighter">{formatPrice(ticketPrice)}</span>
                                         <span className="text-sm font-bold text-gray-400">/ ticket</span>
                                     </div>
                                 </div>
@@ -386,16 +389,16 @@ const EventDetails = () => {
                                             <div className="space-y-4">
                                                 <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
                                                     <span>{quantity} × Ticket</span>
-                                                    <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+                                                    <span className="text-gray-900">{formatPrice(subtotal)}</span>
                                                 </div>
                                                 <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                                    <span>Service Fee (3%)</span>
-                                                    <span className="text-emerald-500 font-black">Included</span>
+                                                    <span>Service Fee ({Math.round(feeRate * 100)}%)</span>
+                                                    <span className="text-emerald-500 font-black">{formatPrice(serviceFee)}</span>
                                                 </div>
                                                 <div className="h-px bg-slate-200 border-dashed border-t" />
                                                 <div className="flex justify-between items-center pt-2">
                                                     <span className="text-xs font-black text-gray-900 uppercase tracking-[0.2em]">Final Total</span>
-                                                    <span className="text-3xl font-black text-indigo-600 tracking-tighter">${total.toFixed(2)}</span>
+                                                    <span className="text-3xl font-black text-indigo-600 tracking-tighter">{formatPrice(total)}</span>
                                                 </div>
                                             </div>
 

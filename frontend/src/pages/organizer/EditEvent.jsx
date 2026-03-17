@@ -11,8 +11,10 @@ import SellingFastToggle from '../../components/organizer/SellingFastToggle';
 import EventAdditionalSettings from '../../components/organizer/EventAdditionalSettings';
 import { ROUTES } from '../../router/routes';
 import { eventService } from '../../services/eventService';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const EditEvent = () => {
+    const { formatPrice } = useCurrency();
     const { eventId } = useParams();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -221,7 +223,7 @@ const EditEvent = () => {
                             <div className="space-y-4">
                                 <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 uppercase tracking-tighter">
                                     <p className="text-[10px] font-black text-gray-400">Price</p>
-                                    <p className="text-xl font-black text-gray-900">${formData.price || '0.00'}</p>
+                                    <p className="text-xl font-black text-gray-900">{formatPrice(formData.price || 0)}</p>
                                 </div>
                                 <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Visibility</p>

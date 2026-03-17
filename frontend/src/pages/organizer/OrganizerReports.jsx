@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import { eventService } from '../../services/eventService';
 import DashboardLoader from '../../components/ui/DashboardLoader';
+import { useCurrency } from '../../context/CurrencyContext';
 
 // ─── Custom Tooltip ────────────────────────────────────────────────────────
 const CustomBarTooltip = ({ active, payload, label }) => {
@@ -29,7 +30,7 @@ const CustomPieTooltip = ({ active, payload }) => {
     return (
         <div className="bg-white border border-gray-100 shadow-xl rounded-2xl px-4 py-3 text-sm">
             <p className="font-black text-gray-900">{payload[0].name}</p>
-            <p className="text-xs font-bold text-emerald-600 mt-1">${payload[0].value?.toLocaleString()}</p>
+            <p className="text-xs font-bold text-emerald-600 mt-1">{payload[0].value?.toLocaleString()}</p>
         </div>
     );
 };
@@ -62,6 +63,7 @@ const PALETTE = ['#6366f1', '#8b5cf6', '#f59e0b', '#10b981', '#f43f5e'];
 const OrganizerReports = () => {
     const [reportData, setReportData] = useState(null);
     const [selectedId, setSelectedId] = useState(null);
+    const { formatPrice, currency } = useCurrency();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -143,11 +145,11 @@ const OrganizerReports = () => {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-                <StatCard label="Net Payout" value={`$${totalNet.toLocaleString()}`} sub="After platform fees"
+                <StatCard label="Net Payout" value={formatPrice(totalNet)} sub="After platform fees"
                     bg="bg-emerald-50" text="text-emerald-600"
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}
                 />
-                <StatCard label="Platform Fees" value={`$${totalFees.toLocaleString()}`} sub="Service charges"
+                <StatCard label="Platform Fees" value={formatPrice(totalFees)} sub="Service charges"
                     bg="bg-indigo-50" text="text-indigo-600"
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>}
                 />
@@ -174,7 +176,7 @@ const OrganizerReports = () => {
                         <BarChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#9ca3af' }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={v => `$${v}`} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={v => `${currency.symbol}${v}`} />
                             <Tooltip content={<CustomBarTooltip />} />
                             <Bar dataKey="revenue" fill="#6366f1" radius={[10, 10, 0, 0]} />
                         </BarChart>
@@ -196,16 +198,21 @@ const OrganizerReports = () => {
             </div>
 
             {/* Event Drilldown */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <SectionTitle title="Event Detail" sub="Select an event for deep dive" />
-                    <select
-                        value={selectedId}
-                        onChange={e => setSelectedId(Number(e.target.value))}
-                        className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
-                    >
-                        {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
-                    </select>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+                    <SectionTitle 
+                        title="Event Detail" 
+                        sub="Select an event for deep dive" 
+                    />
+                    <div className="w-full sm:w-auto">
+                        <select
+                            value={selectedId}
+                            onChange={e => setSelectedId(Number(e.target.value))}
+                            className="w-full sm:w-auto bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+                        >
+                            {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
+                        </select>
+                    </div>
                 </div>
 
                 {selectedDetail && (
@@ -218,13 +225,13 @@ const OrganizerReports = () => {
                                         <span className="text-slate-500 font-medium">Status</span>
                                         <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${selectedDetail.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>{selectedDetail.status}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm font-bold">
+                                    <div className="flex justify-between items-center text-sm font-bold gap-4">
                                         <span className="text-slate-500">Net Payout</span>
-                                        <span className="text-emerald-600 font-black">${(selectedDetail.netPayout || 0).toLocaleString()}</span>
+                                        <span className="text-emerald-600 font-black truncate">{formatPrice(selectedDetail.netPayout || 0)}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm font-bold">
+                                    <div className="flex justify-between items-center text-sm font-bold gap-4">
                                         <span className="text-slate-500">Platform Fee</span>
-                                        <span className="text-rose-500">${(selectedDetail.platformFee || 0).toLocaleString()}</span>
+                                        <span className="text-rose-500 truncate">{formatPrice(selectedDetail.platformFee || 0)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm font-bold">
                                         <span className="text-slate-500">Fee Type</span>

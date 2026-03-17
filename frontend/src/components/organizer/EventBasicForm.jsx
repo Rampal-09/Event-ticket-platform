@@ -1,12 +1,14 @@
 import React from 'react';
 import Input from '../ui/Input';
 import Card from '../ui/Card';
+import { useCurrency } from '../../context/CurrencyContext';
 
 /**
  * EventBasicForm - Pure UI component for basic event details
  * Manages event title, description, location, date, price, and capacity.
  */
 const EventBasicForm = ({ data, onChange }) => {
+    const { currency } = useCurrency();
     return (
         <div className="space-y-10">
             {/* Basic Details */}
@@ -24,16 +26,16 @@ const EventBasicForm = ({ data, onChange }) => {
                         className="group"
                         icon={<svg className="w-5 h-5 text-indigo-400 group-focus-within:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                         <div className="flex flex-col gap-2.5">
-                            <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Category Classification <span className="text-rose-500">*</span></label>
+                            <label className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Category Classification <span className="text-rose-500">*</span></label>
                             <div className="relative group">
                                 <select
                                     required
                                     value={data.category}
                                     onChange={e => onChange('category', e.target.value)}
-                                    className="w-full h-14 px-5 rounded-[1.25rem] border border-gray-100 text-sm bg-gray-50/50 text-gray-900 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 hover:border-indigo-200 transition-all cursor-pointer font-bold appearance-none shadow-sm"
-                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234F46E5' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.25rem center', backgroundSize: '1rem' }}
+                                    className="w-full h-12 sm:h-14 px-4 sm:px-5 rounded-xl sm:rounded-[1.25rem] border border-gray-100 text-sm bg-gray-50/50 text-gray-900 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 hover:border-indigo-200 transition-all cursor-pointer font-bold appearance-none shadow-sm"
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234F46E5' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '0.9rem' }}
                                 >
                                     <option value="Music">Music</option>
                                     <option value="Sports">Sports</option>
@@ -48,9 +50,9 @@ const EventBasicForm = ({ data, onChange }) => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2.5 opacity-50 cursor-not-allowed">
-                            <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Global Currency</label>
-                            <div className="w-full h-14 px-5 rounded-[1.25rem] border border-gray-100 text-sm bg-gray-100/50 text-gray-500 font-bold flex items-center">
-                                💵 United States Dollar (USD)
+                            <label className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Global Currency</label>
+                            <div className="w-full h-12 sm:h-14 px-4 sm:px-5 rounded-xl sm:rounded-[1.25rem] border border-gray-100 text-sm bg-gray-100/50 text-gray-500 font-bold flex items-center">
+                                {currency.flag} {currency.name} ({currency.code})
                             </div>
                         </div>
                     </div>
@@ -69,8 +71,8 @@ const EventBasicForm = ({ data, onChange }) => {
                                 <svg className="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16m-7 6h7" /></svg>
                             </div>
                         </div>
-                        <div className="flex items-center justify-between px-1">
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 mt-1">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
                                 <span className="text-indigo-500">PRO TIP:</span> Markdown formatting is supported.
                             </p>
                             <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-none">Min 100 Characters</span>
@@ -158,7 +160,7 @@ const EventBasicForm = ({ data, onChange }) => {
                                     />
                                 </div>
                                 <div className="space-y-2.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Unit Price ($)</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Unit Price ({currency.symbol})</label>
                                     <Input
                                         type="number"
                                         min="0"

@@ -7,6 +7,7 @@ import { eventService } from '../../services/eventService';
 import DashboardLoader from '../../components/ui/DashboardLoader';
 import { ROUTES } from '../../router/routes';
 import ShareModal from '../../components/events/ShareModal';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const STATUS_STYLES = {
     APPROVED: { label: 'Approved', dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
@@ -16,6 +17,7 @@ const STATUS_STYLES = {
 };
 
 const MyEvents = () => {
+    const { formatPrice } = useCurrency();
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [allEvents, setAllEvents] = useState([]);
@@ -154,7 +156,7 @@ const MyEvents = () => {
                                 </div>
 
                                 {/* 2. Performance Stats */}
-                                <div className="flex items-center gap-10 lg:w-[45%] w-full justify-between">
+                                <div className="flex flex-wrap items-center gap-4 sm:gap-10 lg:w-[45%] w-full justify-between">
                                     <div className="space-y-3 flex-1 min-w-[120px]">
                                         <div className="flex justify-between items-end">
                                             <span className="text-[9px] font-black text-gray-900 uppercase tracking-widest">{event.ticketsSold.toLocaleString()} / {event.totalTickets.toLocaleString()}</span>
@@ -168,12 +170,12 @@ const MyEvents = () => {
                                         </div>
                                     </div>
 
-                                    <div className="px-6 border-x border-gray-50 flex flex-col items-center">
+                                    <div className="px-0 sm:px-6 sm:border-x border-gray-50 flex flex-col items-center min-w-[80px]">
                                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Revenue</span>
-                                        <span className="text-lg font-black text-gray-900 tracking-tighter">${(event.ticketsSold * event.ticketPrice).toLocaleString()}</span>
+                                        <span className="text-base sm:text-lg font-black text-gray-900 tracking-tighter">{formatPrice(event.ticketsSold * event.ticketPrice)}</span>
                                     </div>
 
-                                    <div className="flex flex-col items-center min-w-[70px]">
+                                    <div className="flex flex-col items-center min-w-[80px]">
                                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-tighter border shadow-sm ${st.badge}`}>
                                             <span className={`w-1 h-1 rounded-full animate-pulse ${st.dot}`} />
                                             {st.label}

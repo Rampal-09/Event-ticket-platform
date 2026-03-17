@@ -108,12 +108,12 @@ const Home = () => {
                             <span className="text-[10px] font-black uppercase tracking-widest text-white/90">An Australian-owned ticketing platform built for local events and communities</span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-7xl font-black text-white leading-[1.05] tracking-tight">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight">
                             Discover and Host <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">unforgettable</span> events.
                         </h1>
 
-                        <p className="text-lg sm:text-2xl text-gray-400 max-w-2xl leading-relaxed font-medium">
+                        <p className="text-base sm:text-lg md:text-2xl text-gray-400 max-w-2xl leading-relaxed font-medium">
                             Join millions of people finding concerts, workshops, and festivals. Secure your spot in seconds.
                         </p>
 

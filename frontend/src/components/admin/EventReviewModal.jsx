@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import { useCurrency } from '../../context/CurrencyContext';
 
 /**
  * EventReviewModal - Admin interface for reviewing and moderating events
  */
 const EventReviewModal = ({ isOpen, onClose, event, onApprove, onReject }) => {
+    const { formatPrice } = useCurrency();
     const [rejectionReason, setRejectionReason] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showRejectionForm, setShowRejectionForm] = useState(false);
@@ -49,7 +51,7 @@ const EventReviewModal = ({ isOpen, onClose, event, onApprove, onReject }) => {
                         <h3 className="text-xl font-black text-gray-900 mt-1">{event.title}</h3>
                         <p className="text-sm text-gray-500 font-medium mt-1">Submitted by {event.organizer?.name || (typeof event.organizer === 'string' ? event.organizer : 'Unknown')}</p>
                         <div className="flex gap-4 mt-3 text-xs text-gray-400 font-bold uppercase tracking-widest">
-                            <span>${event.ticketPrice} Ticket</span>
+                            <span>{formatPrice(event.ticketPrice)} Ticket</span>
                             <span>•</span>
                             <span>{new Date(event.eventDate).toLocaleDateString()}</span>
                         </div>

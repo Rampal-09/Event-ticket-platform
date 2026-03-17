@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { useCurrency } from '../../context/CurrencyContext';
 
 /**
  * PromoCodeForm - UI for creating promotional discount codes
  */
 const PromoCodeForm = ({ onSave }) => {
+    const { currency } = useCurrency();
     const [formData, setFormData] = useState({
         code: '',
         type: 'percentage',
@@ -76,13 +78,13 @@ const PromoCodeForm = ({ onSave }) => {
                             onClick={() => { setFormData({ ...formData, type: 'fixed' }); setError(''); }}
                             className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${formData.type === 'fixed' ? 'bg-white text-indigo-600 shadow-md ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'}`}
                         >
-                            Fixed $
+                            Fixed {currency.symbol}
                         </button>
                     </div>
                 </div>
 
                 <Input
-                    label={formData.type === 'percentage' ? "Discount Value (%)" : "Discount Amount ($)"}
+                    label={formData.type === 'percentage' ? "Discount Value (%)" : `Discount Amount (${currency.symbol})`}
                     type="number"
                     placeholder={formData.type === 'percentage' ? "10" : "100"}
                     value={formData.value}

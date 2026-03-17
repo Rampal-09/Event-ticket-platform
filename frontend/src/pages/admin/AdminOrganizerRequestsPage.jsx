@@ -90,29 +90,106 @@ const AdminOrganizerRequestsPage = () => {
                 </div>
             )}
 
-            {/* Tabs */}
-            <div className="flex p-1.5 bg-gray-100/50 border border-gray-100 rounded-2xl w-fit gap-1">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
-                            activeTab === tab.id 
-                            ? 'bg-white text-indigo-600 shadow-md border border-gray-100' 
-                            : 'text-gray-400 hover:text-gray-600'
-                        }`}
-                    >
-                        {tab.label}
-                        <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === tab.id ? 'bg-indigo-50 text-indigo-500' : 'bg-gray-200 text-gray-500'}`}>
-                            {tab.count}
-                        </span>
-                    </button>
-                ))}
+            {/* Tabs - Scrollable on mobile */}
+            <div className="flex overflow-x-auto pb-2 -mx-2 sm:mx-0 px-2 sm:px-0 no-scrollbar">
+                <div className="flex p-1.5 bg-gray-100/50 border border-gray-100 rounded-2xl w-fit gap-1 shrink-0">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
+                                activeTab === tab.id 
+                                ? 'bg-white text-indigo-600 shadow-md border border-gray-100' 
+                                : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            {tab.label}
+                            <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${activeTab === tab.id ? 'bg-indigo-50 text-indigo-500' : 'bg-gray-200 text-gray-500'}`}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            {/* Content Table */}
+            {/* Content Table / Cards */}
             <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Mobile Card View */}
+                <div className="block lg:hidden divide-y divide-gray-50">
+                    {isLoading ? (
+                        <div className="px-8 py-20 text-center">
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                                <span className="text-xs font-black text-gray-400 uppercase tracking-widest animate-pulse">Analyzing Registry...</span>
+                            </div>
+                        </div>
+                    ) : requests.length === 0 ? (
+                        <div className="px-8 py-20 text-center">
+                            <div className="max-w-xs mx-auto space-y-3 opacity-40">
+                                <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                <p className="text-sm font-bold text-gray-500">No organizational records found matching this filter.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        requests.map((req) => (
+                            <div key={req.id} className="p-6 space-y-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-sm">
+                                            {req.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <div className="font-black text-gray-900 tracking-tight text-sm">{req.name}</div>
+                                            <div className="text-[11px] font-bold text-gray-400 truncate max-w-[150px]">{req.email}</div>
+                                        </div>
+                                    </div>
+                                    <StatusBadge status={req.organizerStatus} />
+                                </div>
+                                
+                                <div className="flex items-center justify-between text-[11px] font-bold">
+                                    <span className="text-gray-400 uppercase tracking-widest">Applied</span>
+                                    <span className="text-gray-700">
+                                        {new Date(req.createdAt).toLocaleDateString(undefined, {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}
+                                    </span>
+                                </div>
+
+                                <div className="pt-2">
+                                    {req.organizerStatus === 'PENDING' ? (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                onClick={() => handleReject(req.id)}
+                                                disabled={actionLoading === req.id}
+                                                className="w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 border border-rose-100 disabled:opacity-50"
+                                            >
+                                                Reject
+                                            </button>
+                                            <button
+                                                onClick={() => handleApprove(req.id)}
+                                                disabled={actionLoading === req.id}
+                                                className="w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100 disabled:opacity-50"
+                                            >
+                                                Approve
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-2 bg-gray-50 rounded-xl text-[9px] font-black text-gray-300 uppercase tracking-widest">
+                                            Processed
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-gray-50/50 border-b border-gray-100">
@@ -144,7 +221,7 @@ const AdminOrganizerRequestsPage = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                requests.map((req, idx) => (
+                                requests.map((req) => (
                                     <tr key={req.id} className="hover:bg-gray-50/30 transition-colors group">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">

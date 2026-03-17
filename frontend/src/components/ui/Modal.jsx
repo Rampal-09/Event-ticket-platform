@@ -21,7 +21,7 @@ const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm"

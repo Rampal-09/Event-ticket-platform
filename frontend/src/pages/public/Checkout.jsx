@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useCurrency } from '../../context/CurrencyContext';
 import PublicLayout from '../../layouts/PublicLayout';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -14,6 +15,7 @@ const EVENT_MOCK = {
 
 const Checkout = () => {
     const navigate = useNavigate();
+    const { formatPrice, currency } = useCurrency();
     const [step, setStep] = useState(1); // 1 = Info, 2 = Payment
     const [formData, setFormData] = useState({ name: '', email: '', quantity: 1 });
     const [promoCode, setPromoCode] = useState('');
@@ -252,7 +254,7 @@ const Checkout = () => {
                                             {appliedPromo && (
                                                 <div className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
                                                     <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Code Applied: {appliedPromo.code}</span>
-                                                    <span className="text-emerald-400 font-black">-${appliedPromo.discount.toFixed(2)}</span>
+                                                    <span className="text-emerald-400 font-black">-{formatPrice(appliedPromo.discount)}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -261,9 +263,9 @@ const Checkout = () => {
                                             <div className="flex justify-between items-center">
                                                 <div className="space-y-1">
                                                     <p className="text-sm font-black uppercase tracking-widest text-white">General Access</p>
-                                                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{formData.quantity} × ${EVENT_MOCK.price}.00</p>
+                                                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{formData.quantity} × {formatPrice(EVENT_MOCK.price)}</p>
                                                 </div>
-                                                <span className="text-xl font-black tracking-tighter">${total.toFixed(2)}</span>
+                                                <span className="text-xl font-black tracking-tighter">{formatPrice(total)}</span>
                                             </div>
                                             <div className="flex justify-between items-center">
                                                 <div className="space-y-1">
@@ -271,7 +273,7 @@ const Checkout = () => {
                                                     <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{isBuyerCovering ? 'Platform Processing Fee' : 'Covered by Organiser'}</p>
                                                 </div>
                                                 <span className={`text-xl font-black tracking-tighter ${!isBuyerCovering && 'text-emerald-500'}`}>
-                                                    {isBuyerCovering ? `$${serviceFee.toFixed(2)}` : 'FREE'}
+                                                    {isBuyerCovering ? formatPrice(serviceFee) : 'FREE'}
                                                 </span>
                                             </div>
                                         </div>
@@ -282,10 +284,10 @@ const Checkout = () => {
                                             <div>
                                                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.25em] mb-2">Total Exposure</p>
                                                 <span className="text-5xl font-black tracking-tighter">
-                                                    ${(total + serviceFee - (appliedPromo?.discount || 0)).toFixed(2)}
+                                                    {formatPrice(total + serviceFee - (appliedPromo?.discount || 0))}
                                                 </span>
                                             </div>
-                                            <p className="text-[11px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 underline decoration-2">USD</p>
+                                            <p className="text-[11px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 underline decoration-2">{currency.code}</p>
                                         </div>
                                         <div className="p-4 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

@@ -1,11 +1,13 @@
 import React from 'react';
 import Button from '../ui/Button';
+import { useCurrency } from '../../context/CurrencyContext';
 
 /**
  * CheckoutButton - Final action button for checkout.
  * Shows "Register for Free" for free events, otherwise "Pay $X & Get Tickets".
  */
 const CheckoutButton = ({ isLoading, disabled, totalAmount, isFree }) => {
+    const { formatPrice } = useCurrency();
     return (
         <Button
             type="submit"
@@ -20,7 +22,7 @@ const CheckoutButton = ({ isLoading, disabled, totalAmount, isFree }) => {
                 </svg>
             )}
         >
-            {isFree ? 'Register for Free' : `Pay $${totalAmount} & Get Tickets`}
+            {isFree ? 'Register for Free' : `Pay ${formatPrice(totalAmount)} & Get Tickets`}
         </Button>
     );
 };

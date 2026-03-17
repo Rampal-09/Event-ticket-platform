@@ -5,8 +5,10 @@ import Button from '../../components/ui/Button';
 import { ROUTES } from '../../router/routes';
 import DashboardLoader from '../../components/ui/DashboardLoader';
 import ShareModal from '../../components/events/ShareModal';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const OrganizerEventDetails = () => {
+    const { formatPrice } = useCurrency();
     const { eventId } = useParams();
     const navigate = useNavigate();
     const [event, setEvent] = useState(null);
@@ -221,7 +223,7 @@ const OrganizerEventDetails = () => {
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-1">Total Revenue</p>
-                                    <p className="text-3xl font-black tabular-nums">${(event.ticketsSold * event.ticketPrice).toLocaleString()}</p>
+                                    <p className="text-3xl font-black tabular-nums">{formatPrice(event.ticketsSold * event.ticketPrice)}</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-1">Tickets Sold</p>
@@ -280,7 +282,7 @@ const OrganizerEventDetails = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Pricing</p>
-                                    <p className="font-bold text-gray-900 mt-1">${event.ticketPrice.toLocaleString()} per ticket</p>
+                                    <p className="font-bold text-gray-900 mt-1">{formatPrice(event.ticketPrice)} per ticket</p>
                                     <p className="text-sm text-gray-500 mt-0.5">Standard Admission</p>
                                 </div>
                             </div>

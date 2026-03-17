@@ -1,5 +1,6 @@
 import React from 'react';
 import { calcCheckoutBreakdown } from '../../utils/feeCalculator';
+import { useCurrency } from '../../context/CurrencyContext';
 
 /**
  * PriceBreakdown - Displays transparent fee breakdown.
@@ -7,6 +8,7 @@ import { calcCheckoutBreakdown } from '../../utils/feeCalculator';
  * Paid events show 1.5% + $0.30 per ticket.
  */
 const PriceBreakdown = ({ ticketPrice, quantity, discount = null }) => {
+    const { formatPrice, currency } = useCurrency();
     const { subtotal, feePerTicket, totalFee, discountAmount, total, isFree } =
         calcCheckoutBreakdown(ticketPrice, quantity, discount);
 
@@ -28,7 +30,7 @@ const PriceBreakdown = ({ ticketPrice, quantity, discount = null }) => {
                     <div className="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center">
                         <span className="text-base font-black text-gray-900">Total</span>
                         <div className="text-right">
-                            <span className="text-2xl font-black text-emerald-600">$0.00</span>
+                            <span className="text-2xl font-black text-emerald-600">{formatPrice(0)}</span>
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Free Registration</p>
                         </div>
                     </div>
@@ -42,26 +44,26 @@ const PriceBreakdown = ({ ticketPrice, quantity, discount = null }) => {
             <h4 className="text-sm font-bold text-gray-900">Price Breakdown</h4>
             <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center text-gray-500">
-                    <span>{quantity} × Ticket (${ticketPrice.toFixed(2)})</span>
-                    <span className="font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
+                    <span>{quantity} × Ticket ({formatPrice(ticketPrice)})</span>
+                    <span className="font-semibold text-gray-900">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between items-center text-gray-500">
                     <div>
                         <span>Processing Fee</span>
-                        <p className="text-[10px] text-gray-400 mt-0.5">1.5% + $0.30 per ticket × {quantity}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">1.5% + {currency.symbol}0.30 per ticket × {quantity}</p>
                     </div>
-                    <span className="font-semibold text-gray-900">${totalFee.toFixed(2)}</span>
+                    <span className="font-semibold text-gray-900">{formatPrice(totalFee)}</span>
                 </div>
                 {discountAmount > 0 && (
                     <div className="flex justify-between items-center text-emerald-600 font-bold">
                         <span>Discount ({discount.code})</span>
-                        <span>−${discountAmount.toFixed(2)}</span>
+                        <span>−{formatPrice(discountAmount)}</span>
                     </div>
                 )}
                 <div className="pt-4 border-t border-dashed border-gray-200 flex justify-between items-center">
                     <span className="text-base font-black text-gray-900">Total</span>
                     <div className="text-right">
-                        <span className="text-2xl font-black text-indigo-600">${total.toFixed(2)}</span>
+                        <span className="text-2xl font-black text-indigo-600">{formatPrice(total)}</span>
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Secure Payment</p>
                     </div>
                 </div>

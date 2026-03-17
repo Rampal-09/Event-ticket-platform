@@ -3,6 +3,7 @@ import Button from '../ui/Button';
 import TicketsLeftBadge from './TicketsLeftBadge';
 import SellingFastBadge from './SellingFastBadge';
 import { getOptimizedImageUrl } from '../../utils/cloudinary';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const GRADIENT_TOPS = [
     'from-violet-400 to-indigo-600',
@@ -14,6 +15,7 @@ const GRADIENT_TOPS = [
 
 const EventCard = ({ event, onBuyClick, index = 0 }) => {
     if (!event) return null;
+    const { formatPrice } = useCurrency();
 
     // Support multiple image field names from the data
     const { title, location, eventDate, ticketPrice, description, image, imageUrl, banner, totalTickets, ticketsSold } = event;
@@ -73,7 +75,7 @@ const EventCard = ({ event, onBuyClick, index = 0 }) => {
 
                 {/* Price Badge — always shown */}
                 <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md text-white font-black text-base px-3 py-1.5 rounded-xl border border-white/20 z-10">
-                    ${ticketPrice}
+                    {formatPrice(ticketPrice)}
                 </div>
 
                 {/* Urgency Badge */}
